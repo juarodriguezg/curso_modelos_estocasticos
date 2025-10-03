@@ -1,3 +1,5 @@
+import Footer from "@/components/Footer"
+
 export default function Temas() {
   const temas = [
     {
@@ -8,28 +10,29 @@ export default function Temas() {
     {
       titulo: "Cadenas de Markov",
       descripcion: "Procesos estocásticos con memoria de un paso, aplicaciones y ejemplos.",
-      enlace: "/temas/variables",
+      enlace: "/temas/markov",
     },
     {
       titulo: "Procesos de Poisson",
       descripcion: "Modelos de conteo, intervalos entre llegadas y usos en sistemas reales.",
-      enlace: "/temas/variables",
+      enlace: "/temas/poisson",
     },
     {
       titulo: "Teoría de Colas",
       descripcion: "Modelos de espera, rendimiento y simulaciones M/M/1, M/M/c.",
-      enlace: "/temas/variables",
+      enlace: "/temas/colas",
     },
   ]
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-200 p-10">
-      <div className="max-w-4xl mx-auto">
+    <main className="min-h-screen flex flex-col [background:var(--color-background)]">
+      {/* Contenido principal */}
+      <div className="flex-grow max-w-4xl mx-auto p-10">
         {/* Encabezado */}
-        <h1 className="text-4xl font-bold text-indigo-700 mb-6 text-center">
+        <h1 className="text-4xl font-bold [color:var(--color-header)] mb-6 text-center">
           Directorio de Temas
         </h1>
-        <p className="text-center text-lg text-gray-700 mb-10">
+        <p className="text-center text-lg [color:var(--color-text-medium)] mb-10">
           Selecciona un tema para acceder a los contenidos del curso.
         </p>
 
@@ -39,12 +42,12 @@ export default function Temas() {
             <a
               key={index}
               href={tema.enlace}
-              className="block bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition"
+              className="[background:var(--color-section)] p-6 rounded-xl shadow-md hover:shadow-lg transition block"
             >
-              <h2 className="text-2xl font-semibold text-indigo-600 mb-2">
+              <h2 className="text-2xl font-semibold [color:var(--color-header)] mb-2">
                 {tema.titulo}
               </h2>
-              <p className="text-gray-700">{tema.descripcion}</p>
+              <p className="[color:var(--color-text-light)]">{tema.descripcion}</p>
             </a>
           ))}
         </div>
@@ -53,13 +56,15 @@ export default function Temas() {
         <div className="text-center mt-12">
           <a
             href="/"
-            className="px-6 py-3 bg-indigo-600 text-white rounded-full shadow-lg hover:bg-indigo-700 transition"
+            className="px-6 py-3 [background:var(--color-button)] [color:var(--color-text-light)] rounded-full shadow-lg hover:[background:var(--color-section)] transition"
           >
             ← Volver al inicio
           </a>
         </div>
       </div>
+
+      {/* Footer fijo al fondo */}
+      <Footer />
     </main>
   )
 }
-
