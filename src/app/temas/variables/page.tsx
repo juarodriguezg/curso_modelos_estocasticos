@@ -1,98 +1,69 @@
-import Footer from "@/components/Footer"
-import Sidebar from "@/components/Sidebar"
+import ClassLayout from "@/components/ClassLayout"
+import { BlockMath, InlineMath } from "react-katex"
 
 export default function Variables() {
   return (
-    <div className="flex min-h-screen [background:var(--color-background)]">
-      {/* Sidebar fijo a la izquierda */}
-      <Sidebar />
+    <ClassLayout
+      title="Variables Aleatorias"
+      videoUrl="https://www.youtube.com/embed/U33OftLWdu4"
+      materialUrl="/documents/ME01 Enunciado y entrega del Taller No  01 Simulación de MANET.pdf"
+      tareas={[
+        {
+          nombre: "Tarea 4: Experimentos aleatorios y espacios de probabilidad",
+          enlace: "/documents/MEXX ListaOficialDeTareas lunes 29 de septiembre de 2025.pdf#page=6",
+        },
+        {
+          nombre: "Tarea 5: Función de probabilidad alternativa",
+          enlace: "/documents/MEXX ListaOficialDeTareas lunes 29 de septiembre de 2025.pdf#page=7",
+        },
+      ]}
+      resumen={
+        <>
+          <p>
+                Una <strong>variable aleatoria</strong> es una función matemática que asigna
+                valores numéricos a los resultados de un experimento aleatorio. Formalmente,
+                si el espacio muestral se denota como <InlineMath math="\Omega" />, una variable
+                aleatoria es una función
+                <InlineMath math="X: \Omega \to \mathbb{R}" />.
+              </p>
 
-      {/* Contenedor principal */}
-      <div className="flex flex-col flex-grow">
-        {/* Encabezado */}
-        <header className="flex justify-between items-center [background:var(--color-header)] px-8 py-4 shadow-md">
-          <div className="flex-1"></div>
+              <p>
+                Existen dos tipos principales de variables aleatorias:
+                <em> discretas</em>, que toman valores finitos o contables, y
+                <em> continuas</em>, que pueden tomar un número infinito de valores dentro de
+                un intervalo. 
+              </p>
 
-          <h1 className="text-3xl font-bold [color:var(--color-text-light)] text-center flex-1">
-            Variables Aleatorias
-          </h1>
+              <p>
+                Para una variable aleatoria discreta, la probabilidad de que tome un valor{" "}
+                <InlineMath math="x_i" /> está dada por una <strong>función de probabilidad</strong>:
+              </p>
+              <BlockMath math="P(X = x_i) = p(x_i), \quad \sum_i p(x_i) = 1" />
 
-          <div className="flex-1 text-right">
-            <a
-              href="/temas"
-              className="px-4 py-2 [background:var(--color-button)] [color:var(--color-text-light)] rounded-md hover:[background:var(--color-section)] transition"
-            >
-              Volver a Temas
-            </a>
-          </div>
-        </header>
+              <p>
+                En el caso de variables continuas, se define una{" "}
+                <strong>función de densidad de probabilidad</strong> (fdp), tal que:
+              </p>
+              <BlockMath math="P(a \leq X \leq b) = \int_a^b f(x)\,dx, \quad \int_{-\infty}^{\infty} f(x)\,dx = 1" />
 
-        {/* Contenido */}
-        <main className="flex-grow max-w-4xl mx-auto p-8 space-y-12">
-          {/* Recurso 1 */}
-          <section className="[background:var(--color-section)] p-6 rounded-lg shadow-md">
-            <h2 className="text-2xl font-semibold [color:var(--color-text-dark)] mb-3">
-              Recurso 1: Resumen
-            </h2>
-            <p className="[color:var(--color-text-light)] leading-relaxed">
-              Una <strong>variable aleatoria</strong> es una función que asigna un valor
-              numérico a cada resultado posible de un experimento aleatorio. Existen
-              dos tipos principales: <em>discretas</em> y <em>continuas</em>. Son esenciales
-              en probabilidad y estadística porque permiten modelar la incertidumbre
-              y analizar fenómenos en ingeniería, ciencias sociales y economía.
-            </p>
-          </section>
+              <p>
+                La <strong>esperanza matemática</strong> es un valor central de la variable:
+              </p>
+              <BlockMath math="E[X] = \sum_i x_i p(x_i) \quad \text{(discreta)} \quad \text{o} \quad E[X] = \int_{-\infty}^{\infty} x f(x)\,dx \quad \text{(continua)}" />
 
-          {/* Recurso 2 */}
-          <section className="[background:var(--color-section)] p-6 rounded-lg shadow-md">
-            <h2 className="text-2xl font-semibold [color:var(--color-text-dark)] mb-3">
-              Recurso 2: Video introductorio
-            </h2>
-            <div className="aspect-video">
-              <iframe
-                className="w-full h-full rounded-lg shadow-md"
-                src="https://www.youtube.com/embed/U33OftLWdu4"
-                title="Video sobre Variables Aleatorias"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-                loading="lazy"
-              ></iframe>
-            </div>
-          </section>
+              <p>
+                El <strong>valor esperado</strong> y la <strong>varianza</strong> permiten describir
+                la tendencia central y la dispersión de la variable, siendo la varianza:
+              </p>
+              <BlockMath math="\text{Var}(X) = E[(X - E[X])^2]" />
 
-          {/* Recurso 3 */}
-          <section className="[background:var(--color-section)] p-6 rounded-lg shadow-md">
-            <h2 className="text-2xl font-semibold [color:var(--color-text-dark)] mb-3">
-              Recurso 3: Material complementario
-            </h2>
-            <p className="[color:var(--color-text-medium)] mb-4">
-              Puedes descargar el siguiente archivo PDF como recurso de apoyo:
-            </p>
-            <a
-              href="/documents/ME01 Enunciado y entrega del Taller No  01 Simulación de MANET.pdf"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-6 py-3 [background:var(--color-button)] [color:var(--color-text-light)] rounded-lg shadow hover:[background:var(--color-section)] transition"
-            >
-              Descargar PDF
-            </a>
-          </section>
-
-          {/* Recurso 4 */}
-          <section className="[background:var(--color-section)] p-6 rounded-lg shadow-md">
-            <h2 className="text-2xl font-semibold [color:var(--color-text-dark)] mb-3">
-              Recurso 4: Ejercicios y práctica
-            </h2>
-            <p className="[color:var(--color-text-light)]">
-              Aquí se pueden incluir actividades, problemas o un enlace a una plataforma
-              externa donde los estudiantes resuelvan ejercicios de práctica.
-            </p>
-          </section>
-        </main>
-
-        {/* Footer (debajo del contenido, no del sidebar) */}
-        <Footer />
-      </div>
-    </div>
+              <p>
+                Estas nociones son fundamentales para modelar fenómenos aleatorios en ingeniería,
+                economía, ciencias sociales y computación, proporcionando herramientas matemáticas
+                para analizar la incertidumbre y tomar decisiones informadas.
+              </p>
+        </>
+      }
+    />
   )
 }
