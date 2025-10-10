@@ -1,113 +1,332 @@
 "use client"
+
 import { useState } from "react"
 import Link from "next/link"
-import { Home, Calendar, BookOpen, Settings, Menu } from "lucide-react"
+import {
+  Home,
+  Calendar,
+  ChevronDown,
+  ChevronRight,
+  BookOpen,
+  Menu,
+} from "lucide-react"
+
+interface Subtema {
+  titulo: string
+  enlace?: string
+}
+
+interface Seccion {
+  titulo: string
+  subtemas?: Subtema[]
+  enlace?: string
+}
+
+interface Parte {
+  titulo: string
+  secciones: Seccion[]
+}
 
 export default function Sidebar() {
-  const [open, setOpen] = useState(true)
-  const [mobileOpen, setMobileOpen] = useState(false)
-  const [openCursos, setOpenCursos] = useState(true)
+  const [isCollapsed, setIsCollapsed] = useState(false)
+  const [openPartes, setOpenPartes] = useState<string[]>([])
+  const [openSecciones, setOpenSecciones] = useState<string[]>([])
 
-  const cursos = [
-    { titulo: "Variables Aleatorias", enlace: "/temas/variables" },
-    { titulo: "Cadenas de Markov", enlace: "/temas/markov" },
-    { titulo: "Procesos de Poisson", enlace: "/temas/poisson" },
-    { titulo: "Teoría de Colas", enlace: "/temas/colas" },
+  const toggleParte = (parte: string) => {
+    setOpenPartes((prev) =>
+      prev.includes(parte)
+        ? prev.filter((p) => p !== parte)
+        : [...prev, parte]
+    )
+  }
+
+  const toggleSeccion = (seccion: string) => {
+    setOpenSecciones((prev) =>
+      prev.includes(seccion)
+        ? prev.filter((s) => s !== seccion)
+        : [...prev, seccion]
+    )
+  }
+
+  const toggleSidebar = () => setIsCollapsed(!isCollapsed)
+
+  // Estructura del curso
+  const contenido: Parte[] = [
+    {
+      titulo: "Parte 1: Vectores Aleatorios",
+      secciones: [
+        { titulo: "Experimentos aleatorios y espacios de probabilidad" },
+        { titulo: "Variables y vectores aleatorios" },
+        { titulo: "Esperanza matemática" },
+        { titulo: "Transformaciones de vectores aleatorios" },
+      ],
+    },
+    {
+      titulo: "Parte 2: Procesos Estocásticos",
+      secciones: [
+        {
+          titulo: "Procesos estocásticos",
+          subtemas: [
+            {
+              titulo:
+                "Definición de serie de tiempo y de proceso estocástico",
+            },
+          ],
+        },
+        {
+          titulo: "Series de tiempo",
+          subtemas: [
+            { titulo: "Funciones de autocovarianza y autocorrelación" },
+            { titulo: "Procesos de ruido blanco" },
+            {
+              titulo:
+                "Estimación de funciones de la media, autocovarianza y autocorrelación",
+            },
+            { titulo: "Modelos de series de tiempo estacionarios" },
+          ],
+        },
+        {
+          titulo: "Razonamiento probabilístico",
+          subtemas: [{ titulo: "Cadenas de Markov" }],
+        },
+      ],
+    },
+    {
+      titulo: "Parte 3: Teoría del Teletráfico",
+      secciones: [
+        {
+          titulo: "Modelo M/M/1 en detalle",
+          subtemas: [
+            { titulo: "Notación de Kendall y medidas de desempeño" },
+            { titulo: "Sistemas de líneas de espera (M/M/1)" },
+            { titulo: "Ley de Little y teorema de Burke" },
+          ],
+        },
+        {
+          titulo: "Modelo M/M/1 de estado dependiente",
+          subtemas: [
+            { titulo: "Sistema general de estado dependiente" },
+            { titulo: "Fórmulas B, B extendida y C" },
+            { titulo: "Sistemas de línea de espera (G/G/1)" },
+          ],
+        },
+      ],
+    },
+    {
+      titulo: "Parte 4: Simulación de Redes de Telecomunicaciones",
+      secciones: [
+        {
+          titulo: "Teorema fundamental unidimensional",
+          subtemas: [
+            {
+              titulo:
+                "Funciones percentiles conjuntas y teorema fundamental de la simulación",
+            },
+            {
+              titulo:
+                "Arquitectura general de un simulador de sistemas complejos",
+            },
+            {
+              titulo:
+                "Funciones percentiles truncadas y contaminadas conjuntas",
+            },
+          ],
+        },
+        {
+          titulo: "Teorema fundamental multidimensional",
+          subtemas: [
+            { titulo: "Modelos de movilidad" },
+            {
+              titulo:
+                "Lenguajes de programación para simulación de redes",
+            },
+          ],
+        },
+        {
+          titulo: "Funciones percentiles generalizadas",
+          subtemas: [
+            { titulo: "Funciones percentiles generalizadas (DLG)" },
+          ],
+        },
+      ],
+    },
+    {
+      titulo: "Parte 5: Teoría de la Decisión",
+      secciones: [
+        { titulo: "Decisiones bajo incertidumbre" },
+        { titulo: "Teoría de la utilidad" },
+        { titulo: "Teoría del riesgo y árboles de decisión" },
+        { titulo: "Entropía y valor de la información" },
+        { titulo: "Decisiones en comunidades de agentes" },
+        { titulo: "Decisiones multiobjetivo" },
+      ],
+    },
+    {
+      titulo: "Parte 6: Convergencia en Probabilidad y Distribución",
+      secciones: [
+        {
+          titulo: "Convergencia en variables aleatorias",
+          subtemas: [
+            { titulo: "Muestreo y distribuciones muestrales" },
+            { titulo: "Estimación puntual y por intervalos" },
+            { titulo: "Prueba de hipótesis" },
+            { titulo: "Convergencia y teoremas límite" },
+          ],
+        },
+        {
+          titulo: "Convergencia en vectores aleatorios",
+          subtemas: [
+            { titulo: "Ley de los grandes números para vectores" },
+            { titulo: "Teorema del límite central" },
+          ],
+        },
+      ],
+    },
   ]
 
   return (
-    <>
-      {/* Botón hamburguesa en móviles */}
-      <button
-        onClick={() => setMobileOpen(true)}
-        className="md:hidden p-3 fixed top-4 left-4 z-50 rounded-md"
-        style={{ backgroundColor: "var(--color-button)", color: "var(--color-text-light)" }}
+    <aside
+      className={`fixed top-0 left-0 h-screen transition-all duration-300 shadow-lg overflow-y-auto ${
+        isCollapsed ? "w-20" : "w-80"
+      }`}
+      style={{
+        backgroundColor: "var(--color-section)",
+        color: "var(--color-text-light)",
+      }}
+    >
+      {/* Header */}
+      <div
+        className="flex items-center justify-between px-4 py-4 font-bold text-lg border-b"
+        style={{
+          backgroundColor: "var(--color-header)",
+          borderColor: "var(--color-button)",
+        }}
       >
-        <Menu size={20} />
-      </button>
-
-      {/* Sidebar */}
-      <aside
-        className={`
-          fixed top-0 left-0 h-screen shadow-md transition-all duration-300
-          ${open ? "w-64" : "w-16"}
-          ${mobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
-        `}
-        style={{ backgroundColor: "var(--color-section)", color: "var(--color-text-light)" }}
-      >
-        {/* Header del sidebar */}
-        <div
-          className="flex items-center justify-between py-5 px-4 font-bold text-lg shadow-md"
-          style={{ backgroundColor: "var(--color-header)", color: "var(--color-text-light)" }}
+        {!isCollapsed && (
+          <span className="flex items-center gap-2">
+            <BookOpen size={22} /> Curso
+          </span>
+        )}
+        <button
+          onClick={toggleSidebar}
+          className="ml-auto p-1 rounded hover:bg-[color:var(--color-button)] transition"
         >
-          {open && <span> Curso</span>}
-          <button
-            onClick={() => (mobileOpen ? setMobileOpen(false) : setOpen(!open))}
-            className="ml-auto"
-          >
-            {mobileOpen ? "✖" : open ? "⇤" : "⇥"}
-          </button>
-        </div>
+          <Menu size={22} />
+        </button>
+      </div>
 
-        {/* Links principales */}
-        <nav className="flex-1 overflow-y-auto px-2 py-4">
+      {/* Navegación */}
+      <nav className="px-4 py-4 text-[1rem] text-left space-y-2">
+        {/* Accesos rápidos */}
+        <div className="space-y-2 mb-4">
           <Link
             href="/"
             className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-[color:var(--color-button)] transition"
           >
-            <Home size={18} />
-            {open && <span>Inicio</span>}
+            <Home size={20} />
+            {!isCollapsed && <span>Inicio</span>}
           </Link>
-
           <Link
             href="/calendario"
             className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-[color:var(--color-button)] transition"
           >
-            <Calendar size={18} />
-            {open && <span>Calendario</span>}
-          </Link>
-
-          {/* Sección de cursos */}
-          <div className="mt-6">
-            <button
-              onClick={() => setOpenCursos(!openCursos)}
-              className="flex items-center justify-between w-full px-3 py-2 font-semibold rounded-md hover:bg-[color:var(--color-button)]"
-            >
-              <span className="flex items-center gap-3">
-                <BookOpen size={18} />
-                {open && "Cursos"}
-              </span>
-              {open && <span>{openCursos ? "▾" : "▸"}</span>}
-            </button>
-
-            {open && openCursos && (
-              <ul className="mt-2 pl-6 space-y-1 text-sm">
-                {cursos.map((curso, idx) => (
-                  <li key={idx}>
-                    <Link
-                      href={curso.enlace}
-                      className="block px-2 py-1 rounded hover:bg-[color:var(--color-button)]"
-                    >
-                      {curso.titulo}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-        </nav>
-
-        {/* Footer del sidebar */}
-        <div className="px-3 py-4 border-t border-[color:var(--color-button)]">
-          <Link
-            href="/ajustes"
-            className="flex items-center gap-3 px-2 py-2 rounded-md hover:bg-[color:var(--color-button)] transition"
-          >
-            <Settings size={18} />
-            {open && <span>Ajustes</span>}
+            <Calendar size={20} />
+            {!isCollapsed && <span>Calendario</span>}
           </Link>
         </div>
-      </aside>
-    </>
+
+        {/* Estructura */}
+        {!isCollapsed &&
+          contenido.map((parte, i) => (
+            <div key={i} className="mb-3 text-left">
+              {/* Parte */}
+              <button
+                onClick={() => toggleParte(parte.titulo)}
+                className="flex w-full items-start justify-between font-semibold py-2 px-2 rounded-md hover:bg-[color:var(--color-button)] transition text-left"
+              >
+                <span className="text-left leading-snug">
+                  {parte.titulo}
+                </span>
+                {openPartes.includes(parte.titulo) ? (
+                  <ChevronDown
+                    size={18}
+                    className="mt-1 flex-shrink-0"
+                  />
+                ) : (
+                  <ChevronRight
+                    size={18}
+                    className="mt-1 flex-shrink-0"
+                  />
+                )}
+              </button>
+
+              {/* Secciones */}
+              {openPartes.includes(parte.titulo) && (
+                <div className="pl-4 space-y-1 mt-1">
+                  {parte.secciones.map((sec, j) => {
+                    const secLink = `/temas/${sec.titulo
+                      .toLowerCase()
+                      .replaceAll(/[()–.]/g, "")
+                      .replaceAll(/\s+/g, "-")}`
+
+                    return (
+                      <div key={j}>
+                        {sec.subtemas ? (
+                          <>
+                            <button
+                              onClick={() => toggleSeccion(sec.titulo)}
+                              className="flex w-full items-start justify-between text-sm font-medium py-1 px-2 rounded-md hover:bg-[color:var(--color-button)] transition text-left"
+                            >
+                              <span className="text-left leading-snug">
+                                {sec.titulo}
+                              </span>
+                              {openSecciones.includes(sec.titulo) ? (
+                                <ChevronDown
+                                  size={14}
+                                  className="mt-1 flex-shrink-0"
+                                />
+                              ) : (
+                                <ChevronRight
+                                  size={14}
+                                  className="mt-1 flex-shrink-0"
+                                />
+                              )}
+                            </button>
+
+                            {openSecciones.includes(sec.titulo) && (
+                              <ul className="pl-4 mt-1 text-sm space-y-1">
+                                {sec.subtemas.map((sub, k) => (
+                                  <li key={k}>
+                                    <Link
+                                      href={`/temas/${sub.titulo
+                                        .toLowerCase()
+                                        .replaceAll(/[()–.]/g, "")
+                                        .replaceAll(/\s+/g, "-")}`}
+                                      className="block px-2 py-1 rounded hover:bg-[color:var(--color-button)] transition text-left"
+                                    >
+                                      {sub.titulo}
+                                    </Link>
+                                  </li>
+                                ))}
+                              </ul>
+                            )}
+                          </>
+                        ) : (
+                          <Link
+                            href={secLink}
+                            className="block w-full text-sm font-medium py-1 px-2 rounded-md hover:bg-[color:var(--color-button)] transition text-left"
+                          >
+                            {sec.titulo}
+                          </Link>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
+          ))}
+      </nav>
+    </aside>
   )
 }

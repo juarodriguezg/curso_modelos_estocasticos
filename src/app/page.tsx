@@ -1,44 +1,105 @@
-import Footer from "../components/Footer";
+"use client"
+
+import { useState } from "react"
+import Footer from "../components/Footer"
+import Sidebar from "../components/Sidebar"
+import { Menu, X } from "lucide-react"
 
 export default function Home() {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+
   return (
-    <main className="min-h-screen flex flex-col [background:var(--color-background)] [color:var(--color-text-dark)]">
-      {/* Contenido envuelto en flex-grow */}
-      <div className="flex-grow flex flex-col items-center justify-center">
+    <main
+      className="relative min-h-screen flex flex-col bg-center bg-no-repeat bg-contain"
+      style={{
+        backgroundImage: "url('/Orbis_Tertius.webp')",
+        backgroundColor: "var(--color-background)",
+        color: "var(--color-text-dark)",
+      }}
+    >
+      {/* Sidebar (desplegable) */}
+      {isSidebarOpen && (
+        <div className="fixed top-0 left-0 z-40 h-full">
+          <Sidebar />
+        </div>
+      )}
+
+      {/* Botón flotante para abrir/cerrar sidebar */}
+      <button
+        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+        className="fixed bottom-6 left-6 z-50 p-4 rounded-full shadow-lg transition hover:scale-105"
+        style={{
+          backgroundColor: "var(--color-button)",
+          color: "var(--color-text-light)",
+        }}
+        aria-label="Abrir menú lateral"
+      >
+        {isSidebarOpen ? <X size={28} /> : <Menu size={28} />}
+      </button>
+
+      {/* Contenido central */}
+      <div className="flex-grow flex flex-col items-center justify-center backdrop-brightness-95 px-6">
         {/* Encabezado */}
-        <header className="text-center mb-10">
-          <h1 className="text-4xl md:text-6xl font-bold [color:var(--color-header)]">
+        <header className="text-center mb-10 mt-10">
+          <h1 className="text-4xl md:text-6xl font-bold [color:var(--color-header)] drop-shadow-lg">
             Curso de Modelos Estocásticos
           </h1>
-          <p className="mt-4 text-lg md:text-xl [color:var(--color-text-medium)]">
+          <p className="mt-4 text-lg md:text-xl [color:var(--color-text-medium)] max-w-2xl mx-auto drop-shadow">
             Bienvenido al curso — Aprende probabilidad, procesos aleatorios y aplicaciones reales.
           </p>
         </header>
 
-        {/* Botón de acción */}
-        <a
-          href="/temas"
-          className="px-6 py-3 [background:var(--color-button)] [color:var(--color-text-light)] rounded-full shadow-lg hover:[background:var(--color-section)] transition"
-        >
-          Ver Temas
-        </a>
+        {/* Video embebido */}
+        <section className="mt-16 max-w-4xl w-full px-4">
+          <div className="aspect-video rounded-xl overflow-hidden shadow-lg border border-[color:var(--color-header)]">
+            <iframe
+              className="w-full h-full"
+              src="https://www.youtube.com/embed/U33OftLWdu4"
+              title="Introducción al Curso de Modelos Estocásticos"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+              loading="lazy"
+            ></iframe>
+          </div>
+        </section>
 
-        {/* Sección de temas */}
-        <section id="temas" className="mt-20 max-w-3xl text-center">
-          <h2 className="text-3xl font-semibold [color:var(--color-header)] mb-6">
-            Temas principales
+        {/* Objetivo del curso */}
+        <section className="max-w-4xl mt-12 text-left [background:var(--color-background)] p-6 rounded-lg shadow-md border border-[color:var(--color-section)]">
+          <h2 className="text-2xl font-semibold [color:var(--color-header)] mb-3">
+            Objetivo del curso
           </h2>
-          <ul className="space-y-4 text-lg">
-            <li>✔️ Variables aleatorias y distribuciones</li>
-            <li>✔️ Cadenas de Markov</li>
-            <li>✔️ Procesos de Poisson</li>
-            <li>✔️ Colas y simulación</li>
+          <p className="[color:var(--color-header)] leading-relaxed">
+            Generar en los estudiantes un manejo formal de la probabilidad, estadística y los procesos
+            estocásticos, que les permita a través del estudio de distintas estructuras probabilísticas y sistemas
+            computacionales, adquirir las habilidades necesarias para identificar, analizar, modelar y solucionar
+            problemas asociados con sistemas de cómputo y de telecomunicaciones de naturaleza estocástica y
+            dinámica.
+          </p>
+        </section>
+
+        {/* Objetivos específicos */}
+        <section className="max-w-4xl mt-8 text-left [background:var(--color-background)] p-6 rounded-lg shadow-md border border-[color:var(--color-section)] mb-12">
+          <h2 className="text-2xl font-semibold [color:var(--color-header)] mb-3">
+            Objetivos específicos
+          </h2>
+          <ul className="list-disc list-inside [color:var(--color-header)] leading-relaxed space-y-2">
+            <li>
+              Estudiar modelos matemáticos y probabilísticos complejos que permitan describir
+              comportamientos en sistemas de cómputo y telecomunicaciones.
+            </li>
+            <li>
+              Diseñar experimentos basados en simulación de eventos discretos para estimar medidas
+              de desempeño en sistemas de cómputo y telecomunicaciones.
+            </li>
+            <li>
+              Proponer metodologías para el análisis de sistemas de cómputo complejos.
+            </li>
           </ul>
         </section>
       </div>
 
-      {/* Footer siempre abajo */}
+      {/* Footer */}
       <Footer />
     </main>
-  );
+  )
 }

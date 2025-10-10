@@ -43,18 +43,18 @@ export default function ClassLayout({
         {/* Contenido */}
         <main className="flex-grow max-w-4xl mx-auto p-8 space-y-12">
           {/* Resumen */}
-          <section className="[background:var(--color-section)] p-6 rounded-lg shadow-md">
-            <h2 className="text-2xl font-semibold [color:var(--color-text-dark)] mb-3">
+          <section className="[background:var(--color-background)] border border-[color:var(--color-section)] p-6 rounded-lg shadow-sm">
+            <h2 className="text-2xl font-semibold [color:var(--color-header)] mb-3">
               Resumen
             </h2>
-            <div className="[color:var(--color-text-light)] leading-relaxed space-y-4">
+            <div className="[color:var(--color-text-dark)] leading-relaxed space-y-4">
               {resumen}
             </div>
           </section>
 
           {/* Video */}
-          <section className="[background:var(--color-section)] p-6 rounded-lg shadow-md">
-            <h2 className="text-2xl font-semibold [color:var(--color-text-dark)] mb-3">
+          <section className="[background:var(--color-background)] border border-[color:var(--color-section)] p-6 rounded-lg shadow-sm">
+            <h2 className="text-2xl font-semibold [color:var(--color-header)] mb-3">
               Video sobre el tema
             </h2>
             <div className="aspect-video">
@@ -71,15 +71,15 @@ export default function ClassLayout({
 
           {/* Material complementario */}
           {materialUrl && (
-            <section className="[background:var(--color-section)] p-6 rounded-lg shadow-md">
-              <h2 className="text-2xl font-semibold [color:var(--color-text-dark)] mb-3">
+            <section className="[background:var(--color-background)] border border-[color:var(--color-section)] p-6 rounded-lg shadow-sm">
+              <h2 className="text-2xl font-semibold [color:var(--color-header)] mb-3">
                 Material complementario
               </h2>
               <a
                 href={materialUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-6 py-3 [background:var(--color-button)] [color:var(--color-text-light)] rounded-lg shadow hover:[background:var(--color-section)] transition"
+                className="inline-block px-6 py-3 [background:var(--color-button)] [color:var(--color-text-light)] rounded-lg shadow hover:[background:var(--color-section)] transition"
               >
                 Descargar PDF
               </a>
@@ -88,18 +88,18 @@ export default function ClassLayout({
 
           {/* Tareas */}
           {tareas.length > 0 && (
-            <section className="[background:var(--color-section)] p-6 rounded-lg shadow-md">
-              <h2 className="text-2xl font-semibold [color:var(--color-text-dark)] mb-3">
+            <section className="[background:var(--color-background)] border border-[color:var(--color-section)] p-6 rounded-lg shadow-sm">
+              <h2 className="text-2xl font-semibold [color:var(--color-header)] mb-3">
                 Tareas relacionadas
               </h2>
-              <ul className="list-disc list-inside space-y-2 [color:var(--color-background)]">
+              <ul className="list-disc list-inside space-y-2 [color:var(--color-text-dark)]">
                 {tareas.map((t, i) => (
                   <li key={i}>
                     <a
                       href={t.enlace}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-[color:var(--color-background)] hover:underline"
+                      className="text-[color:var(--color-button)] hover:text-[color:var(--color-header)] hover:underline"
                     >
                       {t.nombre}
                     </a>
