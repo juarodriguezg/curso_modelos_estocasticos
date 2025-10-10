@@ -27,7 +27,7 @@ export default function Home() {
       {/* Botón flotante para abrir/cerrar sidebar */}
       <button
         onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-        className="fixed bottom-6 left-6 z-50 p-4 rounded-full shadow-lg transition hover:scale-105"
+        className="fixed bottom-6 left-6 z-100 p-4 rounded-full shadow-lg transition hover:scale-105"
         style={{
           backgroundColor: "var(--color-button)",
           color: "var(--color-text-light)",
