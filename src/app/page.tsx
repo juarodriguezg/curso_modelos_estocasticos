@@ -39,8 +39,8 @@ export default function Home() {
         </div>
       )}
 
-      {/* NUEVO: Botón de Login/Perfil flotante (arriba a la derecha) */}
-      <div className="fixed top-6 right-6 z-50">
+      {/* Botón de Login/Perfil flotante (arriba a la derecha) */}
+      <div className="fixed top-6 right-6 z-49">
         {user ? (
           <button
             onClick={() => router.push('/perfil')}
@@ -73,7 +73,7 @@ export default function Home() {
       {/* Botón flotante para abrir/cerrar sidebar */}
       <button
         onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-        className="fixed bottom-6 left-6 z-50 p-4 rounded-full shadow-lg transition hover:scale-105"
+        className="fixed bottom-6 left-6 z-51 p-4 rounded-full shadow-lg transition hover:scale-105"
         style={{
           backgroundColor: "var(--color-button)",
           color: "var(--color-text-light)",

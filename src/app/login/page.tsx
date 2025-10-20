@@ -2,15 +2,13 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Lock, Mail, User, AlertCircle, LogIn, UserPlus } from 'lucide-react';
+import { Lock, Mail, AlertCircle, LogIn } from 'lucide-react';
 
 export default function LoginPage() {
   const router = useRouter();
-  const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
     email: '',
-    password: '',
-    name: ''
+    password: ''
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -21,15 +19,10 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
-      const body = isLogin 
-        ? { email: formData.email, password: formData.password }
-        : formData;
-
-      const response = await fetch(endpoint, {
+      const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
+        body: JSON.stringify({ email: formData.email, password: formData.password })
       });
 
       const data = await response.json();
@@ -40,9 +33,8 @@ export default function LoginPage() {
 
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
-      
       router.push('/');
-      
+
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -81,7 +73,7 @@ export default function LoginPage() {
             className="text-3xl font-bold mb-2"
             style={{ color: 'var(--color-header)' }}
           >
-            {isLogin ? 'Bienvenido' : 'Crear Cuenta'}
+            Bienvenido
           </h1>
           <p style={{ color: 'var(--color-text-medium)' }}>
             Curso de Modelos Estocásticos
@@ -104,35 +96,6 @@ export default function LoginPage() {
 
         {/* Form */}
         <div className="space-y-5">
-          {!isLogin && (
-            <div>
-              <label 
-                className="block text-sm font-semibold mb-2"
-                style={{ color: 'var(--color-text-dark)' }}
-              >
-                Nombre
-              </label>
-              <div className="relative">
-                <User 
-                  className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5"
-                  style={{ color: 'var(--color-text-medium)' }}
-                />
-                <input
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  className="w-full pl-11 pr-4 py-3 border rounded-xl transition-all outline-none"
-                  style={{
-                    borderColor: 'var(--color-section)',
-                    color: 'var(--color-text-dark)'
-                  }}
-                  placeholder="Tu nombre"
-                />
-              </div>
-            </div>
-          )}
-
           <div>
             <label 
               className="block text-sm font-semibold mb-2"
@@ -186,14 +149,6 @@ export default function LoginPage() {
                 minLength={6}
               />
             </div>
-            {!isLogin && (
-              <p 
-                className="mt-2 text-xs flex items-center gap-1"
-                style={{ color: 'var(--color-text-medium)' }}
-              >
-                <span style={{ color: 'var(--color-header)' }}>•</span> Mínimo 6 caracteres
-              </p>
-            )}
           </div>
 
           <button
@@ -209,27 +164,10 @@ export default function LoginPage() {
               <span>Procesando...</span>
             ) : (
               <>
-                {isLogin ? <LogIn className="w-5 h-5" /> : <UserPlus className="w-5 h-5" />}
-                {isLogin ? 'Iniciar Sesión' : 'Registrarse'}
+                <LogIn className="w-5 h-5" />
+                Iniciar Sesión
               </>
             )}
-          </button>
-        </div>
-
-        {/* Toggle Login/Register */}
-        <div className="mt-6 text-center">
-          <button
-            type="button"
-            onClick={() => {
-              setIsLogin(!isLogin);
-              setError('');
-            }}
-            className="font-medium transition-colors text-sm hover:underline"
-            style={{ color: 'var(--color-header)' }}
-          >
-            {isLogin 
-              ? '¿No tienes cuenta? Regístrate aquí' 
-              : '¿Ya tienes cuenta? Inicia sesión'}
           </button>
         </div>
 
