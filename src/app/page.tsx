@@ -1,12 +1,27 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import Footer from "../components/Footer"
 import Sidebar from "../components/Sidebar"
-import { Menu, X } from "lucide-react"
+import { Menu, X, User, LogIn } from "lucide-react"
 
 export default function Home() {
+  const router = useRouter()
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const [user, setUser] = useState<{name: string; email: string} | null>(null)
+
+  // Verificar si hay usuario autenticado
+  useEffect(() => {
+    const userData = localStorage.getItem('user')
+    if (userData) {
+      try {
+        setUser(JSON.parse(userData))
+      } catch (e) {
+        console.error('Error parsing user data')
+      }
+    }
+  }, [])
 
   return (
     <main
@@ -24,10 +39,41 @@ export default function Home() {
         </div>
       )}
 
+      {/* NUEVO: Botón de Login/Perfil flotante (arriba a la derecha) */}
+      <div className="fixed top-6 right-6 z-50">
+        {user ? (
+          <button
+            onClick={() => router.push('/perfil')}
+            className="flex items-center gap-2 px-4 py-2 rounded-full shadow-lg transition hover:scale-105"
+            style={{
+              backgroundColor: "var(--color-button)",
+              color: "var(--color-text-light)",
+            }}
+            aria-label="Ver perfil"
+          >
+            <User size={20} />
+            <span className="hidden sm:inline">{user.name}</span>
+          </button>
+        ) : (
+          <button
+            onClick={() => router.push('/login')}
+            className="flex items-center gap-2 px-4 py-2 rounded-full shadow-lg transition hover:scale-105"
+            style={{
+              backgroundColor: "var(--color-button)",
+              color: "var(--color-text-light)",
+            }}
+            aria-label="Iniciar sesión"
+          >
+            <LogIn size={20} />
+            <span className="hidden sm:inline">Iniciar sesión</span>
+          </button>
+        )}
+      </div>
+
       {/* Botón flotante para abrir/cerrar sidebar */}
       <button
         onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-        className="fixed bottom-6 left-6 z-100 p-4 rounded-full shadow-lg transition hover:scale-105"
+        className="fixed bottom-6 left-6 z-50 p-4 rounded-full shadow-lg transition hover:scale-105"
         style={{
           backgroundColor: "var(--color-button)",
           color: "var(--color-text-light)",
@@ -37,6 +83,7 @@ export default function Home() {
         {isSidebarOpen ? <X size={28} /> : <Menu size={28} />}
       </button>
 
+      {/* Resto del código existente... */}
       {/* Contenido central */}
       <div className="flex-grow flex flex-col items-center justify-center backdrop-brightness-95 px-6">
         {/* Encabezado */}
