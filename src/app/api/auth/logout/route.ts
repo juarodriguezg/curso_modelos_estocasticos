@@ -1,21 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 import { prisma } from '@/lib/prisma';
 
 export async function POST(req: NextRequest) {
   try {
-    const token = req.headers.get('authorization')?.replace('Bearer ', '');
+    const token = req.cookies.get('token')?.value || req.headers.get('authorization')?.replace('Bearer ', '');
 
-    if (!token) {
-      return NextResponse.json(
-        { message: 'No hay sesión activa' },
-        { status: 200 }
-      );
+    if (token) {
+      // Eliminar sesión de la base de datos
+      await prisma.session.deleteMany({
+        where: { token }
+      });
     }
 
-    // Eliminar sesión
-    await prisma.session.deleteMany({
-      where: { token }
-    });
+    // Eliminar cookie
+    const cookieStore = await cookies();
+    cookieStore.delete('token');
 
     return NextResponse.json({
       message: 'Logout exitoso'

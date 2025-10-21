@@ -1,30 +1,45 @@
-import { NextResponse } from 'next/server'
-import type { NextRequest } from 'next/server'
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
 
-// Rutas que deben requerir autenticación
-const protectedPaths = ['/temas', '/perfil']
+// Rutas que requieren autenticación
+const protectedPaths = ['/temas', '/perfil'];
+
+// Rutas que solo pueden acceder usuarios NO autenticados
+const authPaths = ['/login'];
 
 export function middleware(req: NextRequest) {
-  const { pathname } = req.nextUrl
+  const { pathname } = req.nextUrl;
+  
+  // Obtener token de cookie
+  const token = req.cookies.get('token')?.value;
+  console.log('Middleware - Token:', token);
 
-  // Verifica si la ruta está protegida
-  const isProtected = protectedPaths.some(path => pathname.startsWith(path))
+  // Verificar si la ruta está protegida
+  const isProtected = protectedPaths.some(path => pathname.startsWith(path));
+  const isAuthPath = authPaths.some(path => pathname.startsWith(path));
+  console.log('Middleware - isProtected:', isProtected, 'isAuthPath:', isAuthPath);
 
-  if (isProtected) {
-    const token = req.cookies.get('token')?.value || req.headers.get('authorization')?.replace('Bearer ', '')
+  // Si es una ruta protegida y no hay token
+  if (isProtected && !token) {
+    const loginUrl = new URL('/login', req.url);
+    loginUrl.searchParams.set('redirect', pathname);
+    return NextResponse.redirect(loginUrl);
+  }
+  console.log('Middleware - Access granted to protected route');
 
-    if (!token) {
-      // Si no hay token, redirige a login
-      const loginUrl = new URL('/login', req.url)
-      loginUrl.searchParams.set('redirect', pathname) // opcional: guardar a dónde iba
-      return NextResponse.redirect(loginUrl)
-    }
+  // Si el usuario autenticado intenta ir a /login, redirigir a home
+  if (isAuthPath && token) {
+    return NextResponse.redirect(new URL('/', req.url));
   }
 
-  // Si todo está bien, continúa
-  return NextResponse.next()
+  console.log('Middleware - Access granted to auth route or public route');
+  return NextResponse.next();
 }
 
 export const config = {
-  matcher: ['/temas/:path*', '/perfil'], // aplica solo a estas rutas
-}
+  matcher: [
+    '/temas/:path*',
+    '/perfil',
+    '/login'
+  ]
+};

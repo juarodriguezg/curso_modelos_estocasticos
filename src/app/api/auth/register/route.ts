@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 import { prisma } from '@/lib/prisma';
 import { hashPassword, generateToken, getTokenExpiration, isValidEmail, isValidPassword } from '@/lib/auth';
 
@@ -63,9 +64,19 @@ export async function POST(req: NextRequest) {
       }
     });
 
+    // Guardar token en cookie httpOnly
+    const cookieStore = await cookies();
+    cookieStore.set('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 24 * 7, // 7 días
+      path: '/'
+    });
+
     return NextResponse.json({
       message: 'Usuario registrado exitosamente',
-      token,
+      token, // También lo enviamos para localStorage (compatibilidad)
       user: {
         id: user.id,
         email: user.email,

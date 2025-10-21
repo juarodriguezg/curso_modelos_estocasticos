@@ -14,18 +14,7 @@ export async function GET(req: NextRequest) {
 
     // Buscar sesión válida
     const session = await prisma.session.findUnique({
-      where: { token },
-      include: { 
-        user: {
-          select: {
-            id: true,
-            email: true,
-            name: true,
-            role: true,
-            createdAt: true
-          }
-        }
-      }
+      where: { token }
     });
 
     if (!session) {
@@ -44,8 +33,27 @@ export async function GET(req: NextRequest) {
       );
     }
 
+    // Buscar usuario
+    const user = await prisma.user.findUnique({
+      where: { id: session.userId },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+        createdAt: true
+      }
+    });
+
+    if (!user) {
+      return NextResponse.json(
+        { error: 'Usuario no encontrado' },
+        { status: 404 }
+      );
+    }
+
     return NextResponse.json({
-      user: session.user
+      user
     });
   } catch (error) {
     console.error('Error al verificar sesión:', error);
