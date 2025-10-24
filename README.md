@@ -1,36 +1,68 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 📊 Curso de Modelos Estocásticos
 
-## Getting Started
+Aplicación web interactiva desarrollada en **Next.js 14**, diseñada para gestionar y presentar el contenido del curso **Modelos Estocásticos y Simulación en Computación y Comunicaciones**.  
+Incluye autenticación de usuarios, roles (Administrador, Profesor, Estudiante), carga de materiales y gestión centralizada del contenido.
 
-First, run the development server:
+---
 
+## 🚀 Tecnologías utilizadas
+
+| Tecnología | Descripción |
+|-------------|--------------|
+| **Next.js 14 (App Router)** | Framework React para renderizado híbrido y rutas modernas. |
+| **TypeScript** | Tipado estático para mayor robustez y escalabilidad. |
+| **Prisma ORM** | Interfaz ORM para conexión con la base de datos PostgreSQL. |
+| **PostgreSQL** | Base de datos relacional para almacenar usuarios y sesiones. |
+| **Tailwind CSS** | Estilos y diseño adaptativo usando variables personalizadas. |
+| **Lucide React** | Iconografía limpia y ligera. |
+| **JWT + Cookies HTTPOnly** | Mecanismo seguro de autenticación y persistencia de sesión. |
+
+---
+
+## 🧱 Estructura del proyecto
+
+curso_modelos_estocasticos/
+├── prisma/
+│ ├── schema.prisma # Esquema de la base de datos
+├── src/
+│ ├── app/
+│ │ ├── login/ # Página de inicio de sesión
+│ │ ├── perfil/ # Perfil de usuario
+│ │ ├── temas/ # Secciones del curso
+│ │ └── api/
+│ │ ├── auth/ # Rutas API para login/logout/usuario
+│ ├── components/ # Componentes reutilizables
+│ ├── lib/ # Configuración de Prisma y utilidades
+│ └── styles/ # Archivos de estilo globales
+└── public/
+├── Fondo_Tlon.png # Imagen de fondo del home
+├── documentos/ # Materiales PDF del curso
+
+
+---
+
+## ⚙️ Configuración e instalación
+
+### 1️⃣ Clonar el repositorio
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+git clone https://github.com/tuusuario/curso_modelos_estocasticos.git
+cd curso_modelos_estocasticos
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+npm install
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Scripts disponibles
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Comando                  | Descripción                             |
+| ------------------------ | --------------------------------------- |
+| `npm run dev`            | Ejecuta el servidor en modo desarrollo  |
+| `npm run build`          | Genera el build de producción           |
+| `npm start`              | Ejecuta el servidor en modo producción  |
+| `npx prisma studio`      | Abre el panel visual de Prisma          |
+| `npx prisma migrate dev` | Aplica las migraciones de base de datos |
 
-## Learn More
+🧾 Licencia
 
-To learn more about Next.js, take a look at the following resources:
+Proyecto académico bajo licencia MIT.
+Desarrollado para el Departamento de Ingeniería de Sistemas e Industrial — Universidad Nacional de Colombia.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Desarrollado por juarodriguezg
