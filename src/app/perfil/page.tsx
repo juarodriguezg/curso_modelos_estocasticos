@@ -17,12 +17,12 @@ export default function PerfilPage() {
   const router = useRouter();
   const [user, setUser] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [users, setUsers] = useState<any[]>([]);
 
   useEffect(() => {
     const checkAuth = async () => {
       try {
         const token = localStorage.getItem('token');
-
         if (!token) {
           router.push('/login');
           return;
@@ -33,7 +33,6 @@ export default function PerfilPage() {
         });
 
         if (!response.ok) throw new Error('No autorizado');
-
         const data = await response.json();
         setUser(data.user);
       } catch (error) {
@@ -107,23 +106,20 @@ export default function PerfilPage() {
         </div>
       </header>
 
-      {/* Content */}
+      {/* Contenido */}
       <main className="flex-grow max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 w-full">
         <div className="bg-[var(--color-section)] text-[var(--color-text-light)] rounded-3xl shadow-lg p-8">
+
           {/* Perfil */}
-          <div className="mb-8">
-            <div className="flex items-center gap-4 mb-4">
-              <div className="w-16 h-16 bg-[var(--color-button)] rounded-2xl flex items-center justify-center shadow-md">
-                <User className="w-8 h-8 text-[var(--color-text-light)]" />
-              </div>
-              <div>
-                <h2 className="text-3xl font-bold">{user?.name}</h2>
-                <span
-                  className={`inline-block mt-2 px-3 py-1 rounded-full text-sm font-medium ${roleBadge.color}`}
-                >
-                  {roleBadge.text}
-                </span>
-              </div>
+          <div className="mb-8 flex items-center gap-4">
+            <div className="w-16 h-16 bg-[var(--color-button)] rounded-2xl flex items-center justify-center shadow-md">
+              <User className="w-8 h-8 text-[var(--color-text-light)]" />
+            </div>
+            <div>
+              <h2 className="text-3xl font-bold">{user?.name}</h2>
+              <span className={`inline-block mt-2 px-3 py-1 rounded-full text-sm font-medium ${roleBadge.color}`}>
+                {roleBadge.text}
+              </span>
             </div>
           </div>
 
@@ -149,59 +145,126 @@ export default function PerfilPage() {
             <p className="font-medium">{roleBadge.text}</p>
           </div>
 
-          {/* Zona para admin */}
+          {/* Zona para administrador */}
           {user?.role === 'admin' && (
-            <div className="mt-12 bg-[var(--color-background)] text-[var(--color-text-dark)] rounded-3xl shadow-lg border border-[var(--color-section)] p-8">
-              <h3 className="text-2xl font-bold mb-4 text-[var(--color-header)]">
-                📤 Subir lista de estudiantes (CSV)
-              </h3>
-              <p className="text-[var(--color-text-medium)] mb-6">
-                Sube un archivo CSV con las columnas:{' '}
-                <strong>No, Apellidos, Nombre, Documento, Correo</strong>.  
-                Cada estudiante se creará con su número de documento como contraseña.
-              </p>
+            <>
+              {/* Subir CSV */}
+              <div className="mt-12 bg-[var(--color-background)] text-[var(--color-text-dark)] rounded-3xl shadow-lg border border-[var(--color-section)] p-8">
+                <h3 className="text-2xl font-bold mb-4 text-[var(--color-header)]">
+                  📤 Subir lista de estudiantes (CSV)
+                </h3>
+                <p className="text-[var(--color-text-medium)] mb-6">
+                  Sube un archivo CSV con las columnas:{' '}
+                  <strong>No, Apellidos, Nombre, Documento, Correo</strong>.  
+                  Cada estudiante se creará con su número de documento como contraseña.
+                </p>
 
-              <form
-                onSubmit={async (e) => {
-                  e.preventDefault();
-                  const fileInput = (e.target as HTMLFormElement).elements.namedItem('csv') as HTMLInputElement;
-                  const file = fileInput.files?.[0];
-                  if (!file) return alert('Por favor selecciona un archivo CSV.');
+                <form
+                  onSubmit={async (e) => {
+                    e.preventDefault();
+                    const fileInput = (e.target as HTMLFormElement).elements.namedItem('csv') as HTMLInputElement;
+                    const file = fileInput.files?.[0];
+                    if (!file) return alert('Por favor selecciona un archivo CSV.');
 
-                  const formData = new FormData();
-                  formData.append('file', file);
+                    const formData = new FormData();
+                    formData.append('file', file);
 
-                  try {
+                    try {
+                      const token = localStorage.getItem('token');
+                      const res = await fetch('/api/admin/upload-csv', {
+                        method: 'POST',
+                        body: formData,
+                        headers: { Authorization: `Bearer ${token}` },
+                      });
+
+                      const data = await res.json();
+                      if (!res.ok) throw new Error(data.error || 'Error al subir CSV');
+                      alert(`✅ ${data.message}`);
+                    } catch (err) {
+                      console.error(err);
+                      alert('❌ Error procesando el archivo');
+                    }
+                  }}
+                >
+                  <input
+                    type="file"
+                    name="csv"
+                    accept=".csv"
+                    className="block w-full mb-4 border border-[var(--color-button)] rounded-lg p-2"
+                  />
+                  <button
+                    type="submit"
+                    className="px-6 py-3 bg-[var(--color-button)] text-[var(--color-text-light)] rounded-lg font-semibold hover:opacity-90"
+                  >
+                    Subir y procesar CSV
+                  </button>
+                </form>
+              </div>
+
+              {/* Lista de usuarios */}
+              <div className="mt-12 bg-[var(--color-background)] text-[var(--color-text-dark)] rounded-3xl shadow-lg border border-[var(--color-section)] p-8">
+                <h3 className="text-2xl font-bold mb-4 text-[var(--color-header)]">
+                  👥 Usuarios registrados
+                </h3>
+                <p className="text-[var(--color-text-medium)] mb-6">
+                  Eliminar usuarios
+                </p>
+
+                <button
+                  onClick={async () => {
                     const token = localStorage.getItem('token');
-                    const res = await fetch('/api/admin/upload-csv', {
-                      method: 'POST',
-                      body: formData,
+                    const res = await fetch('/api/admin/list-users', {
                       headers: { Authorization: `Bearer ${token}` },
                     });
-
                     const data = await res.json();
-                    if (!res.ok) throw new Error(data.error || 'Error al subir CSV');
-                    alert(`✅ ${data.message}`);
-                  } catch (err) {
-                    console.error(err);
-                    alert('❌ Error procesando el archivo');
-                  }
-                }}
-              >
-                <input
-                  type="file"
-                  name="csv"
-                  accept=".csv"
-                  className="block w-full mb-4 border border-[var(--color-button)] rounded-lg p-2"
-                />
-                <button
-                  type="submit"
-                  className="px-6 py-3 bg-[var(--color-button)] text-[var(--color-text-light)] rounded-lg font-semibold hover:opacity-90"
+                    if (res.ok) {
+                      setUsers(data.users);
+                    } else {
+                      alert('Error al cargar usuarios');
+                    }
+                  }}
+                  className="px-4 py-2 bg-[var(--color-button)] text-[var(--color-text-light)] rounded-lg font-semibold hover:opacity-90 mb-6"
                 >
-                  Subir y procesar CSV
+                  🔄 Cargar lista de usuarios
                 </button>
-              </form>
-            </div>
+
+                {users && users.length > 0 ? (
+                  <ul className="divide-y divide-[var(--color-section)]">
+                    {users.map((u) => (
+                      <li key={u.id} className="py-3 flex justify-between items-center">
+                        <div>
+                          <p className="font-semibold">{u.name || '(Sin nombre)'}</p>
+                          <p className="text-sm text-[var(--color-text-medium)]">{u.email}</p>
+                        </div>
+                        <button
+                          onClick={async () => {
+                            const token = localStorage.getItem('token');
+                            if (!confirm(`¿Eliminar usuario ${u.email}?`)) return;
+
+                            const res = await fetch(`/api/admin/delete-user?id=${u.id}`, {
+                              method: 'DELETE',
+                              headers: { Authorization: `Bearer ${token}` },
+                            });
+
+                            if (res.ok) {
+                              alert('✅ Usuario eliminado');
+                              setUsers((prev) => prev.filter((x) => x.id !== u.id));
+                            } else {
+                              alert('❌ Error al eliminar');
+                            }
+                          }}
+                          className="px-3 py-1 text-sm bg-red-500 hover:bg-red-600 text-white rounded-md"
+                        >
+                          Eliminar
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-[var(--color-text-medium)]">No hay usuarios cargados.</p>
+                )}
+              </div>
+            </>
           )}
         </div>
       </main>

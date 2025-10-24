@@ -60,7 +60,8 @@ Scripts disponibles
 | `npx prisma studio`      | Abre el panel visual de Prisma          |
 | `npx prisma migrate dev` | Aplica las migraciones de base de datos |
 
-🧾 Licencia
+
+### 🧾 Licencia
 
 Proyecto académico bajo licencia MIT.
 Desarrollado para el Departamento de Ingeniería de Sistemas e Industrial — Universidad Nacional de Colombia.
