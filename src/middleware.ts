@@ -12,27 +12,29 @@ export function middleware(req: NextRequest) {
   
   // Obtener token de cookie
   const token = req.cookies.get('token')?.value;
-  console.log('Middleware - Token:', token);
+  console.log('Middleware - Path:', pathname);
+  console.log('Middleware - Token:', token ? 'presente' : 'ausente');
 
   // Verificar si la ruta está protegida
   const isProtected = protectedPaths.some(path => pathname.startsWith(path));
   const isAuthPath = authPaths.some(path => pathname.startsWith(path));
   console.log('Middleware - isProtected:', isProtected, 'isAuthPath:', isAuthPath);
 
+  // Si el usuario autenticado intenta ir a /login, redirigir a home
+  if (isAuthPath && token) {
+    console.log('Middleware - Usuario autenticado intentando acceder a login, redirigiendo a home');
+    return NextResponse.redirect(new URL('/', req.url));
+  }
+
   // Si es una ruta protegida y no hay token
   if (isProtected && !token) {
+    console.log('Middleware - Acceso denegado a ruta protegida, redirigiendo a login');
     const loginUrl = new URL('/login', req.url);
     loginUrl.searchParams.set('redirect', pathname);
     return NextResponse.redirect(loginUrl);
   }
-  console.log('Middleware - Access granted to protected route');
 
-  // Si el usuario autenticado intenta ir a /login, redirigir a home
-  if (isAuthPath && token) {
-    return NextResponse.redirect(new URL('/', req.url));
-  }
-
-  console.log('Middleware - Access granted to auth route or public route');
+  console.log('Middleware - Acceso permitido');
   return NextResponse.next();
 }
 

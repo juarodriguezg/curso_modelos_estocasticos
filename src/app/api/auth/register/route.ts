@@ -5,9 +5,9 @@ import { hashPassword, generateToken, getTokenExpiration, isValidEmail, isValidP
 
 export async function POST(req: NextRequest) {
   try {
-    const { email, password, name } = await req.json();
+    const { email, password, name, grupo } = await req.json();
 
-    // Validaciones
+    // Validaciones básicas
     if (!email || !password) {
       return NextResponse.json(
         { error: 'Email y contraseña son requeridos' },
@@ -25,6 +25,22 @@ export async function POST(req: NextRequest) {
     if (!isValidPassword(password)) {
       return NextResponse.json(
         { error: 'La contraseña debe tener al menos 6 caracteres' },
+        { status: 400 }
+      );
+    }
+
+    // Validar grupo (obligatorio para estudiantes)
+    if (grupo === undefined || grupo === null) {
+      return NextResponse.json(
+        { error: 'El grupo es obligatorio (1 o 2)' },
+        { status: 400 }
+      );
+    }
+
+    const grupoNum = parseInt(grupo, 10);
+    if (isNaN(grupoNum) || ![1, 2].includes(grupoNum)) {
+      return NextResponse.json(
+        { error: 'El grupo debe ser 1 o 2' },
         { status: 400 }
       );
     }
@@ -48,7 +64,8 @@ export async function POST(req: NextRequest) {
         email: email.toLowerCase(),
         name: name || email.split('@')[0],
         password: hashedPassword,
-        role: 'student'
+        role: 'student',
+        grupo: grupoNum
       }
     });
 
@@ -81,7 +98,8 @@ export async function POST(req: NextRequest) {
         id: user.id,
         email: user.email,
         name: user.name,
-        role: user.role
+        role: user.role,
+        grupo: user.grupo
       }
     });
   } catch (error) {

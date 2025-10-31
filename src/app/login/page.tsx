@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Lock, Mail, AlertCircle, LogIn } from 'lucide-react';
 
@@ -12,6 +12,35 @@ export default function LoginPage() {
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [checking, setChecking] = useState(true);
+
+  // Verificar si ya hay sesión activa
+  useEffect(() => {
+    const checkSession = async () => {
+      const token = localStorage.getItem('token');
+      
+      if (token) {
+        try {
+          const response = await fetch('/api/auth/me', {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+
+          if (response.ok) {
+            // Ya hay sesión válida, redirigir
+            console.log('Sesión activa detectada, redirigiendo...');
+            router.push('/');
+            return;
+          }
+        } catch (err) {
+          console.error('Error verificando sesión:', err);
+        }
+      }
+      
+      setChecking(false);
+    };
+
+    checkSession();
+  }, [router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,9 +60,14 @@ export default function LoginPage() {
         throw new Error(data.error || 'Error en la operación');
       }
 
+      // Guardar token y usuario
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
-      router.push('/');
+      
+      console.log('Login exitoso, redirigiendo...');
+      
+      // Redirigir al home
+      window.location.href = '/';
 
     } catch (err: any) {
       setError(err.message);
@@ -48,6 +82,21 @@ export default function LoginPage() {
       [e.target.name]: e.target.value
     });
   };
+
+  // Mostrar loading mientras verifica sesión
+  if (checking) {
+    return (
+      <div 
+        className="min-h-screen flex items-center justify-center"
+        style={{ backgroundColor: 'var(--color-background)' }}
+      >
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-[var(--color-button)] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p style={{ color: 'var(--color-text-medium)' }}>Verificando sesión...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div 
@@ -95,7 +144,7 @@ export default function LoginPage() {
         )}
 
         {/* Form */}
-        <div className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div>
             <label 
               className="block text-sm font-semibold mb-2"
@@ -119,6 +168,7 @@ export default function LoginPage() {
                   color: 'var(--color-text-dark)'
                 }}
                 placeholder="tu@email.com"
+                required
               />
             </div>
           </div>
@@ -147,12 +197,13 @@ export default function LoginPage() {
                 }}
                 placeholder="••••••••"
                 minLength={6}
+                required
               />
             </div>
           </div>
 
           <button
-            onClick={handleSubmit}
+            type="submit"
             disabled={loading}
             className="w-full font-semibold py-3 rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
             style={{
@@ -169,7 +220,7 @@ export default function LoginPage() {
               </>
             )}
           </button>
-        </div>
+        </form>
 
         {/* Volver al inicio */}
         <div className="mt-4 text-center">

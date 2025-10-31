@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 import { parse } from 'csv-parse/sync';
-import { Readable } from 'stream';
 
 // Función auxiliar para leer el CSV del body
 async function readCSV(req: NextRequest): Promise<any[]> {
@@ -29,24 +28,64 @@ export async function POST(req: NextRequest) {
       where: { token },
       include: { user: true },
     });
-    if (!session || session.user.role !== 'admin') {
-      return NextResponse.json({ error: 'Acceso denegado' }, { status: 403 });
+
+    if (!session) {
+      return NextResponse.json({ error: 'Sesión inválida' }, { status: 401 });
+    }
+
+    // Verificar expiración
+    if (new Date() > session.expiresAt) {
+      await prisma.session.delete({ where: { id: session.id } });
+      return NextResponse.json({ error: 'Sesión expirada' }, { status: 401 });
+    }
+
+    if (session.user.role !== 'admin') {
+      return NextResponse.json({ error: 'Acceso denegado - Se requiere rol de administrador' }, { status: 403 });
     }
 
     // Leer CSV
     const rows = await readCSV(req);
 
     let count = 0;
+    let skipped = 0;
+    const errors: string[] = [];
+
     for (const row of rows) {
       const email = row['Correo']?.trim();
       const documento = row['Documento']?.trim();
       const nombre = `${row['Nombre'] || ''} ${row['Apellidos'] || ''}`.trim();
+      const grupoStr = row['Grupo']?.trim();
 
-      if (!email || !documento) continue;
+      // Validaciones
+      if (!email || !documento) {
+        skipped++;
+        errors.push(`Fila sin email o documento: ${nombre || 'N/A'}`);
+        continue;
+      }
 
+      if (!grupoStr) {
+        skipped++;
+        errors.push(`Usuario ${email}: Grupo no especificado`);
+        continue;
+      }
+
+      const grupo = parseInt(grupoStr, 10);
+
+      if (isNaN(grupo) || ![1, 2].includes(grupo)) {
+        skipped++;
+        errors.push(`Usuario ${email}: Grupo inválido (debe ser 1 o 2), recibido: ${grupoStr}`);
+        continue;
+      }
+
+      // Verificar si el usuario ya existe
       const existing = await prisma.user.findUnique({ where: { email } });
-      if (existing) continue; // Evita duplicados
+      if (existing) {
+        skipped++;
+        errors.push(`Usuario ${email}: Ya existe en la base de datos`);
+        continue;
+      }
 
+      // Crear usuario
       const hashed = await bcrypt.hash(documento, 10);
 
       await prisma.user.create({
@@ -55,13 +94,19 @@ export async function POST(req: NextRequest) {
           email,
           password: hashed,
           role: 'student',
+          grupo: grupo,
         },
       });
 
       count++;
     }
 
-    return NextResponse.json({ message: `Se crearon ${count} usuarios nuevos.` });
+    return NextResponse.json({ 
+      message: `Se crearon ${count} usuarios nuevos. ${skipped > 0 ? `${skipped} omitidos.` : ''}`,
+      created: count,
+      skipped: skipped,
+      errors: errors.length > 0 ? errors : undefined
+    });
   } catch (error) {
     console.error('Error al procesar CSV:', error);
     return NextResponse.json({ error: 'Error procesando el archivo CSV' }, { status: 500 });

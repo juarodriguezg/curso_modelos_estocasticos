@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Footer from "../components/Footer"
 import Sidebar from "../components/Sidebar"
-import { Menu, X, User, LogIn } from "lucide-react"
+import { Menu, X, User, LogIn, LogOut } from "lucide-react"
 
 export default function Home() {
   const router = useRouter()
@@ -23,6 +23,22 @@ export default function Home() {
     }
   }, [])
 
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include',
+      });
+    } catch (error) {
+      console.error('Error en logout:', error);
+    } finally {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      setUser(null);
+      router.refresh();
+    }
+  };
+
   return (
     <main
       className="relative min-h-screen flex flex-col bg-center bg-no-repeat bg-contain"
@@ -39,21 +55,35 @@ export default function Home() {
         </div>
       )}
 
-      {/* Botón de Login/Perfil flotante (arriba a la derecha) */}
-      <div className="fixed top-6 right-6 z-49">
+      {/* Botones flotantes (arriba a la derecha) */}
+      <div className="fixed top-6 right-6 z-49 flex gap-3">
         {user ? (
-          <button
-            onClick={() => router.push('/perfil')}
-            className="flex items-center gap-2 px-4 py-2 rounded-full shadow-lg transition hover:scale-105"
-            style={{
-              backgroundColor: "var(--color-button)",
-              color: "var(--color-text-light)",
-            }}
-            aria-label="Ver perfil"
-          >
-            <User size={20} />
-            <span className="hidden sm:inline">{user.name}</span>
-          </button>
+          <>
+            <button
+              onClick={() => router.push('/perfil')}
+              className="flex items-center gap-2 px-4 py-2 rounded-full shadow-lg transition hover:scale-105"
+              style={{
+                backgroundColor: "var(--color-button)",
+                color: "var(--color-text-light)",
+              }}
+              aria-label="Ver perfil"
+            >
+              <User size={20} />
+              <span className="hidden sm:inline">{user.name}</span>
+            </button>
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-2 px-4 py-2 rounded-full shadow-lg transition hover:scale-105"
+              style={{
+                backgroundColor: "var(--color-header)",
+                color: "var(--color-text-light)",
+              }}
+              aria-label="Cerrar sesión"
+              title="Cerrar sesión"
+            >
+              <LogOut size={20} />
+            </button>
+          </>
         ) : (
           <button
             onClick={() => router.push('/login')}
@@ -83,7 +113,6 @@ export default function Home() {
         {isSidebarOpen ? <X size={28} /> : <Menu size={28} />}
       </button>
 
-      {/* Resto del código existente... */}
       {/* Contenido central */}
       <div className="flex-grow flex flex-col items-center justify-center backdrop-brightness-95 px-6">
         {/* Encabezado */}
