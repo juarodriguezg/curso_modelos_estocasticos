@@ -64,31 +64,49 @@ export default function Sidebar() {
   useEffect(() => {
     const loadTopicVisibility = async () => {
       try {
-        // Verificar si es admin
-        const userData = localStorage.getItem('user')
+        // Obtener información del usuario
+        const userData = localStorage.getItem('user');
+        const token = localStorage.getItem('token');
+        
+        let userRole = null;
+        let userGroup = null;
+        
         if (userData) {
-          const user = JSON.parse(userData)
-          setIsAdmin(user.role === 'admin')
+          const user = JSON.parse(userData);
+          userRole = user.role;
+          userGroup = user.grupo;
+          setIsAdmin(userRole === 'admin');
         }
 
-        // Obtener visibilidad de temas (público, no requiere auth)
-        const res = await fetch('/api/topics/visible')
+        // Obtener visibilidad de temas (ahora requiere auth para saber el grupo)
+        const res = await fetch('/api/topics/visible', {
+          headers: token ? { Authorization: `Bearer ${token}` } : {}
+        });
+        
         if (res.ok) {
-          const data = await res.json()
-          const topicMap = new Map<string, boolean>()
-          data.topics.forEach((topic: Topic) => {
-            topicMap.set(topic.slug, topic.visible)
-          })
-          setVisibleTopics(topicMap)
+          const data = await res.json();
+          const topicMap = new Map<string, boolean>();
+          
+          data.topics.forEach((topic: any) => {
+            // Para admins/teachers, todos son visibles
+            if (userRole === 'admin' || userRole === 'teacher') {
+              topicMap.set(topic.slug, true);
+            } else {
+              // Para estudiantes, usar la visibilidad de su grupo
+              topicMap.set(topic.slug, topic.visible);
+            }
+          });
+          
+          setVisibleTopics(topicMap);
         }
       } catch (error) {
-        console.error('Error cargando visibilidad de temas:', error)
+        console.error('Error cargando visibilidad de temas:', error);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    loadTopicVisibility()
+    loadTopicVisibility();
   }, [])
 
   // Función auxiliar para generar enlaces

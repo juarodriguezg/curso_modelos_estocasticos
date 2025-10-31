@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-// GET - Listar todos los temas
+// GET - Listar todos los temas con visibilidad por grupo
 export async function GET(req: NextRequest) {
   try {
     const token = req.headers.get('authorization')?.replace('Bearer ', '');
@@ -26,7 +26,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 403 });
     }
 
-    // Obtener todos los temas ordenados
+    // Obtener todos los temas ordenados con visibilidad por grupo
     const topics = await prisma.topic.findMany({
       orderBy: { order: 'asc' }
     });
@@ -38,7 +38,7 @@ export async function GET(req: NextRequest) {
   }
 }
 
-// POST - Actualizar visibilidad de un tema
+// POST - Actualizar visibilidad de un tema por grupo
 export async function POST(req: NextRequest) {
   try {
     const token = req.headers.get('authorization')?.replace('Bearer ', '');
@@ -62,19 +62,30 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 403 });
     }
 
-    const { topicId, visible } = await req.json();
+    const { topicId, group, visible } = await req.json();
 
-    if (!topicId) {
-      return NextResponse.json({ error: 'ID de tema requerido' }, { status: 400 });
+    if (!topicId || !group) {
+      return NextResponse.json({ error: 'ID de tema y grupo requeridos' }, { status: 400 });
     }
 
-    // Actualizar visibilidad
+    if (group !== 1 && group !== 2) {
+      return NextResponse.json({ error: 'Grupo debe ser 1 o 2' }, { status: 400 });
+    }
+
+    // Actualizar visibilidad para el grupo específico
+    const updateData = group === 1 
+      ? { visibleGroup1: visible }
+      : { visibleGroup2: visible };
+
     const topic = await prisma.topic.update({
       where: { id: topicId },
-      data: { visible }
+      data: updateData
     });
 
-    return NextResponse.json({ topic, message: 'Tema actualizado' });
+    return NextResponse.json({ 
+      topic, 
+      message: `Visibilidad actualizada para Grupo ${group}` 
+    });
   } catch (error) {
     console.error('Error actualizando tema:', error);
     return NextResponse.json({ error: 'Error actualizando tema' }, { status: 500 });

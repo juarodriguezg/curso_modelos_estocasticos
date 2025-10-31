@@ -18,7 +18,8 @@ interface Topic {
   id: string;
   slug: string;
   title: string;
-  visible: boolean;
+  visibleGroup1: boolean;
+  visibleGroup2: boolean;
   order: number;
 }
 
@@ -144,7 +145,7 @@ export default function PerfilPage() {
     }
   };
 
-  const toggleTopicVisibility = async (topicId: string, currentVisible: boolean) => {
+  const toggleTopicVisibility = async (topicId: string, group: number, currentVisible: boolean) => {
     try {
       const token = localStorage.getItem('token');
       const res = await fetch('/api/admin/topics', {
@@ -153,19 +154,38 @@ export default function PerfilPage() {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ topicId, visible: !currentVisible })
+        body: JSON.stringify({ 
+          topicId, 
+          group,
+          visible: !currentVisible 
+        })
       });
       
+      const data = await res.json();
+      
       if (res.ok) {
-        setTopics(prev => prev.map(t => 
-          t.id === topicId ? { ...t, visible: !currentVisible } : t
-        ));
+        // Actualizar el estado local
+        setTopics(prev => prev.map(t => {
+          if (t.id === topicId) {
+            if (group === 1) {
+              return { ...t, visibleGroup1: !currentVisible };
+            } else {
+              return { ...t, visibleGroup2: !currentVisible };
+            }
+          }
+          return t;
+        }));
+        
+        // Mostrar mensaje de confirmación
+        const groupName = group === 1 ? 'Grupo 1' : 'Grupo 2';
+        const action = !currentVisible ? 'visible' : 'oculto';
+        console.log(`✅ Tema ${action} para ${groupName}`);
       } else {
-        alert('Error actualizando tema');
+        alert(`Error: ${data.error || 'No se pudo actualizar'}`);
       }
     } catch (error) {
       console.error('Error:', error);
-      alert('Error actualizando tema');
+      alert('Error actualizando visibilidad del tema');
     }
   };
 
@@ -484,7 +504,7 @@ export default function PerfilPage() {
                   <div>
                     <div className="flex justify-between items-center mb-6">
                       <h3 className="text-2xl font-bold text-[var(--color-header)]">
-                        👁️ Gestionar Visibilidad de Temas
+                        👁️ Gestionar Visibilidad por Grupos
                       </h3>
                       <div className="flex gap-2">
                         <button
@@ -505,31 +525,65 @@ export default function PerfilPage() {
                     </div>
 
                     <p className="text-[var(--color-text-medium)] mb-4 text-sm">
-                      Los temas ocultos no aparecerán en el menú lateral para los estudiantes.
-                      Haz clic en "Sincronizar Temas" si has añadido nuevos temas al código.
+                      Controla qué temas puede ver cada grupo de estudiantes.
+                      Los temas ocultos no aparecerán en el menú lateral.
                     </p>
+
+                    {/* Leyenda */}
+                    <div className="mb-4 flex gap-4 p-3 bg-gray-50 rounded-lg text-sm">
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full bg-blue-500"></div>
+                        <span>Grupo 1</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                        <span>Grupo 2</span>
+                      </div>
+                    </div>
 
                     {topics.length > 0 ? (
                       <div className="space-y-2">
                         {topics.map((topic) => (
-                          <div key={topic.id} className="flex justify-between items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
+                          <div 
+                            key={topic.id} 
+                            className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition"
+                          >
                             <div className="flex-1">
                               <p className="font-medium">{topic.title}</p>
                               <p className="text-xs text-[var(--color-text-medium)] mt-1">
                                 /{topic.slug}
                               </p>
                             </div>
-                            <button
-                              onClick={() => toggleTopicVisibility(topic.id, topic.visible)}
-                              className={`px-4 py-2 rounded-lg font-medium transition flex items-center gap-2 ${
-                                topic.visible
-                                  ? 'bg-green-500 hover:bg-green-600 text-white'
-                                  : 'bg-gray-400 hover:bg-gray-500 text-white'
-                              }`}
-                            >
-                              <Eye className="w-4 h-4" />
-                              {topic.visible ? 'Visible' : 'Oculto'}
-                            </button>
+                            
+                            <div className="flex gap-2">
+                              {/* Botón Grupo 1 */}
+                              <button
+                                onClick={() => toggleTopicVisibility(topic.id, 1, topic.visibleGroup1)}
+                                className={`px-4 py-2 rounded-lg font-medium transition flex items-center gap-2 ${
+                                  topic.visibleGroup1
+                                    ? 'bg-blue-500 hover:bg-blue-600 text-white'
+                                    : 'bg-gray-400 hover:bg-gray-500 text-white'
+                                }`}
+                                title={`${topic.visibleGroup1 ? 'Ocultar' : 'Mostrar'} para Grupo 1`}
+                              >
+                                <Eye className="w-4 h-4" />
+                                Grupo 1
+                              </button>
+                              
+                              {/* Botón Grupo 2 */}
+                              <button
+                                onClick={() => toggleTopicVisibility(topic.id, 2, topic.visibleGroup2)}
+                                className={`px-4 py-2 rounded-lg font-medium transition flex items-center gap-2 ${
+                                  topic.visibleGroup2
+                                    ? 'bg-green-500 hover:bg-green-600 text-white'
+                                    : 'bg-gray-400 hover:bg-gray-500 text-white'
+                                }`}
+                                title={`${topic.visibleGroup2 ? 'Ocultar' : 'Mostrar'} para Grupo 2`}
+                              >
+                                <Eye className="w-4 h-4" />
+                                Grupo 2
+                              </button>
+                            </div>
                           </div>
                         ))}
                       </div>
