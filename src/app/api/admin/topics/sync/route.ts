@@ -92,15 +92,16 @@ export async function POST(req: NextRequest) {
         updated++;
       } else {
         // Crear nuevo tema
-        await prisma.topic.create({
-          data: {
-            slug: topic.slug,
-            title: topic.title,
-            order: topic.order,
-            visible: true // Por defecto visible
-          }
-        });
-        created++;
+      await prisma.topic.create({
+        data: {
+          slug: topic.slug,
+          title: topic.title,
+          order: topic.order,
+          visibleGroup1: true, // Visible por defecto para grupo 1
+          visibleGroup2: true  // Visible por defecto para grupo 2
+        }
+      });
+      
       }
     }
 
