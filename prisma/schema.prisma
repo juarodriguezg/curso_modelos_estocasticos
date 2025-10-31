@@ -34,14 +34,16 @@ model Session {
 }
 
 model Topic {
-  id        String   @id @default(cuid())
-  slug      String   @unique // URL slug del tema (ej: "experimentos-aleatorios-y-espacios-de-probabilidad")
-  title     String   // Título del tema
-  visible   Boolean  @default(true) // Si el tema es visible para los estudiantes
-  order     Int      @default(0) // Orden de aparición
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id             String   @id @default(cuid())
+  slug           String   @unique // URL slug del tema (ej: "experimentos-aleatorios-y-espacios-de-probabilidad")
+  title          String   // Título del tema
+  visibleGroup1  Boolean  @default(true) // Visibilidad para el grupo 1
+  visibleGroup2  Boolean  @default(true) // Visibilidad para el grupo 2
+  order          Int      @default(0) // Orden de aparición
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
   @@index([slug])
-  @@index([visible])
+  @@index([visibleGroup1])
+  @@index([visibleGroup2])
 }
