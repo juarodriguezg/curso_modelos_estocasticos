@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import {
   Home,
@@ -14,12 +14,14 @@ import {
 interface Subtema {
   titulo: string
   enlace: string
+  visible?: boolean
 }
 
 interface Seccion {
   titulo: string
   enlace: string
   subtemas?: Subtema[]
+  visible?: boolean
 }
 
 interface Parte {
@@ -27,10 +29,18 @@ interface Parte {
   secciones: Seccion[]
 }
 
+interface Topic {
+  slug: string
+  visible: boolean
+}
+
 export default function Sidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [openPartes, setOpenPartes] = useState<string[]>([])
   const [openSecciones, setOpenSecciones] = useState<string[]>([])
+  const [visibleTopics, setVisibleTopics] = useState<Map<string, boolean>>(new Map())
+  const [isAdmin, setIsAdmin] = useState(false)
+  const [loading, setLoading] = useState(true)
 
   const toggleParte = (parte: string) => {
     setOpenPartes((prev) =>
@@ -50,12 +60,56 @@ export default function Sidebar() {
 
   const toggleSidebar = () => setIsCollapsed(!isCollapsed)
 
+  // Verificar si el usuario es admin y cargar visibilidad de temas
+  useEffect(() => {
+    const loadTopicVisibility = async () => {
+      try {
+        // Verificar si es admin
+        const userData = localStorage.getItem('user')
+        if (userData) {
+          const user = JSON.parse(userData)
+          setIsAdmin(user.role === 'admin')
+        }
+
+        // Obtener visibilidad de temas (público, no requiere auth)
+        const res = await fetch('/api/topics/visible')
+        if (res.ok) {
+          const data = await res.json()
+          const topicMap = new Map<string, boolean>()
+          data.topics.forEach((topic: Topic) => {
+            topicMap.set(topic.slug, topic.visible)
+          })
+          setVisibleTopics(topicMap)
+        }
+      } catch (error) {
+        console.error('Error cargando visibilidad de temas:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadTopicVisibility()
+  }, [])
+
   // Función auxiliar para generar enlaces
   const generarEnlace = (texto: string) => {
     return `/temas/${texto
       .toLowerCase()
       .replaceAll(/[()–.]/g, "")
       .replaceAll(/\s+/g, "-")}`
+  }
+
+  // Función para verificar si un tema es visible
+  const esVisible = (titulo: string): boolean => {
+    if (isAdmin) return true // Los admins ven todo
+    if (loading) return true // Mientras carga, mostrar todo
+    
+    const slug = titulo
+      .toLowerCase()
+      .replaceAll(/[()–.]/g, "")
+      .replaceAll(/\s+/g, "-")
+    
+    return visibleTopics.get(slug) !== false // Por defecto visible si no está en la BD
   }
 
   // Estructura del curso
@@ -288,6 +342,17 @@ export default function Sidebar() {
     },
   ]
 
+  // Filtrar contenido basado en visibilidad
+  const contenidoFiltrado = contenido.map(parte => ({
+    ...parte,
+    secciones: parte.secciones
+      .filter(sec => esVisible(sec.titulo))
+      .map(sec => ({
+        ...sec,
+        subtemas: sec.subtemas?.filter(sub => esVisible(sub.titulo))
+      }))
+  })).filter(parte => parte.secciones.length > 0)
+
   return (
     <aside
       className={`fixed top-0 left-0 h-screen transition-all duration-300 shadow-lg overflow-y-auto ${
@@ -341,7 +406,7 @@ export default function Sidebar() {
 
         {/* Estructura */}
         {!isCollapsed &&
-          contenido.map((parte, i) => (
+          contenidoFiltrado.map((parte, i) => (
             <div key={i} className="mb-3 text-left">
               {/* Parte */}
               <button
@@ -370,7 +435,7 @@ export default function Sidebar() {
                   {parte.secciones.map((sec, j) => {
                     return (
                       <div key={j}>
-                        {sec.subtemas ? (
+                        {sec.subtemas && sec.subtemas.length > 0 ? (
                           <>
                             {/* Sección con subtemas - Clickeable con flecha */}
                             <div className="flex items-center gap-1">
@@ -379,6 +444,9 @@ export default function Sidebar() {
                                 className="flex-1 text-sm font-medium py-1 px-2 rounded-md hover:bg-[color:var(--color-button)] transition text-left"
                               >
                                 {sec.titulo}
+                                {isAdmin && !esVisible(sec.titulo) && (
+                                  <span className="ml-2 text-xs opacity-50">(Oculto)</span>
+                                )}
                               </Link>
                               <button
                                 onClick={(e) => {
@@ -404,6 +472,9 @@ export default function Sidebar() {
                                       className="block px-2 py-1 rounded hover:bg-[color:var(--color-button)] transition text-left"
                                     >
                                       {sub.titulo}
+                                      {isAdmin && !esVisible(sub.titulo) && (
+                                        <span className="ml-2 text-xs opacity-50">(Oculto)</span>
+                                      )}
                                     </Link>
                                   </li>
                                 ))}
@@ -416,6 +487,9 @@ export default function Sidebar() {
                             className="block w-full text-sm font-medium py-1 px-2 rounded-md hover:bg-[color:var(--color-button)] transition text-left"
                           >
                             {sec.titulo}
+                            {isAdmin && !esVisible(sec.titulo) && (
+                              <span className="ml-2 text-xs opacity-50">(Oculto)</span>
+                            )}
                           </Link>
                         )}
                       </div>
