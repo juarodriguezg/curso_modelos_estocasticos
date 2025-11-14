@@ -222,12 +222,17 @@ export default function PerfilPage() {
     }
   }, [activeTab]);
 
-  const generarSlug = (texto: string) => {
-    return texto
-      .toLowerCase()
-      .replaceAll(/[()–.]/g, "")
-      .replaceAll(/\s+/g, "-");
-  };
+ const generarSlug = (texto: string) => {
+  return texto
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")       
+    .toLowerCase()
+    .replace(/ñ/g, "n")                    
+    .replace(/[^\w\s-]/g, "")              
+    .replace(/\s+/g, "-")                  
+    .replace(/-+/g, "-")                   
+    .replace(/^-+|-+$/g, "");              
+}; 
 
   const getTopicVisibility = (slug: string, group: number) => {
     const topic = topics.find(t => t.slug === slug);
