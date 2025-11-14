@@ -133,23 +133,67 @@ export default function Sidebar() {
   // Estructura del curso
   const contenido: Parte[] = [
     {
+      titulo: "Preliminares",
+      secciones: [
+        { titulo: "Prólogo", enlace: generarEnlace("Prólogo") },
+        { titulo: "Prefacio", enlace: generarEnlace("Prefacio") },
+        { titulo: "Agradecimientos", enlace: generarEnlace("Agradecimientos") },
+        { titulo: "Introducción", enlace: generarEnlace("Introducción") },
+      ],
+    },
+    {
       titulo: "Parte 1: Vectores Aleatorios",
       secciones: [
-        { 
-          titulo: "Experimentos aleatorios y espacios de probabilidad",
-          enlace: generarEnlace("Experimentos aleatorios y espacios de probabilidad")
+        {
+          titulo: "Capítulo 1: Experimentos aleatorios y espacios de probabilidad",
+          enlace: generarEnlace("Capítulo 1: Experimentos aleatorios y espacios de probabilidad"),
+          subtemas: [
+            { titulo: "Sección 1.1 Mundo, universo, cosmos y naturaleza", enlace: generarEnlace("Sección 1.1 Mundo, universo, cosmos y naturaleza") },
+            { titulo: "Sección 1.2 Experimento aleatorio", enlace: generarEnlace("Sección 1.2 Experimento aleatorio") },
+            { titulo: "Sección 1.3 Espacio de probabilidad incondicional", enlace: generarEnlace("Sección 1.3 Espacio de probabilidad incondicional") },
+            { titulo: "Sección 1.4 Espacio de probabilidad condicionales", enlace: generarEnlace("Sección 1.4 Espacio de probabilidad condicionales") },
+          ],
         },
-        { 
-          titulo: "Variables y vectores aleatorios",
-          enlace: generarEnlace("Variables y vectores aleatorios")
+        {
+          titulo: "Capítulo 2: Variables aleatorias y sus estructuras probabilísticas",
+          enlace: generarEnlace("Capítulo 2: Variables aleatorias y sus estructuras probabilísticas"),
+          subtemas: [
+            { titulo: "Sección 2.1 Definición y propiedades", enlace: generarEnlace("Sección 2.1 Definición y propiedades") },
+            { titulo: "Sección 2.2 Variables aleatorias discretas", enlace: generarEnlace("Sección 2.2 Variables aleatorias discretas") },
+            { titulo: "Sección 2.3 Variables aleatorias continuas", enlace: generarEnlace("Sección 2.3 Variables aleatorias continuas") },
+            { titulo: "Sección 2.4 Esperanza matemática y momentos", enlace: generarEnlace("Sección 2.4 Esperanza matemática y momentos") },
+          ],
         },
-        { 
-          titulo: "Esperanza matemática",
-          enlace: generarEnlace("Esperanza matemática")
+        {
+          titulo: "Capítulo 3: Algunas familias paramétricas unidimensionales clásicas",
+          enlace: generarEnlace("Capítulo 3: Algunas familias paramétricas unidimensionales clásicas"),
+          subtemas: [
+            { titulo: "Sección 3.1 Introducción y resumen", enlace: generarEnlace("Sección 3.1 Introducción y resumen") },
+            { titulo: "Sección 3.2 Familias discretas", enlace: generarEnlace("Sección 3.2 Familias discretas") },
+            { titulo: "Sección 3.3 Familias continuas", enlace: generarEnlace("Sección 3.3 Familias continuas") },
+          ],
         },
-        { 
-          titulo: "Transformaciones de vectores aleatorios",
-          enlace: generarEnlace("Transformaciones de vectores aleatorios")
+        {
+          titulo: "Capítulo 4: Vectores aleatorios",
+          enlace: generarEnlace("Capítulo 4: Vectores aleatorios"),
+          subtemas: [
+            { titulo: "Sección 4.1 Estructura probabilística conjunta", enlace: generarEnlace("Sección 4.1 Estructura probabilística conjunta") },
+            { titulo: "Sección 4.2 Independencia de variables aleatorias", enlace: generarEnlace("Sección 4.2 Independencia de variables aleatorias") },
+            { titulo: "Sección 4.3 Covarianza y coeficiente de correlación", enlace: generarEnlace("Sección 4.3 Covarianza y coeficiente de correlación") },
+            { titulo: "Sección 4.4 Esperanza matemática de vectores aleatorios", enlace: generarEnlace("Sección 4.4 Esperanza matemática de vectores aleatorios") },
+            { titulo: "Sección 4.5 Función generadora de momentos conjunta", enlace: generarEnlace("Sección 4.5 Función generadora de momentos conjunta") },
+            { titulo: "Sección 4.6 Familias paramétricas conjuntas", enlace: generarEnlace("Sección 4.6 Familias paramétricas conjuntas") },
+          ],
+        },
+        {
+          titulo: "Capítulo 5: Transformaciones de vectores aleatorios",
+          enlace: generarEnlace("Capítulo 5: Transformaciones de vectores aleatorios"),
+          subtemas: [
+            { titulo: "Sección 5.1 Introducción y resumen", enlace: generarEnlace("Sección 5.1 Introducción y resumen") },
+            { titulo: "Sección 5.2 Técnicas univariadas", enlace: generarEnlace("Sección 5.2 Técnicas univariadas") },
+            { titulo: "Sección 5.3 Transformación de vectores aleatorios discretos", enlace: generarEnlace("Sección 5.3 Transformación de vectores aleatorios discretos") },
+            { titulo: "Sección 5.4 Transformación de vectores aleatorios continuos", enlace: generarEnlace("Sección 5.4 Transformación de vectores aleatorios continuos") },
+          ],
         },
       ],
     },
