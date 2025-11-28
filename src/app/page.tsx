@@ -116,13 +116,10 @@ export default function Home() {
       {/* Contenido central */}
       <div className="flex-grow flex flex-col items-center justify-center backdrop-brightness-95 px-6">
         {/* Encabezado */}
-        <header className="text-center mb-10 mt-10">
+        <header className="text-center mb-5 mt-15">
           <h1 className="text-4xl md:text-6xl font-bold [color:var(--color-header)] drop-shadow-lg">
-            Curso de Modelos Estocásticos
+            Modelos estocásticos y simulación en computación y comunicaciones
           </h1>
-          <p className="mt-4 text-lg md:text-xl [color:var(--color-text-medium)] max-w-2xl mx-auto drop-shadow">
-            Bienvenido al curso — Aprende probabilidad, procesos aleatorios y aplicaciones reales.
-          </p>
         </header>
 
         {/* Video embebido */}

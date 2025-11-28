@@ -12,10 +12,10 @@ model User {
   email     String    @unique
   name      String?
   password  String
-  role      String    @default("student") // "student", "teacher", "admin"
-  grupo     Int       @default(0) // 0 = admin/teacher, 1 o 2 = estudiantes
+  role      String    @default("student")
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
+  grupo     Int       @default(0)
   sessions  Session[]
 
   @@index([email])
@@ -34,14 +34,14 @@ model Session {
 }
 
 model Topic {
-  id             String   @id @default(cuid())
-  slug           String   @unique // URL slug del tema (ej: "experimentos-aleatorios-y-espacios-de-probabilidad")
-  title          String   // Título del tema
-  visibleGroup1  Boolean  @default(true) // Visibilidad para el grupo 1
-  visibleGroup2  Boolean  @default(true) // Visibilidad para el grupo 2
-  order          Int      @default(0) // Orden de aparición
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id            String   @id @default(cuid())
+  slug          String   @unique
+  title         String
+  order         Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  visibleGroup1 Boolean  @default(true)
+  visibleGroup2 Boolean  @default(true)
 
   @@index([slug])
   @@index([visibleGroup1])
