@@ -111,11 +111,15 @@ export default function Sidebar() {
 
   // Función auxiliar para generar enlaces
   const generarEnlace = (texto: string) => {
-    return `/temas/${texto
+    return "/temas/" + texto
+      .normalize("NFD")                     // separa acentos
+      .replace(/[\u0300-\u036f]/g, "")      // elimina acentos
       .toLowerCase()
-      .replaceAll(/[()–.]/g, "")
-      .replaceAll(/\s+/g, "-")}`
+      .replace(/:/g, "")                    // elimina los dos puntos
+      .replace(/[()–.]/g, "")               // igual que antes
+      .replace(/\s+/g, "-")                 // espacios → guiones
   }
+
 
   // Función para verificar si un tema es visible
   const esVisible = (titulo: string): boolean => {
@@ -333,34 +337,154 @@ export default function Sidebar() {
       ],
     },
     {
-      titulo: "Parte 5: Teoría de la Decisión",
-      secciones: [
+  titulo: "Parte 5: Teoría de la Decisión",
+  secciones: [
+    {
+      titulo: "Capítulo 1: Teoría de la utilidad",
+      enlace: generarEnlace("Capítulo 1: Teoría de la utilidad"),
+      subtemas: [
         { 
-          titulo: "Decisiones bajo incertidumbre",
-          enlace: generarEnlace("Decisiones bajo incertidumbre")
+          titulo: "Sección 1.1: Introducción", 
+          enlace: generarEnlace("Sección 1.1: Introducción") 
         },
         { 
-          titulo: "Teoría de la utilidad",
-          enlace: generarEnlace("Teoría de la utilidad")
+          titulo: "Sección 1.2: Loterías", 
+          enlace: generarEnlace("Sección 1.2: Loterías") 
         },
         { 
-          titulo: "Teoría del riesgo y árboles de decisión",
-          enlace: generarEnlace("Teoría del riesgo y árboles de decisión")
+          titulo: "Sección 1.3: Axiomática de Luce Raiffa", 
+          enlace: generarEnlace("Sección 1.3: Axiomática de Luce Raiffa") 
         },
         { 
-          titulo: "Entropía y valor de la información",
-          enlace: generarEnlace("Entropía y valor de la información")
-        },
-        { 
-          titulo: "Decisiones en comunidades de agentes",
-          enlace: generarEnlace("Decisiones en comunidades de agentes")
-        },
-        { 
-          titulo: "Decisiones multiobjetivo",
-          enlace: generarEnlace("Decisiones multiobjetivo")
+          titulo: "Sección 1.4: Actitud del decisor frente al riesgo", 
+          enlace: generarEnlace("Sección 1.4: Actitud del decisor frente al riesgo") 
         },
       ],
     },
+    {
+      titulo: "Capítulo 2: Decisiones en ambientes de certeza",
+      enlace: generarEnlace("Capítulo 2: Decisiones en ambientes de certeza"),
+      subtemas: [
+        { 
+          titulo: "Sección 2.1: Planteamiento del problema", 
+          enlace: generarEnlace("Sección 2.1: Planteamiento del problema") 
+        },
+        { 
+          titulo: "Sección 2.2: Concepto de óptimo", 
+          enlace: generarEnlace("Sección 2.2: Concepto de óptimo") 
+        },
+        { 
+          titulo: "Sección 2.3: Conjunto de alternativas limitado e ilimitado", 
+          enlace: generarEnlace("Sección 2.3: Conjunto de alternativas limitado e ilimitado") 
+        },
+        { 
+          titulo: "Sección 2.4: Modelos de optimización", 
+          enlace: generarEnlace("Sección 2.4: Modelos de optimización") 
+        },
+      ],
+    },
+    {
+      titulo: "Capítulo 3: Decisiones bajo riesgo",
+      enlace: generarEnlace("Capítulo 3: Decisiones bajo riesgo"),
+      subtemas: [
+        { 
+          titulo: "Sección 3.1: Modelo del problema", 
+          enlace: generarEnlace("Sección 3.1: Modelo del problema") 
+        },
+        { 
+          titulo: "Sección 3.2: Dominación simple y estocástica", 
+          enlace: generarEnlace("Sección 3.2: Dominación simple y estocástica") 
+        },
+        { 
+          titulo: "Sección 3.3: Criterios de decisión", 
+          enlace: generarEnlace("Sección 3.3: Criterios de decisión") 
+        },
+      ],
+    },
+    {
+      titulo: "Capítulo 4: Decisiones bajo incertidumbre",
+      enlace: generarEnlace("Capítulo 4: Decisiones bajo incertidumbre"),
+      subtemas: [
+        { 
+          titulo: "Sección 4.1: Modelo del problema", 
+          enlace: generarEnlace("Sección 4.1: Modelo del problema") 
+        },
+        { 
+          titulo: "Sección 4.2: Criterio de Wald", 
+          enlace: generarEnlace("Sección 4.2: Criterio de Wald") 
+        },
+        { 
+          titulo: "Sección 4.3: Criterio Maximax", 
+          enlace: generarEnlace("Sección 4.3: Criterio Maximax") 
+        },
+        { 
+          titulo: "Sección 4.4: Criterio de decisión de Hurwicz", 
+          enlace: generarEnlace("Sección 4.4: Criterio de decisión de Hurwicz") 
+        },
+        { 
+          titulo: "Sección 4.5: Criterio de Savage", 
+          enlace: generarEnlace("Sección 4.5: Criterio de Savage") 
+        },
+        { 
+          titulo: "Sección 4.6: Criterio de Laplace", 
+          enlace: generarEnlace("Sección 4.6: Criterio de Laplace") 
+        },
+      ],
+    },
+    {
+      titulo: "Capítulo 5: Análisis pre a posteriori",
+      enlace: generarEnlace("Capítulo 5: Análisis pre a posteriori"),
+      subtemas: [
+        { 
+          titulo: "Sección 5.1: Modelo del problema", 
+          enlace: generarEnlace("Sección 5.1: Modelo del problema") 
+        },
+        { 
+          titulo: "Sección 5.2: Información adicional", 
+          enlace: generarEnlace("Sección 5.2: Información adicional") 
+        },
+        { 
+          titulo: "Sección 5.3: Distribución a posterior", 
+          enlace: generarEnlace("Sección 5.3: Distribución a posterior") 
+        },
+        { 
+          titulo: "Sección 5.4: Valor de la información adicional", 
+          enlace: generarEnlace("Sección 5.4: Valor de la información adicional") 
+        },
+        { 
+          titulo: "Sección 5.5: Problema de decisión secuencial", 
+          enlace: generarEnlace("Sección 5.5: Problema de decisión secuencial") 
+        },
+        { 
+          titulo: "Sección 5.6: Eficiencia de la información", 
+          enlace: generarEnlace("Sección 5.6: Eficiencia de la información") 
+        },
+      ],
+    },
+    {
+      titulo: "Capítulo 6: Teoría de juegos",
+      enlace: generarEnlace("Capítulo 6: Teoría de juegos"),
+      subtemas: [
+        { 
+          titulo: "Sección 6.1: Modelo del problema", 
+          enlace: generarEnlace("Sección 6.1: Modelo del problema") 
+        },
+        { 
+          titulo: "Sección 6.2: Clasificación de los juegos de estrategia", 
+          enlace: generarEnlace("Sección 6.2: Clasificación de los juegos de estrategia") 
+        },
+        { 
+          titulo: "Sección 6.3: Juegos de suma cero entre dos agentes", 
+          enlace: generarEnlace("Sección 6.3: Juegos de suma cero entre dos agentes") 
+        },
+        { 
+          titulo: "Sección 6.4: Juegos de suma no constante entre dos agentes", 
+          enlace: generarEnlace("Sección 6.4: Juegos de suma no constante entre dos agentes") 
+        },
+      ],
+    },
+  ],
+},
     {
       titulo: "Parte 6: Convergencia en Probabilidad y Distribución",
       secciones: [
@@ -402,7 +526,7 @@ export default function Sidebar() {
         },
       ],
     },
-  ]
+  ];
 
   // Filtrar contenido basado en visibilidad
   const contenidoFiltrado = contenido.map(parte => ({

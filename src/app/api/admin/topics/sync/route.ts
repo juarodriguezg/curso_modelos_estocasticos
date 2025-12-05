@@ -79,23 +79,62 @@ const allTopics = [
   { slug: "funciones-percentiles-generalizadas-dlg", title: "Funciones percentiles generalizadas (DLG)", order: 56 },
   
   // Parte 5: Teoría de la Decisión
-  { slug: "decisiones-bajo-incertidumbre", title: "Decisiones bajo incertidumbre", order: 57 },
-  { slug: "teoria-de-la-utilidad", title: "Teoría de la utilidad", order: 58 },
-  { slug: "teoria-del-riesgo-y-arboles-de-decision", title: "Teoría del riesgo y árboles de decisión", order: 59 },
-  { slug: "entropia-y-valor-de-la-informacion", title: "Entropía y valor de la información", order: 60 },
-  { slug: "decisiones-en-comunidades-de-agentes", title: "Decisiones en comunidades de agentes", order: 61 },
-  { slug: "decisiones-multiobjetivo", title: "Decisiones multiobjetivo", order: 62 },
-  
+  // Capítulo 1
+  { slug: "capitulo-1-teoria-de-la-utilidad", title: "Capítulo 1: Teoría de la utilidad", order: 57 },
+  { slug: "seccion-11-introduccion", title: "Sección 1.1 Introducción", order: 58 },
+  { slug: "seccion-12-loterias", title: "Sección 1.2 Loterías", order: 59 },
+  { slug: "seccion-13-axiomatica-de-luce-raiffa", title: "Sección 1.3 Axiomática de Luce Raiffa", order: 60 },
+  { slug: "seccion-14-actitud-del-decisor-frente-al-riesgo", title: "Sección 1.4 Actitud del decisor frente al riesgo", order: 61 },
+
+  // Capítulo 2
+  { slug: "capitulo-2-decisiones-en-ambientes-de-certeza", title: "Capítulo 2: Decisiones en ambientes de certeza", order: 62 },
+  { slug: "seccion-21-planteamiento-del-problema", title: "Sección 2.1 Planteamiento del problema", order: 63 },
+  { slug: "seccion-22-concepto-de-optimo", title: "Sección 2.2 Concepto de óptimo", order: 64 },
+  { slug: "seccion-23-conjunto-de-alternativas-limitado-e-ilimitado", title: "Sección 2.3 Conjunto de alternativas limitado e ilimitado", order: 65 },
+  { slug: "seccion-24-modelos-de-optimizacion", title: "Sección 2.4 Modelos de optimización", order: 66 },
+
+  // Capítulo 3
+  { slug: "capitulo-3-decisiones-bajo-riesgo", title: "Capítulo 3: Decisiones bajo riesgo", order: 67 },
+  { slug: "seccion-31-modelo-del-problema", title: "Sección 3.1 Modelo del problema", order: 68 },
+  { slug: "seccion-32-dominacion-simple-y-estocastica", title: "Sección 3.2 Dominación simple y estocástica", order: 69 },
+  { slug: "seccion-33-criterios-de-decision", title: "Sección 3.3 Criterios de decisión", order: 70 },
+
+  // Capítulo 4
+  { slug: "capitulo-4-decisiones-bajo-incertidumbre", title: "Capítulo 4: Decisiones bajo incertidumbre", order: 71 },
+  { slug: "seccion-41-modelo-del-problema", title: "Sección 4.1 Modelo del problema", order: 72 },
+  { slug: "seccion-42-criterio-de-wald", title: "Sección 4.2 Criterio de Wald", order: 73 },
+  { slug: "seccion-43-criterio-maximax", title: "Sección 4.3 Criterio Maximax", order: 74 },
+  { slug: "seccion-44-criterio-de-decision-de-hurwicz", title: "Sección 4.4 Criterio de decisión de Hurwicz", order: 75 },
+  { slug: "seccion-45-criterio-de-savage", title: "Sección 4.5 Criterio de Savage", order: 76 },
+  { slug: "seccion-46-criterio-de-laplace", title: "Sección 4.6 Criterio de Laplace", order: 77 },
+
+  // Capítulo 5
+  { slug: "capitulo-5-analisis-pre-a-posteriori", title: "Capítulo 5: Análisis pre a posteriori", order: 78 },
+  { slug: "seccion-51-modelo-del-problema", title: "Sección 5.1 Modelo del problema", order: 79 },
+  { slug: "seccion-52-informacion-adicional", title: "Sección 5.2 Información adicional", order: 80 },
+  { slug: "seccion-53-distribucion-a-posterior", title: "Sección 5.3 Distribución a posterior", order: 81 },
+  { slug: "seccion-54-valor-de-la-informacion-adicional", title: "Sección 5.4 Valor de la información adicional", order: 82 },
+  { slug: "seccion-55-problema-de-decision-secuencial", title: "Sección 5.5 Problema de decisión secuencial", order: 83 },
+  { slug: "seccion-56-eficiencia-de-la-informacion", title: "Sección 5.6 Eficiencia de la información", order: 84 },
+
+  // Capítulo 6
+  { slug: "capitulo-6-teoria-de-juegos", title: "Capítulo 6: Teoría de juegos", order: 85 },
+  { slug: "seccion-61-modelo-del-problema", title: "Sección 6.1 Modelo del problema", order: 86 },
+  { slug: "seccion-62-clasificacion-de-los-juegos-de-estrategia", title: "Sección 6.2 Clasificación de los juegos de estrategia", order: 87 },
+  { slug: "seccion-63-juegos-de-suma-cero-entre-dos-agentes", title: "Sección 6.3 Juegos de suma cero entre dos agentes", order: 88 },
+  { slug: "seccion-64-juegos-de-suma-no-constante-entre-dos-agentes", title: "Sección 6.4 Juegos de suma no constante entre dos agentes", order: 89 },
+
   // Parte 6: Convergencia en Probabilidad y Distribución
-  { slug: "convergencia-en-variables-aleatorias", title: "Convergencia en variables aleatorias", order: 63 },
-  { slug: "muestreo-y-distribuciones-muestrales", title: "Muestreo y distribuciones muestrales", order: 64 },
-  { slug: "estimacion-puntual-y-por-intervalos", title: "Estimación puntual y por intervalos", order: 65 },
-  { slug: "prueba-de-hipotesis", title: "Prueba de hipótesis", order: 66 },
-  { slug: "convergencia-y-teoremas-limite", title: "Convergencia y teoremas límite", order: 67 },
-  { slug: "convergencia-en-vectores-aleatorios", title: "Convergencia en vectores aleatorios", order: 68 },
-  { slug: "ley-de-los-grandes-numeros-para-vectores", title: "Ley de los grandes números para vectores", order: 69 },
-  { slug: "teorema-del-limite-central", title: "Teorema del límite central", order: 70 },
+  { slug: "convergencia-en-variables-aleatorias", title: "Convergencia en variables aleatorias", order: 90 },
+  { slug: "muestreo-y-distribuciones-muestrales", title: "Muestreo y distribuciones muestrales", order: 91 },
+  { slug: "estimacion-puntual-y-por-intervalos", title: "Estimación puntual y por intervalos", order: 92 },
+  { slug: "prueba-de-hipotesis", title: "Prueba de hipótesis", order: 93 },
+  { slug: "convergencia-y-teoremas-limite", title: "Convergencia y teoremas límite", order: 94 },
+  { slug: "convergencia-en-vectores-aleatorios", title: "Convergencia en vectores aleatorios", order: 95 },
+  { slug: "ley-de-los-grandes-numeros-para-vectores", title: "Ley de los grandes números para vectores", order: 96 },
+  { slug: "teorema-del-limite-central", title: "Teorema del límite central", order: 97 },
 ];
+
 
 export async function POST(req: NextRequest) {
   try {

@@ -388,16 +388,78 @@ export default function PerfilPage() {
       ],
     },
     {
-      titulo: "Parte 5: Teoría de la Decisión",
-      secciones: [
-        { titulo: "Decisiones bajo incertidumbre", slug: generarSlug("Decisiones bajo incertidumbre") },
-        { titulo: "Teoría de la utilidad", slug: generarSlug("Teoría de la utilidad") },
-        { titulo: "Teoría del riesgo y árboles de decisión", slug: generarSlug("Teoría del riesgo y árboles de decisión") },
-        { titulo: "Entropía y valor de la información", slug: generarSlug("Entropía y valor de la información") },
-        { titulo: "Decisiones en comunidades de agentes", slug: generarSlug("Decisiones en comunidades de agentes") },
-        { titulo: "Decisiones multiobjetivo", slug: generarSlug("Decisiones multiobjetivo") },
+  titulo: "Parte 5: Teoría de la Decisión",
+  secciones: [
+    {
+      titulo: "Capítulo 1: Teoría de la utilidad",
+      slug: generarSlug("Capítulo 1: Teoría de la utilidad"),
+      subtemas: [
+        { titulo: "Sección 1.1 Introducción", slug: generarSlug("Sección 1.1 Introducción") },
+        { titulo: "Sección 1.2 Loterías", slug: generarSlug("Sección 1.2 Loterías") },
+        { titulo: "Sección 1.3 Axiomática de Luce-Raiffa", slug: generarSlug("Sección 1.3 Axiomática de Luce-Raiffa") },
+        { titulo: "Sección 1.4 Actitud del decisor frente al riesgo", slug: generarSlug("Sección 1.4 Actitud del decisor frente al riesgo") },
       ],
     },
+
+    {
+      titulo: "Capítulo 2: Decisiones en ambientes de certeza",
+      slug: generarSlug("Capítulo 2: Decisiones en ambientes de certeza"),
+      subtemas: [
+        { titulo: "Sección 2.1 Planteamiento del problema", slug: generarSlug("Sección 2.1 Planteamiento del problema") },
+        { titulo: "Sección 2.2 Concepto de óptimo", slug: generarSlug("Sección 2.2 Concepto de óptimo") },
+        { titulo: "Sección 2.3 Conjunto de alternativas limitado e ilimitado", slug: generarSlug("Sección 2.3 Conjunto de alternativas limitado e ilimitado") },
+        { titulo: "Sección 2.4 Modelos de optimización", slug: generarSlug("Sección 2.4 Modelos de optimización") },
+      ],
+    },
+
+    {
+      titulo: "Capítulo 3: Decisiones bajo riesgo",
+      slug: generarSlug("Capítulo 3: Decisiones bajo riesgo"),
+      subtemas: [
+        { titulo: "Sección 3.1 Modelo del problema", slug: generarSlug("Sección 3.1 Modelo del problema") },
+        { titulo: "Sección 3.2 Dominación simple y estocástica", slug: generarSlug("Sección 3.2 Dominación simple y estocástica") },
+        { titulo: "Sección 3.3 Criterios de decisión", slug: generarSlug("Sección 3.3 Criterios de decisión") },
+      ],
+    },
+
+    {
+      titulo: "Capítulo 4: Decisiones bajo incertidumbre",
+      slug: generarSlug("Capítulo 4: Decisiones bajo incertidumbre"),
+      subtemas: [
+        { titulo: "Sección 4.1 Modelo del problema", slug: generarSlug("Sección 4.1 Modelo del problema") },
+        { titulo: "Sección 4.2 Criterio de Wald", slug: generarSlug("Sección 4.2 Criterio de Wald") },
+        { titulo: "Sección 4.3 Criterio maximax", slug: generarSlug("Sección 4.3 Criterio maximax") },
+        { titulo: "Sección 4.4 Criterio de decisión de Hurwicz", slug: generarSlug("Sección 4.4 Criterio de decisión de Hurwicz") },
+        { titulo: "Sección 4.5 Criterio de Savage", slug: generarSlug("Sección 4.5 Criterio de Savage") },
+        { titulo: "Sección 4.6 Criterio de Laplace", slug: generarSlug("Sección 4.6 Criterio de Laplace") },
+      ],
+    },
+
+    {
+      titulo: "Capítulo 5: Análisis pre / a posteriori",
+      slug: generarSlug("Capítulo 5: Análisis pre / a posteriori"),
+      subtemas: [
+        { titulo: "Sección 5.1 Modelo del problema", slug: generarSlug("Sección 5.1 Modelo del problema") },
+        { titulo: "Sección 5.2 Información adicional", slug: generarSlug("Sección 5.2 Información adicional") },
+        { titulo: "Sección 5.3 Distribución a posteriori", slug: generarSlug("Sección 5.3 Distribución a posteriori") },
+        { titulo: "Sección 5.4 Valor de la información adicional", slug: generarSlug("Sección 5.4 Valor de la información adicional") },
+        { titulo: "Sección 5.5 Problema de decisión secuencial", slug: generarSlug("Sección 5.5 Problema de decisión secuencial") },
+        { titulo: "Sección 5.6 Eficiencia de la información", slug: generarSlug("Sección 5.6 Eficiencia de la información") },
+      ],
+    },
+
+    {
+      titulo: "Capítulo 6: Teoría de juegos",
+      slug: generarSlug("Capítulo 6: Teoría de juegos"),
+      subtemas: [
+        { titulo: "Sección 6.1 Modelo del problema", slug: generarSlug("Sección 6.1 Modelo del problema") },
+        { titulo: "Sección 6.2 Clasificación de los juegos de estrategia", slug: generarSlug("Sección 6.2 Clasificación de los juegos de estrategia") },
+        { titulo: "Sección 6.3 Juegos de suma cero entre dos agentes", slug: generarSlug("Sección 6.3 Juegos de suma cero entre dos agentes") },
+        { titulo: "Sección 6.4 Juegos de suma no constante entre dos agentes", slug: generarSlug("Sección 6.4 Juegos de suma no constante entre dos agentes") },
+      ],
+    },
+  ],
+},
     {
       titulo: "Parte 6: Convergencia en Probabilidad y Distribución",
       secciones: [
