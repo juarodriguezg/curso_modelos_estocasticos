@@ -54,16 +54,42 @@ export const rutasValidas = [
   "/temas/razonamiento-probabilistico",
   "/temas/cadenas-de-markov",
 
-  // Parte 3 — Teletráfico
-  "/temas/modelo-mm1-en-detalle",
-  "/temas/notacion-de-kendall-y-medidas-de-desempeno",
-  "/temas/sistemas-de-lineas-de-espera-mm1",
-  "/temas/ley-de-little-y-teorema-de-burke",
+  // Parte 3 — Capítulo 1
+  "/temas/capitulo-1-introduccion",
 
-  "/temas/modelo-mm1-de-estado-dependiente",
-  "/temas/sistema-general-de-estado-dependiente",
-  "/temas/formulas-b-b-extendida-y-c",
-  "/temas/sistemas-de-linea-de-espera-gg1",
+  // Capítulo 2
+  "/temas/capitulo-2-expresion-de-kendall-y-medidas-de-desempeno",
+  "/temas/seccion-21-notacion",
+  "/temas/seccion-22-medidas-de-desempeno",
+
+  // Capítulo 3 — Sistema de Colas M/M/1
+  "/temas/capitulo-3-sistema-de-colas-m/m/1",
+  "/temas/seccion-31-procesos-binomiales-y-de-poisson",
+  "/temas/seccion-32-propiedades-importantes-de-los-procesos-de-poisson",
+  "/temas/seccion-33-fundamentos-del-proceso-de-poisson",
+  "/temas/seccion-34-media-y-varianza-del-proceso-de-poisson",
+  "/temas/seccion-35-tiempo-entre-llegadas",
+  "/temas/seccion-36-propiedad-de-perdida-de-la-memoria",
+  "/temas/seccion-37-propiedad-de-markov",
+  "/temas/seccion-38-tiempos-de-servicio-exponencial",
+  "/temas/seccion-39-fundamentos-del-sistema-m/m/1",
+
+  // Capítulo 4 — Sistema de Filas M/M/1 en Detalle
+  "/temas/capitulo-4-sistema-de-filas-m/m/1-en-detalle",
+  "/temas/seccion-41-funcion-de-densidad",
+  "/temas/seccion-42-utilizacion-del-servidor",
+  "/temas/seccion-43-numero-medio-de-clientes-en-el-sistema",
+  "/temas/seccion-44-varianza-del-numero-de-clientes-en-el-sistema",
+
+  // Capítulo 5
+  "/temas/capitulo-5-ley-de-little",
+
+  // Capítulo 6
+  "/temas/capitulo-6-teorema-de-burke",
+
+  // Capítulo 7
+  "/temas/capitulo-7-resumen-y-panorama-historico",
+
 
   // Parte 4 — Simulación de Redes
   "/temas/teorema-fundamental-unidimensional",

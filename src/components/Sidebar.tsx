@@ -252,42 +252,65 @@ export default function Sidebar() {
       titulo: "Parte 3: Teoría del Teletráfico",
       secciones: [
         {
-          titulo: "Modelo M/M/1 en detalle",
-          enlace: generarEnlace("Modelo M/M/1 en detalle"),
-          subtemas: [
-            { 
-              titulo: "Notación de Kendall y medidas de desempeño",
-              enlace: generarEnlace("Notación de Kendall y medidas de desempeño")
-            },
-            { 
-              titulo: "Sistemas de líneas de espera (M/M/1)",
-              enlace: generarEnlace("Sistemas de líneas de espera (M/M/1)")
-            },
-            { 
-              titulo: "Ley de Little y teorema de Burke",
-              enlace: generarEnlace("Ley de Little y teorema de Burke")
-            },
-          ],
+          titulo: "Capítulo 1: Introducción",
+          enlace: generarEnlace("Capítulo 1: Introducción"),
+          subtemas: []
         },
+      
         {
-          titulo: "Modelo M/M/1 de estado dependiente",
-          enlace: generarEnlace("Modelo M/M/1 de estado dependiente"),
+          titulo: "Capítulo 2: Expresión de Kendall y Medidas de Desempeño",
+          enlace: generarEnlace("Capítulo 2: Expresión de Kendall y Medidas de Desempeño"),
           subtemas: [
-            { 
-              titulo: "Sistema general de estado dependiente",
-              enlace: generarEnlace("Sistema general de estado dependiente")
-            },
-            { 
-              titulo: "Fórmulas B, B extendida y C",
-              enlace: generarEnlace("Fórmulas B, B extendida y C")
-            },
-            { 
-              titulo: "Sistemas de línea de espera (G/G/1)",
-              enlace: generarEnlace("Sistemas de línea de espera (G/G/1)")
-            },
-          ],
+            { titulo: "Sección 2.1 Notación", enlace: generarEnlace("Sección 2.1 Notación") },
+            { titulo: "Sección 2.2 Medidas de desempeño", enlace: generarEnlace("Sección 2.2 Medidas de desempeño") },
+          ]
         },
-      ],
+      
+        {
+          titulo: "Capítulo 3: Sistema de Colas M/M/1",
+          enlace: generarEnlace("Capítulo 3: Sistema de Colas M/M/1"),
+          subtemas: [
+            { titulo: "Sección 3.1 Procesos binomiales y de Poisson", enlace: generarEnlace("Sección 3.1 Procesos binomiales y de Poisson") },
+            { titulo: "Sección 3.2 Propiedades importantes de los procesos de Poisson", enlace: generarEnlace("Sección 3.2 Propiedades importantes de los procesos de Poisson") },
+            { titulo: "Sección 3.3 Fundamentos del proceso de Poisson", enlace: generarEnlace("Sección 3.3 Fundamentos del proceso de Poisson") },
+            { titulo: "Sección 3.4 Media y varianza del proceso de Poisson", enlace: generarEnlace("Sección 3.4 Media y varianza del proceso de Poisson") },
+            { titulo: "Sección 3.5 Tiempo entre llegadas", enlace: generarEnlace("Sección 3.5 Tiempo entre llegadas") },
+            { titulo: "Sección 3.6 Propiedad de pérdida de la memoria", enlace: generarEnlace("Sección 3.6 Propiedad de pérdida de la memoria") },
+            { titulo: "Sección 3.7 Propiedad de Markov", enlace: generarEnlace("Sección 3.7 Propiedad de Markov") },
+            { titulo: "Sección 3.8 Tiempos de servicio exponencial", enlace: generarEnlace("Sección 3.8 Tiempos de servicio exponencial") },
+            { titulo: "Sección 3.9 Fundamentos del sistema M/M/1", enlace: generarEnlace("Sección 3.9 Fundamentos del sistema M/M/1") },
+          ]
+        },
+      
+        {
+          titulo: "Capítulo 4: Sistema de Filas M/M/1 en Detalle",
+          enlace: generarEnlace("Capítulo 4: Sistema de Filas M/M/1 en Detalle"),
+          subtemas: [
+            { titulo: "Sección 4.1 Función de densidad", enlace: generarEnlace("Sección 4.1 Función de densidad") },
+            { titulo: "Sección 4.2 Utilización del servidor", enlace: generarEnlace("Sección 4.2 Utilización del servidor") },
+            { titulo: "Sección 4.3 Número medio de clientes en el sistema", enlace: generarEnlace("Sección 4.3 Número medio de clientes en el sistema") },
+            { titulo: "Sección 4.4 Varianza del número de clientes en el sistema", enlace: generarEnlace("Sección 4.4 Varianza del número de clientes en el sistema") },
+          ]
+        },
+      
+        {
+          titulo: "Capítulo 5: Ley de Little",
+          enlace: generarEnlace("Capítulo 5: Ley de Little"),
+          subtemas: []
+        },
+      
+        {
+          titulo: "Capítulo 6: Teorema de Burke",
+          enlace: generarEnlace("Capítulo 6: Teorema de Burke"),
+          subtemas: []
+        },
+      
+        {
+          titulo: "Capítulo 7: Resumen y Panorama Histórico",
+          enlace: generarEnlace("Capítulo 7: Resumen y Panorama Histórico"),
+          subtemas: []
+        }
+      ]
     },
     {
       titulo: "Parte 4: Simulación de Redes de Telecomunicaciones",
