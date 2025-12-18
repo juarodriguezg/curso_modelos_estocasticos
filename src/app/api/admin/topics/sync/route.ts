@@ -5,7 +5,7 @@ import { prisma } from '@/lib/prisma';
 const allTopics = [
   // Preliminares
   { slug: "prologo", title: "Prólogo", order: 1},
-  { slug: "reglas-de-uso-del-curso", title: "Reglas de uso del curso", order: 2 },
+  { slug: "reglas-del-curso", title: "Reglas del curso", order: 2 },
   { slug: "prefacio", title: "Prefacio", order: 3 },
   { slug: "agradecimientos", title: "Agradecimientos", order: 4 },
   { slug: "introduccion", title: "Introducción", order: 5 },

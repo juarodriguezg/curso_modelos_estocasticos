@@ -140,7 +140,7 @@ export default function Sidebar() {
       titulo: "Preliminares",
       secciones: [
         { titulo: "Prólogo", enlace: generarEnlace("Prólogo") },
-        {titulo: "Reglas de uso del curso", enlace: generarEnlace("Reglas de uso del curso")},
+        {titulo: "Reglas del curso", enlace: generarEnlace("Reglas del curso")},
         { titulo: "Prefacio", enlace: generarEnlace("Prefacio") },
         { titulo: "Agradecimientos", enlace: generarEnlace("Agradecimientos") },
         { titulo: "Introducción", enlace: generarEnlace("Introducción") },

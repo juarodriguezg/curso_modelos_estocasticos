@@ -3,7 +3,7 @@
 export const rutasValidas = [
   // Preliminares
   "/temas/prologo",
-  "/temas/reglas-de-uso-del-curso",
+  "/temas/reglas-del-curso",
   "/temas/prefacio",
   "/temas/agradecimientos",
   "/temas/introduccion",
