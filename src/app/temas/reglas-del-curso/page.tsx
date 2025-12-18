@@ -64,10 +64,10 @@ export default function ReglasDelCursoPage() {
           </h1>
           <div className="flex-1 text-right">
             <a
-              href="/temas"
+              href="/perfil"
               className="px-4 py-2 [background:var(--color-button)] [color:var(--color-text-light)] rounded-md hover:[background:var(--color-section)] transition"
             >
-              Volver a Temas
+              Volver a perfil
             </a>
           </div>
         </header>
