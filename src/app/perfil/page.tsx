@@ -334,71 +334,110 @@ export default function PerfilPage() {
           ],
         },
       ],
+    },{
+  titulo: "Parte 3: Teoría del Teletráfico",
+  secciones: [
+
+    {
+      titulo: "Capítulo 1: Sistema de colas simples",
+      slug: generarSlug("Capítulo 1: Sistema de colas simples"),
+      subtemas: [
+        { titulo: "Sección 1.1 Introducción", slug: generarSlug("Sección 1.1 Introducción") },
+      ],
     },
-     {
-      titulo: "Parte 3: Teoría del Teletráfico",
-      secciones: [
-        {
-          titulo: "Capítulo 1: Introducción",
-          slug: generarSlug("Capítulo 1: Introducción"),
-          subtemas: []
-        },
-      
-        {
-          titulo: "Capítulo 2: Expresión de Kendall y Medidas de Desempeño",
-          slug: generarSlug("Capítulo 2: Expresión de Kendall y Medidas de Desempeño"),
-          subtemas: [
-            { titulo: "Sección 2.1 Notación", slug: generarSlug("Sección 2.1 Notación") },
-            { titulo: "Sección 2.2 Medidas de desempeño", slug: generarSlug("Sección 2.2 Medidas de desempeño") },
-          ]
-        },
-      
-        {
-          titulo: "Capítulo 3: Sistema de Colas M/M/1",
-          slug: generarSlug("Capítulo 3: Sistema de Colas M/M/1"),
-          subtemas: [
-            { titulo: "Sección 3.1 Procesos binomiales y de Poisson", slug: generarSlug("Sección 3.1 Procesos binomiales y de Poisson") },
-            { titulo: "Sección 3.2 Propiedades importantes de los procesos de Poisson", slug: generarSlug("Sección 3.2 Propiedades importantes de los procesos de Poisson") },
-            { titulo: "Sección 3.3 Fundamentos del proceso de Poisson", slug: generarSlug("Sección 3.3 Fundamentos del proceso de Poisson") },
-            { titulo: "Sección 3.4 Media y varianza del proceso de Poisson", slug: generarSlug("Sección 3.4 Media y varianza del proceso de Poisson") },
-            { titulo: "Sección 3.5 Tiempo entre llegadas", slug: generarSlug("Sección 3.5 Tiempo entre llegadas") },
-            { titulo: "Sección 3.6 Propiedad de pérdida de la memoria", slug: generarSlug("Sección 3.6 Propiedad de pérdida de la memoria") },
-            { titulo: "Sección 3.7 Propiedad de Markov", slug: generarSlug("Sección 3.7 Propiedad de Markov") },
-            { titulo: "Sección 3.8 Tiempos de servicio exponencial", slug: generarSlug("Sección 3.8 Tiempos de servicio exponencial") },
-            { titulo: "Sección 3.9 Fundamentos del sistema M/M/1", slug: generarSlug("Sección 3.9 Fundamentos del sistema M/M/1") },
-          ]
-        },
-      
-        {
-          titulo: "Capítulo 4: Sistema de Filas M/M/1 en Detalle",
-          slug: generarSlug("Capítulo 4: Sistema de Filas M/M/1 en Detalle"),
-          subtemas: [
-            { titulo: "Sección 4.1 Función de densidad", slug: generarSlug("Sección 4.1 Función de densidad") },
-            { titulo: "Sección 4.2 Utilización del servidor", slug: generarSlug("Sección 4.2 Utilización del servidor") },
-            { titulo: "Sección 4.3 Número medio de clientes en el sistema", slug: generarSlug("Sección 4.3 Número medio de clientes en el sistema") },
-            { titulo: "Sección 4.4 Varianza del número de clientes en el sistema", slug: generarSlug("Sección 4.4 Varianza del número de clientes en el sistema") },
-          ]
-        },
-      
-        {
-          titulo: "Capítulo 5: Ley de Little",
-          slug: generarSlug("Capítulo 5: Ley de Little"),
-          subtemas: []
-        },
-      
-        {
-          titulo: "Capítulo 6: Teorema de Burke",
-          slug: generarSlug("Capítulo 6: Teorema de Burke"),
-          subtemas: []
-        },
-      
-        {
-          titulo: "Capítulo 7: Resumen y Panorama Histórico",
-          slug: generarSlug("Capítulo 7: Resumen y Panorama Histórico"),
-          subtemas: []
-        }
-      ]
+
+    {
+      titulo: "Capítulo 2: Expresión de Kendall y medidas de desempeño",
+      slug: generarSlug("Capítulo 2: Expresión de Kendall y medidas de desempeño"),
+      subtemas: [
+        { titulo: "Sección 2.1 Notación", slug: generarSlug("Sección 2.1 Notación") },
+        { titulo: "Sección 2.2 Medidas de desempeño", slug: generarSlug("Sección 2.2 Medidas de desempeño") },
+      ],
     },
+
+    {
+      titulo: "Capítulo 3: Sistema de colas M/M/1",
+      slug: generarSlug("Capítulo 3: Sistema de colas M/M/1"),
+      subtemas: [
+        { titulo: "Sección 3.1 Procesos binomiales y procesos de Poisson", slug: generarSlug("Sección 3.1 Procesos binomiales y procesos de Poisson") },
+        { titulo: "Sección 3.2 Propiedades de los procesos de Poisson", slug: generarSlug("Sección 3.2 Propiedades de los procesos de Poisson") },
+        { titulo: "Sección 3.3 Fundamentos del proceso de Poisson", slug: generarSlug("Sección 3.3 Fundamentos del proceso de Poisson") },
+        { titulo: "Sección 3.4 Media y varianza del proceso de Poisson", slug: generarSlug("Sección 3.4 Media y varianza del proceso de Poisson") },
+        { titulo: "Sección 3.5 Tiempo entre llegadas", slug: generarSlug("Sección 3.5 Tiempo entre llegadas") },
+        { titulo: "Sección 3.6 Propiedad de pérdida de la memoria", slug: generarSlug("Sección 3.6 Propiedad de pérdida de la memoria") },
+        { titulo: "Sección 3.7 Propiedad de Markov", slug: generarSlug("Sección 3.7 Propiedad de Markov") },
+        { titulo: "Sección 3.8 Tiempos de servicio exponencial", slug: generarSlug("Sección 3.8 Tiempos de servicio exponencial") },
+        { titulo: "Sección 3.9 Fundamentos del sistema de colas M/M/1", slug: generarSlug("Sección 3.9 Fundamentos del sistema de colas M/M/1") },
+      ],
+    },
+
+    {
+      titulo: "Capítulo 4: Sistema de filas M/M/1 en detalle",
+      slug: generarSlug("Capítulo 4: Sistema de filas M/M/1 en detalle"),
+      subtemas: [
+        { titulo: "Sección 4.1 Función de densidad", slug: generarSlug("Sección 4.1 Función de densidad") },
+        { titulo: "Sección 4.2 Utilización del servidor", slug: generarSlug("Sección 4.2 Utilización del servidor") },
+        { titulo: "Sección 4.3 Número medio de clientes en el sistema", slug: generarSlug("Sección 4.3 Número medio de clientes en el sistema") },
+        { titulo: "Sección 4.4 Varianza del número de clientes en el sistema", slug: generarSlug("Sección 4.4 Varianza del número de clientes en el sistema") },
+      ],
+    },
+
+    {
+      titulo: "Capítulo 5: Ley de Little",
+      slug: generarSlug("Capítulo 5: Ley de Little"),
+      subtemas: [],
+    },
+
+    {
+      titulo: "Capítulo 6: Teorema de Burke",
+      slug: generarSlug("Capítulo 6: Teorema de Burke"),
+      subtemas: [],
+    },
+
+    {
+      titulo: "Capítulo 7: Sistemas de colas dependientes del estado",
+      slug: generarSlug("Capítulo 7: Sistemas de colas dependientes del estado"),
+      subtemas: [
+        { titulo: "Sección 7.1 Introducción", slug: generarSlug("Sección 7.1 Introducción") },
+      ],
+    },
+
+    {
+      titulo: "Capítulo 8: Sistema M/M/1 de estado dependiente",
+      slug: generarSlug("Capítulo 8: Sistema M/M/1 de estado dependiente"),
+      subtemas: [
+        { titulo: "Sección 8.1 Solución general", slug: generarSlug("Sección 8.1 Solución general") },
+        { titulo: "Sección 8.2 Medidas de desempeño", slug: generarSlug("Sección 8.2 Medidas de desempeño") },
+      ],
+    },
+
+    {
+      titulo: "Capítulo 9: Sistema M/M/1 con búfer finito",
+      slug: generarSlug("Capítulo 9: Sistema M/M/1 con búfer finito"),
+      subtemas: [],
+    },
+
+    {
+      titulo: "Capítulo 10: Sistema M/M con infinito número de servidores",
+      slug: generarSlug("Capítulo 10: Sistema M/M con infinito número de servidores"),
+      subtemas: [],
+    },
+
+    {
+      titulo: "Capítulo 11: Sistema M/M/m con servidores paralelos",
+      slug: generarSlug("Capítulo 11: Sistema M/M/m con servidores paralelos"),
+      subtemas: [],
+    },
+
+    {
+      titulo: "Capítulo 12: Sistema M/M/m/m con pérdida",
+      slug: generarSlug("Capítulo 12: Sistema M/M/m/m con pérdida"),
+      subtemas: [],
+    },
+
+  ],
+}
+,
     {
       titulo: "Parte 4: Simulación de Redes de Telecomunicaciones",
       secciones: [

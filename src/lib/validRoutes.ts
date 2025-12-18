@@ -53,29 +53,31 @@ export const rutasValidas = [
   "/temas/modelos-de-series-de-tiempo-estacionarios",
   "/temas/razonamiento-probabilistico",
   "/temas/cadenas-de-markov",
-
-  // Parte 3 — Capítulo 1
-  "/temas/capitulo-1-introduccion",
+  
+  // Parte 3: Teoría del Teletráfico
+  // Capítulo 1
+  "/temas/capitulo-1-sistema-de-colas-simples",
+  "/temas/seccion-11-introduccion",
 
   // Capítulo 2
   "/temas/capitulo-2-expresion-de-kendall-y-medidas-de-desempeno",
   "/temas/seccion-21-notacion",
   "/temas/seccion-22-medidas-de-desempeno",
 
-  // Capítulo 3 — Sistema de Colas M/M/1
-  "/temas/capitulo-3-sistema-de-colas-m/m/1",
-  "/temas/seccion-31-procesos-binomiales-y-de-poisson",
-  "/temas/seccion-32-propiedades-importantes-de-los-procesos-de-poisson",
+  // Capítulo 3
+  "/temas/capitulo-3-sistema-de-colas-mm1",
+  "/temas/seccion-31-procesos-binomiales-y-procesos-de-poisson",
+  "/temas/seccion-32-propiedades-de-los-procesos-de-poisson",
   "/temas/seccion-33-fundamentos-del-proceso-de-poisson",
   "/temas/seccion-34-media-y-varianza-del-proceso-de-poisson",
   "/temas/seccion-35-tiempo-entre-llegadas",
   "/temas/seccion-36-propiedad-de-perdida-de-la-memoria",
   "/temas/seccion-37-propiedad-de-markov",
   "/temas/seccion-38-tiempos-de-servicio-exponencial",
-  "/temas/seccion-39-fundamentos-del-sistema-m/m/1",
+  "/temas/seccion-39-fundamentos-del-sistema-de-colas-mm1",
 
-  // Capítulo 4 — Sistema de Filas M/M/1 en Detalle
-  "/temas/capitulo-4-sistema-de-filas-m/m/1-en-detalle",
+  // Capítulo 4
+  "/temas/capitulo-4-sistema-de-filas-mm1-en-detalle",
   "/temas/seccion-41-funcion-de-densidad",
   "/temas/seccion-42-utilizacion-del-servidor",
   "/temas/seccion-43-numero-medio-de-clientes-en-el-sistema",
@@ -88,8 +90,25 @@ export const rutasValidas = [
   "/temas/capitulo-6-teorema-de-burke",
 
   // Capítulo 7
-  "/temas/capitulo-7-resumen-y-panorama-historico",
+  "/temas/capitulo-7-sistemas-de-colas-dependientes-del-estado",
+  "/temas/seccion-71-introduccion",
 
+  // Capítulo 8
+  "/temas/capitulo-8-sistema-mm1-de-estado-dependiente",
+  "/temas/seccion-81-solucion-general",
+  "/temas/seccion-82-medidas-de-desempeno",
+
+  // Capítulo 9
+  "/temas/capitulo-9-sistema-mm1-con-bufer-finito",
+
+  // Capítulo 10
+  "/temas/capitulo-10-sistema-mm-con-infinito-numero-de-servidores",
+
+  // Capítulo 11
+  "/temas/capitulo-11-sistema-mmm-con-servidores-paralelos",
+
+  // Capítulo 12
+  "/temas/capitulo-12-sistema-mmmm-con-perdida",
 
   // Parte 4 — Simulación de Redes
   "/temas/teorema-fundamental-unidimensional",

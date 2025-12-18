@@ -57,108 +57,129 @@ const allTopics = [
   { slug: "razonamiento-probabilistico", title: "Razonamiento probabilístico", order: 38 },
   { slug: "cadenas-de-markov", title: "Cadenas de Markov", order: 39 },
 
-  // Parte 3: Teoría del Teletráfico
-  { slug: "capitulo-1-introduccion", title: "Capítulo 1: Introducción", order: 40 },
+    // Parte 3: Teoría del Teletráfico
+
+  // Capítulo 1
+  { slug: "capitulo-1-sistema-de-colas-simples", title: "Capítulo 1: Sistema de colas simples", order: 40 },
+  { slug: "seccion-11-introduccion", title: "Sección 1.1 Introducción", order: 41 },
 
   // Capítulo 2
-  { slug: "capitulo-2-expresion-de-kendall-y-medidas-de-desempeno", title: "Capítulo 2: Expresión de Kendall y Medidas de Desempeño", order: 41 },
-  { slug: "seccion-21-notacion", title: "Sección 2.1 Notación", order: 42 },
-  { slug: "seccion-22-medidas-de-desempeno", title: "Sección 2.2 Medidas de desempeño", order: 43 },
+  { slug: "capitulo-2-expresion-de-kendall-y-medidas-de-desempeno", title: "Capítulo 2: Expresión de Kendall y medidas de desempeño", order: 42 },
+  { slug: "seccion-21-notacion", title: "Sección 2.1 Notación", order: 43 },
+  { slug: "seccion-22-medidas-de-desempeno", title: "Sección 2.2 Medidas de desempeño", order: 44 },
 
   // Capítulo 3
-  { slug: "capitulo-3-sistema-de-colas-mm1", title: "Capítulo 3: Sistema de Colas M/M/1", order: 44 },
-  { slug: "seccion-31-procesos-binomiales-y-de-poisson", title: "Sección 3.1 Procesos binomiales y de Poisson", order: 45 },
-  { slug: "seccion-32-propiedades-importantes-de-los-procesos-de-poisson", title: "Sección 3.2 Propiedades importantes de los procesos de Poisson", order: 46 },
-  { slug: "seccion-33-fundamentos-del-proceso-de-poisson", title: "Sección 3.3 Fundamentos del proceso de Poisson", order: 47 },
-  { slug: "seccion-34-media-y-varianza-del-proceso-de-poisson", title: "Sección 3.4 Media y varianza del proceso de Poisson", order: 48 },
-  { slug: "seccion-35-tiempo-entre-llegadas", title: "Sección 3.5 Tiempo entre llegadas", order: 49 },
-  { slug: "seccion-36-propiedad-de-perdida-de-la-memoria", title: "Sección 3.6 Propiedad de pérdida de la memoria", order: 50 },
-  { slug: "seccion-37-propiedad-de-markov", title: "Sección 3.7 Propiedad de Markov", order: 51 },
-  { slug: "seccion-38-tiempos-de-servicio-exponencial", title: "Sección 3.8 Tiempos de servicio exponencial", order: 52 },
-  { slug: "seccion-39-fundamentos-del-sistema-mm1", title: "Sección 3.9 Fundamentos del sistema M/M/1", order: 53 },
+  { slug: "capitulo-3-sistema-de-colas-mm1", title: "Capítulo 3: Sistema de colas M/M/1", order: 45 },
+  { slug: "seccion-31-procesos-binomiales-y-procesos-de-poisson", title: "Sección 3.1 Procesos binomiales y procesos de Poisson", order: 46 },
+  { slug: "seccion-32-propiedades-de-los-procesos-de-poisson", title: "Sección 3.2 Propiedades de los procesos de Poisson", order: 47 },
+  { slug: "seccion-33-fundamentos-del-proceso-de-poisson", title: "Sección 3.3 Fundamentos del proceso de Poisson", order: 48 },
+  { slug: "seccion-34-media-y-varianza-del-proceso-de-poisson", title: "Sección 3.4 Media y varianza del proceso de Poisson", order: 49 },
+  { slug: "seccion-35-tiempo-entre-llegadas", title: "Sección 3.5 Tiempo entre llegadas", order: 50 },
+  { slug: "seccion-36-propiedad-de-perdida-de-la-memoria", title: "Sección 3.6 Propiedad de pérdida de la memoria", order: 51 },
+  { slug: "seccion-37-propiedad-de-markov", title: "Sección 3.7 Propiedad de Markov", order: 52 },
+  { slug: "seccion-38-tiempos-de-servicio-exponencial", title: "Sección 3.8 Tiempos de servicio exponencial", order: 53 },
+  { slug: "seccion-39-fundamentos-del-sistema-de-colas-mm1", title: "Sección 3.9 Fundamentos del sistema de colas M/M/1", order: 54 },
 
   // Capítulo 4
-  { slug: "capitulo-4-sistema-de-filas-mm1-en-detalle", title: "Capítulo 4: Sistema de Filas M/M/1 en Detalle", order: 54 },
-  { slug: "seccion-41-funcion-de-densidad", title: "Sección 4.1 Función de densidad", order: 55 },
-  { slug: "seccion-42-utilizacion-del-servidor", title: "Sección 4.2 Utilización del servidor", order: 56 },
-  { slug: "seccion-43-numero-medio-de-clientes-en-el-sistema", title: "Sección 4.3 Número medio de clientes en el sistema", order: 57 },
-  { slug: "seccion-44-varianza-del-numero-de-clientes-en-el-sistema", title: "Sección 4.4 Varianza del número de clientes en el sistema", order: 58 },
+  { slug: "capitulo-4-sistema-de-filas-mm1-en-detalle", title: "Capítulo 4: Sistema de filas M/M/1 en detalle", order: 55 },
+  { slug: "seccion-41-funcion-de-densidad", title: "Sección 4.1 Función de densidad", order: 56 },
+  { slug: "seccion-42-utilizacion-del-servidor", title: "Sección 4.2 Utilización del servidor", order: 57 },
+  { slug: "seccion-43-numero-medio-de-clientes-en-el-sistema", title: "Sección 4.3 Número medio de clientes en el sistema", order: 58 },
+  { slug: "seccion-44-varianza-del-numero-de-clientes-en-el-sistema", title: "Sección 4.4 Varianza del número de clientes en el sistema", order: 59 },
 
   // Capítulo 5
-  { slug: "capitulo-5-ley-de-little", title: "Capítulo 5: Ley de Little", order: 59 },
+  { slug: "capitulo-5-ley-de-little", title: "Capítulo 5: Ley de Little", order: 60 },
 
   // Capítulo 6
-  { slug: "capitulo-6-teorema-de-burke", title: "Capítulo 6: Teorema de Burke", order: 60 },
+  { slug: "capitulo-6-teorema-de-burke", title: "Capítulo 6: Teorema de Burke", order: 61 },
 
   // Capítulo 7
-  { slug: "capitulo-7-resumen-y-panorama-historico", title: "Capítulo 7: Resumen y Panorama Histórico", order: 61 },
+  { slug: "capitulo-7-sistemas-de-colas-dependientes-del-estado", title: "Capítulo 7: Sistemas de colas dependientes del estado", order: 62 },
+  { slug: "seccion-71-introduccion", title: "Sección 7.1 Introducción", order: 63 },
 
-  // Parte 4: Simulación de Redes de Telecomunicaciones
-  { slug: "teorema-fundamental-unidimensional", title: "Teorema fundamental unidimensional", order: 62 },
-  { slug: "funciones-percentiles-conjuntas-y-teorema-fundamental-de-la-simulacion", title: "Funciones percentiles conjuntas y teorema fundamental de la simulación", order: 63 },
-  { slug: "arquitectura-general-de-un-simulador-de-sistemas-complejos", title: "Arquitectura general de un simulador de sistemas complejos", order: 64 },
-  { slug: "funciones-percentiles-truncadas-y-contaminadas-conjuntas", title: "Funciones percentiles truncadas y contaminadas conjuntas", order: 65 },
-  { slug: "teorema-fundamental-multidimensional", title: "Teorema fundamental multidimensional", order: 66 },
-  { slug: "modelos-de-movilidad", title: "Modelos de movilidad", order: 67 },
-  { slug: "lenguajes-de-programacion-para-simulacion-de-redes", title: "Lenguajes de programación para simulación de redes", order: 68 },
-  { slug: "funciones-percentiles-generalizadas", title: "Funciones percentiles generalizadas", order: 69 },
-  { slug: "funciones-percentiles-generalizadas-dlg", title: "Funciones percentiles generalizadas (DLG)", order: 70 },
+  // Capítulo 8
+  { slug: "capitulo-8-sistema-mm1-de-estado-dependiente", title: "Capítulo 8: Sistema M/M/1 de estado dependiente", order: 64 },
+  { slug: "seccion-81-solucion-general", title: "Sección 8.1 Solución general", order: 65 },
+  { slug: "seccion-82-medidas-de-desempeno", title: "Sección 8.2 Medidas de desempeño", order: 66 },
 
-  // Parte 5: Teoría de la Decisión
-  // Capítulo 1
-  { slug: "capitulo-1-teoria-de-la-utilidad", title: "Capítulo 1: Teoría de la utilidad", order: 71 },
-  { slug: "seccion-11-introduccion", title: "Sección 1.1 Introducción", order: 72 },
-  { slug: "seccion-12-loterias", title: "Sección 1.2 Loterías", order: 73 },
-  { slug: "seccion-13-axiomatica-de-luce-raiffa", title: "Sección 1.3 Axiomática de Luce Raiffa", order: 74 },
-  { slug: "seccion-14-actitud-del-decisor-frente-al-riesgo", title: "Sección 1.4 Actitud del decisor frente al riesgo", order: 75 },
+  // Capítulo 9
+  { slug: "capitulo-9-sistema-mm1-con-bufer-finito", title: "Capítulo 9: Sistema M/M/1 con búfer finito", order: 67 },
 
-  // Capítulo 2
-  { slug: "capitulo-2-decisiones-en-ambientes-de-certeza", title: "Capítulo 2: Decisiones en ambientes de certeza", order: 76 },
-  { slug: "seccion-21-planteamiento-del-problema", title: "Sección 2.1 Planteamiento del problema", order: 77 },
-  { slug: "seccion-22-concepto-de-optimo", title: "Sección 2.2 Concepto de óptimo", order: 78 },
-  { slug: "seccion-23-conjunto-de-alternativas-limitado-e-ilimitado", title: "Sección 2.3 Conjunto de alternativas limitado e ilimitado", order: 79 },
-  { slug: "seccion-24-modelos-de-optimizacion", title: "Sección 2.4 Modelos de optimización", order: 80 },
+  // Capítulo 10
+  { slug: "capitulo-10-sistema-mm-con-infinito-numero-de-servidores", title: "Capítulo 10: Sistema M/M con infinito número de servidores", order: 68 },
 
-  // Capítulo 3
-  { slug: "capitulo-3-decisiones-bajo-riesgo", title: "Capítulo 3: Decisiones bajo riesgo", order: 81 },
-  { slug: "seccion-31-modelo-del-problema", title: "Sección 3.1 Modelo del problema", order: 82 },
-  { slug: "seccion-32-dominacion-simple-y-estocastica", title: "Sección 3.2 Dominación simple y estocástica", order: 83 },
-  { slug: "seccion-33-criterios-de-decision", title: "Sección 3.3 Criterios de decisión", order: 84 },
+  // Capítulo 11
+  { slug: "capitulo-11-sistema-mmm-con-servidores-paralelos", title: "Capítulo 11: Sistema M/M/m con servidores paralelos", order: 69 },
 
-  // Capítulo 4
-  { slug: "capitulo-4-decisiones-bajo-incertidumbre", title: "Capítulo 4: Decisiones bajo incertidumbre", order: 85 },
-  { slug: "seccion-41-modelo-del-problema", title: "Sección 4.1 Modelo del problema", order: 86 },
-  { slug: "seccion-42-criterio-de-wald", title: "Sección 4.2 Criterio de Wald", order: 87 },
-  { slug: "seccion-43-criterio-maximax", title: "Sección 4.3 Criterio Maximax", order: 88 },
-  { slug: "seccion-44-criterio-de-decision-de-hurwicz", title: "Sección 4.4 Criterio de decisión de Hurwicz", order: 89 },
-  { slug: "seccion-45-criterio-de-savage", title: "Sección 4.5 Criterio de Savage", order: 90 },
-  { slug: "seccion-46-criterio-de-laplace", title: "Sección 4.6 Criterio de Laplace", order: 91 },
+ // Capítulo 12
+{ slug: "capitulo-12-sistema-mmmm-con-perdida", title: "Capítulo 12: Sistema M/M/m/m con pérdida", order: 70 },
 
-  // Capítulo 5
-  { slug: "capitulo-5-analisis-pre-a-posteriori", title: "Capítulo 5: Análisis pre a posteriori", order: 92 },
-  { slug: "seccion-51-modelo-del-problema", title: "Sección 5.1 Modelo del problema", order: 93 },
-  { slug: "seccion-52-informacion-adicional", title: "Sección 5.2 Información adicional", order: 94 },
-  { slug: "seccion-53-distribucion-a-posterior", title: "Sección 5.3 Distribución a posterior", order: 95 },
-  { slug: "seccion-54-valor-de-la-informacion-adicional", title: "Sección 5.4 Valor de la información adicional", order: 96 },
-  { slug: "seccion-55-problema-de-decision-secuencial", title: "Sección 5.5 Problema de decisión secuencial", order: 97 },
-  { slug: "seccion-56-eficiencia-de-la-informacion", title: "Sección 5.6 Eficiencia de la información", order: 98 },
+// Parte 4: Simulación de Redes de Telecomunicaciones
+{ slug: "teorema-fundamental-unidimensional", title: "Teorema fundamental unidimensional", order: 71 },
+{ slug: "funciones-percentiles-conjuntas-y-teorema-fundamental-de-la-simulacion", title: "Funciones percentiles conjuntas y teorema fundamental de la simulación", order: 72 },
+{ slug: "arquitectura-general-de-un-simulador-de-sistemas-complejos", title: "Arquitectura general de un simulador de sistemas complejos", order: 73 },
+{ slug: "funciones-percentiles-truncadas-y-contaminadas-conjuntas", title: "Funciones percentiles truncadas y contaminadas conjuntas", order: 74 },
+{ slug: "teorema-fundamental-multidimensional", title: "Teorema fundamental multidimensional", order: 75 },
+{ slug: "modelos-de-movilidad", title: "Modelos de movilidad", order: 76 },
+{ slug: "lenguajes-de-programacion-para-simulacion-de-redes", title: "Lenguajes de programación para simulación de redes", order: 77 },
+{ slug: "funciones-percentiles-generalizadas", title: "Funciones percentiles generalizadas", order: 78 },
+{ slug: "funciones-percentiles-generalizadas-dlg", title: "Funciones percentiles generalizadas (DLG)", order: 79 },
 
-  // Capítulo 6
-  { slug: "capitulo-6-teoria-de-juegos", title: "Capítulo 6: Teoría de juegos", order: 99 },
-  { slug: "seccion-61-modelo-del-problema", title: "Sección 6.1 Modelo del problema", order: 100 },
-  { slug: "seccion-62-clasificacion-de-los-juegos-de-estrategia", title: "Sección 6.2 Clasificación de los juegos de estrategia", order: 101 },
-  { slug: "seccion-63-juegos-de-suma-cero-entre-dos-agentes", title: "Sección 6.3 Juegos de suma cero entre dos agentes", order: 102 },
-  { slug: "seccion-64-juegos-de-suma-no-constante-entre-dos-agentes", title: "Sección 6.4 Juegos de suma no constante entre dos agentes", order: 103 },
+// Parte 5: Teoría de la Decisión
+// Capítulo 1
+{ slug: "capitulo-1-teoria-de-la-utilidad", title: "Capítulo 1: Teoría de la utilidad", order: 80 },
+{ slug: "seccion-11-introduccion", title: "Sección 1.1 Introducción", order: 81 },
+{ slug: "seccion-12-loterias", title: "Sección 1.2 Loterías", order: 82 },
+{ slug: "seccion-13-axiomatica-de-luce-raiffa", title: "Sección 1.3 Axiomática de Luce Raiffa", order: 83 },
+{ slug: "seccion-14-actitud-del-decisor-frente-al-riesgo", title: "Sección 1.4 Actitud del decisor frente al riesgo", order: 84 },
 
-  // Parte 6: Convergencia en Probabilidad y Distribución
-  { slug: "convergencia-en-variables-aleatorias", title: "Convergencia en variables aleatorias", order: 104 },
-  { slug: "muestreo-y-distribuciones-muestrales", title: "Muestreo y distribuciones muestrales", order: 105 },
-  { slug: "estimacion-puntual-y-por-intervalos", title: "Estimación puntual y por intervalos", order: 106 },
-  { slug: "prueba-de-hipotesis", title: "Prueba de hipótesis", order: 107 },
-  { slug: "convergencia-y-teoremas-limite", title: "Convergencia y teoremas límite", order: 108 },
-  { slug: "convergencia-en-vectores-aleatorios", title: "Convergencia en vectores aleatorios", order: 109 },
-  { slug: "ley-de-los-grandes-numeros-para-vectores", title: "Ley de los grandes números para vectores", order: 110 },
-  { slug: "teorema-del-limite-central", title: "Teorema del límite central", order: 111 },
+// Capítulo 2
+{ slug: "capitulo-2-decisiones-en-ambientes-de-certeza", title: "Capítulo 2: Decisiones en ambientes de certeza", order: 85 },
+{ slug: "seccion-21-planteamiento-del-problema", title: "Sección 2.1 Planteamiento del problema", order: 86 },
+{ slug: "seccion-22-concepto-de-optimo", title: "Sección 2.2 Concepto de óptimo", order: 87 },
+{ slug: "seccion-23-conjunto-de-alternativas-limitado-e-ilimitado", title: "Sección 2.3 Conjunto de alternativas limitado e ilimitado", order: 88 },
+{ slug: "seccion-24-modelos-de-optimizacion", title: "Sección 2.4 Modelos de optimización", order: 89 },
+
+// Capítulo 3
+{ slug: "capitulo-3-decisiones-bajo-riesgo", title: "Capítulo 3: Decisiones bajo riesgo", order: 90 },
+{ slug: "seccion-31-modelo-del-problema", title: "Sección 3.1 Modelo del problema", order: 91 },
+{ slug: "seccion-32-dominacion-simple-y-estocastica", title: "Sección 3.2 Dominación simple y estocástica", order: 92 },
+{ slug: "seccion-33-criterios-de-decision", title: "Sección 3.3 Criterios de decisión", order: 93 },
+
+// Capítulo 4
+{ slug: "capitulo-4-decisiones-bajo-incertidumbre", title: "Capítulo 4: Decisiones bajo incertidumbre", order: 94 },
+{ slug: "seccion-41-modelo-del-problema", title: "Sección 4.1 Modelo del problema", order: 95 },
+{ slug: "seccion-42-criterio-de-wald", title: "Sección 4.2 Criterio de Wald", order: 96 },
+{ slug: "seccion-43-criterio-maximax", title: "Sección 4.3 Criterio Maximax", order: 97 },
+{ slug: "seccion-44-criterio-de-decision-de-hurwicz", title: "Sección 4.4 Criterio de decisión de Hurwicz", order: 98 },
+{ slug: "seccion-45-criterio-de-savage", title: "Sección 4.5 Criterio de Savage", order: 99 },
+{ slug: "seccion-46-criterio-de-laplace", title: "Sección 4.6 Criterio de Laplace", order: 100 },
+
+// Capítulo 5
+{ slug: "capitulo-5-analisis-pre-a-posteriori", title: "Capítulo 5: Análisis pre a posteriori", order: 101 },
+{ slug: "seccion-51-modelo-del-problema", title: "Sección 5.1 Modelo del problema", order: 102 },
+{ slug: "seccion-52-informacion-adicional", title: "Sección 5.2 Información adicional", order: 103 },
+{ slug: "seccion-53-distribucion-a-posterior", title: "Sección 5.3 Distribución a posterior", order: 104 },
+{ slug: "seccion-54-valor-de-la-informacion-adicional", title: "Sección 5.4 Valor de la información adicional", order: 105 },
+{ slug: "seccion-55-problema-de-decision-secuencial", title: "Sección 5.5 Problema de decisión secuencial", order: 106 },
+{ slug: "seccion-56-eficiencia-de-la-informacion", title: "Sección 5.6 Eficiencia de la información", order: 107 },
+
+// Capítulo 6
+{ slug: "capitulo-6-teoria-de-juegos", title: "Capítulo 6: Teoría de juegos", order: 108 },
+{ slug: "seccion-61-modelo-del-problema", title: "Sección 6.1 Modelo del problema", order: 109 },
+{ slug: "seccion-62-clasificacion-de-los-juegos-de-estrategia", title: "Sección 6.2 Clasificación de los juegos de estrategia", order: 110 },
+{ slug: "seccion-63-juegos-de-suma-cero-entre-dos-agentes", title: "Sección 6.3 Juegos de suma cero entre dos agentes", order: 111 },
+{ slug: "seccion-64-juegos-de-suma-no-constante-entre-dos-agentes", title: "Sección 6.4 Juegos de suma no constante entre dos agentes", order: 112 },
+
+// Parte 6: Convergencia en Probabilidad y Distribución
+{ slug: "convergencia-en-variables-aleatorias", title: "Convergencia en variables aleatorias", order: 113 },
+{ slug: "muestreo-y-distribuciones-muestrales", title: "Muestreo y distribuciones muestrales", order: 114 },
+{ slug: "estimacion-puntual-y-por-intervalos", title: "Estimación puntual y por intervalos", order: 115 },
+{ slug: "prueba-de-hipotesis", title: "Prueba de hipótesis", order: 116 },
+{ slug: "convergencia-y-teoremas-limite", title: "Convergencia y teoremas límite", order: 117 },
+{ slug: "convergencia-en-vectores-aleatorios", title: "Convergencia en vectores aleatorios", order: 118 },
+{ slug: "ley-de-los-grandes-numeros-para-vectores", title: "Ley de los grandes números para vectores", order: 119 },
+{ slug: "teorema-del-limite-central", title: "Teorema del límite central", order: 120 }
 ];
 
 
