@@ -3,6 +3,7 @@
 export const rutasValidas = [
   // Preliminares
   "/temas/prologo",
+  "/temas/reglas-de-uso-del-curso",
   "/temas/prefacio",
   "/temas/agradecimientos",
   "/temas/introduccion",
@@ -53,7 +54,7 @@ export const rutasValidas = [
   "/temas/modelos-de-series-de-tiempo-estacionarios",
   "/temas/razonamiento-probabilistico",
   "/temas/cadenas-de-markov",
-  
+
   // Parte 3: Teoría del Teletráfico
   // Capítulo 1
   "/temas/capitulo-1-sistema-de-colas-simples",

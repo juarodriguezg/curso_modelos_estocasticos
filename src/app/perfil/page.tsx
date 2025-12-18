@@ -245,6 +245,7 @@ export default function PerfilPage() {
       titulo: "Preliminares",
       secciones: [
         { titulo: "Prólogo", slug: generarSlug("Prólogo") },
+        {titulo:"Reglas de uso del curso", slug: generarSlug("Reglas de uso del curso")},
         { titulo: "Prefacio", slug: generarSlug("Prefacio") },
         { titulo: "Agradecimientos", slug: generarSlug("Agradecimientos") },
         { titulo: "Introducción", slug: generarSlug("Introducción") },
