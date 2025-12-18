@@ -41,7 +41,7 @@ const allTopics = [
   { slug: "seccion-46-familias-parametricas-conjuntas", title: "Sección 4.6 Familias paramétricas conjuntas", order: 26 },
 
   // Capítulo 5
-  { slug: "capitulo-5-transformaciones-de-vectectores-aleatorios", title: "Capítulo 5: Transformaciones de vectores aleatorios", order: 27 },
+  { slug: "capitulo-5-transformaciones-de-vectores-aleatorios", title: "Capítulo 5: Transformaciones de vectores aleatorios", order: 27 },
   { slug: "seccion-51-introduccion-y-resumen", title: "Sección 5.1 Introducción y resumen", order: 28 },
   { slug: "seccion-52-tecnicas-univariadas", title: "Sección 5.2 Técnicas univariadas", order: 29 },
   { slug: "seccion-53-transformacion-de-vectores-aleatorios-discretos", title: "Sección 5.3 Transformación de vectores aleatorios discretos", order: 30 },
