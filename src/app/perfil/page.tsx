@@ -52,6 +52,10 @@ export default function PerfilPage() {
   const [loadingTopics, setLoadingTopics] = useState(false);
   const [openPartes, setOpenPartes] = useState<string[]>([]);
   const [openSecciones, setOpenSecciones] = useState<string[]>([]);
+  const [showCreateTopic, setShowCreateTopic] = useState(false);
+  const [newTopicTitle, setNewTopicTitle] = useState('');
+  const [newTopicSlug, setNewTopicSlug] = useState('');
+  const [creatingTopic, setCreatingTopic] = useState(false);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -211,6 +215,40 @@ export default function PerfilPage() {
     setOpenSecciones(prev =>
       prev.includes(seccion) ? prev.filter(s => s !== seccion) : [...prev, seccion]
     );
+  };
+
+  const handleCreateTopic = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newTopicTitle || !newTopicSlug) return alert('Título y slug son requeridos');
+    
+    setCreatingTopic(true);
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch('/api/admin/topics/create', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ title: newTopicTitle, slug: newTopicSlug })
+      });
+      
+      const data = await res.json();
+      if (res.ok) {
+        alert('✅ Tema creado exitosamente');
+        setNewTopicTitle('');
+        setNewTopicSlug('');
+        setShowCreateTopic(false);
+        loadTopics();
+      } else {
+        alert(`❌ Error: ${data.error}`);
+      }
+    } catch (error) {
+      console.error('Error al crear tema:', error);
+      alert('Error al crear el tema');
+    } finally {
+      setCreatingTopic(false);
+    }
   };
 
   useEffect(() => {
@@ -577,6 +615,17 @@ export default function PerfilPage() {
     );
   }
 
+  // Extraer todos los slugs del contenido hardcoded
+  const hardcodedSlugs = new Set<string>();
+  contenido.forEach(p => {
+    p.secciones.forEach(s => {
+      hardcodedSlugs.add(s.slug);
+      s.subtemas?.forEach(sub => hardcodedSlugs.add(sub.slug));
+    });
+  });
+
+  const customTopics = topics.filter(t => !hardcodedSlugs.has(t.slug));
+
   const getRoleBadge = (role: string) => {
     const badges = {
       student: { text: 'Estudiante', color: 'bg-[var(--color-section)]' },
@@ -850,16 +899,65 @@ export default function PerfilPage() {
                   </p>
 
                   {/* Leyenda */}
-                  <div className="mb-4 flex gap-4 p-2 bg-gray-50 rounded-lg text-xs border border-gray-200">
-                    <div className="flex items-center gap-1">
-                      <div className="w-2 h-2 rounded-full bg-blue-500"></div>
-                      <span>Grupo 1</span>
+                  <div className="mb-4 flex justify-between items-center">
+                    <div className="flex gap-4 p-2 bg-gray-50 rounded-lg text-xs border border-gray-200">
+                      <div className="flex items-center gap-1">
+                        <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                        <span>Grupo 1</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                        <span>Grupo 2</span>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-1">
-                      <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                      <span>Grupo 2</span>
-                    </div>
+                    <button
+                      onClick={() => setShowCreateTopic(!showCreateTopic)}
+                      className="px-3 py-1.5 bg-indigo-500 text-white rounded-lg text-sm font-medium hover:bg-indigo-600 transition"
+                    >
+                      {showCreateTopic ? 'Cancelar' : '+ Crear Nuevo Tema'}
+                    </button>
                   </div>
+
+                  {/* Formulario de Crear Tema */}
+                  {showCreateTopic && (
+                    <div className="mb-6 p-4 border border-indigo-200 bg-indigo-50 rounded-lg">
+                      <h4 className="text-sm font-semibold mb-3 text-indigo-900">Crear Nueva Clase / Tema</h4>
+                      <form onSubmit={handleCreateTopic} className="space-y-3">
+                        <div>
+                          <label className="block text-xs font-medium text-gray-700 mb-1">Título</label>
+                          <input 
+                            type="text" 
+                            className="w-full p-2 border border-gray-300 rounded text-sm"
+                            value={newTopicTitle}
+                            onChange={e => {
+                              setNewTopicTitle(e.target.value);
+                              setNewTopicSlug(generarSlug(e.target.value));
+                            }}
+                            placeholder="Ej: Introducción a Simulación"
+                            required
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium text-gray-700 mb-1">Slug (URL)</label>
+                          <input 
+                            type="text" 
+                            className="w-full p-2 border border-gray-300 rounded text-sm bg-gray-50"
+                            value={newTopicSlug}
+                            onChange={e => setNewTopicSlug(e.target.value)}
+                            placeholder="introduccion-a-simulacion"
+                            required
+                          />
+                        </div>
+                        <button 
+                          type="submit" 
+                          disabled={creatingTopic}
+                          className="px-4 py-2 bg-indigo-600 text-white rounded text-sm font-medium hover:bg-indigo-700 disabled:opacity-50"
+                        >
+                          {creatingTopic ? 'Guardando...' : 'Guardar Tema'}
+                        </button>
+                      </form>
+                    </div>
+                  )}
 
                   {/* Estructura en cascada */}
                   {topics.length > 0 ? (
@@ -912,7 +1010,15 @@ export default function PerfilPage() {
                                         </div>
                                       </div>
                                       
-                                      <div className="flex gap-2">
+                                        <div className="flex gap-2 items-center">
+                                          {topics.find(t => t.slug === sec.slug) && (
+                                            <a
+                                              href={`/perfil/tema/${topics.find(t => t.slug === sec.slug)?.id}`}
+                                              className="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs hover:bg-purple-200 transition"
+                                            >
+                                              Contenido
+                                            </a>
+                                          )}
                                         {/* Botón Grupo 1 */}
                                         <button
                                           onClick={() => {
@@ -960,7 +1066,15 @@ export default function PerfilPage() {
                                                 {sub.titulo}
                                               </span>
                                               
-                                              <div className="flex gap-2">
+                                              <div className="flex gap-2 items-center">
+                                                {topics.find(t => t.slug === sub.slug) && (
+                                                  <a
+                                                    href={`/perfil/tema/${topics.find(t => t.slug === sub.slug)?.id}`}
+                                                    className="px-2 py-0.5 bg-purple-100 text-purple-700 rounded text-[10px] hover:bg-purple-200 transition"
+                                                  >
+                                                    Contenido
+                                                  </a>
+                                                )}
                                                 {/* Botón Grupo 1 */}
                                                 <button
                                                   onClick={() => {
@@ -1005,6 +1119,46 @@ export default function PerfilPage() {
                           )}
                         </div>
                       ))}
+                      {customTopics.length > 0 && (
+                        <div className="mt-6 border border-gray-200 rounded-lg overflow-hidden">
+                          <div className="p-3 bg-indigo-50 border-b border-gray-200">
+                            <span className="text-sm font-semibold text-indigo-900">
+                              Temas Adicionales / Personalizados
+                            </span>
+                          </div>
+                          <div className="bg-white">
+                            {customTopics.map(topic => (
+                              <div key={topic.id} className="flex items-center justify-between p-3 border-b border-gray-100 hover:bg-gray-50 last:border-0">
+                                <span className="text-sm text-[var(--color-text-dark)] flex-1">{topic.title}</span>
+                                <div className="flex gap-2 items-center">
+                                  <a
+                                    href={`/perfil/tema/${topic.id}`}
+                                    className="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs hover:bg-purple-200 transition"
+                                  >
+                                    Contenido
+                                  </a>
+                                  <button
+                                    onClick={() => toggleTopicVisibility(topic.id, 1, topic.visibleGroup1)}
+                                    className={`px-3 py-1 rounded text-xs font-medium transition ${
+                                      topic.visibleGroup1 ? 'bg-blue-500 hover:bg-blue-600 text-white' : 'bg-gray-300 hover:bg-gray-400 text-gray-600'
+                                    }`}
+                                  >
+                                    G1
+                                  </button>
+                                  <button
+                                    onClick={() => toggleTopicVisibility(topic.id, 2, topic.visibleGroup2)}
+                                    className={`px-3 py-1 rounded text-xs font-medium transition ${
+                                      topic.visibleGroup2 ? 'bg-green-500 hover:bg-green-600 text-white' : 'bg-gray-300 hover:bg-gray-400 text-gray-600'
+                                    }`}
+                                  >
+                                    G2
+                                  </button>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   ) : (
                     <p className="text-center text-gray-500 py-8 text-sm">

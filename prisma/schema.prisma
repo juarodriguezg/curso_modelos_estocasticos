@@ -43,7 +43,32 @@ model Topic {
   visibleGroup1 Boolean  @default(true)
   visibleGroup2 Boolean  @default(true)
 
+  contents      Content[]
+  links         Link[]
+
   @@index([slug])
   @@index([visibleGroup1])
   @@index([visibleGroup2])
+}
+
+model Content {
+  id        String   @id @default(cuid())
+  topicId   String
+  type      String   // "TEXT", "VIDEO", "MATERIAL"
+  content   String   @db.Text
+  order     Int      @default(0)
+  topic     Topic    @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  @@index([topicId])
+}
+
+model Link {
+  id        String   @id @default(cuid())
+  topicId   String
+  title     String
+  url       String
+  order     Int      @default(0)
+  topic     Topic    @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  @@index([topicId])
 }
