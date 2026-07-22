@@ -1,20 +1,18 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter } from "next/font/google";
+import { ToastProvider } from "@/components/Toast";
 import "./globals.css";
 
-const geistSans = Geist({
+const inter = Inter({
   variable: "--font-geist-sans",
   subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
   title: "Curso de Modelos Estocásticos",
-  description: "Curso de Modelos estocásticos y simulación en computación y comunicaciones  ",
+  description: "Modelos estocásticos y simulación en computación y comunicaciones - Universidad Nacional de Colombia",
+  keywords: ["modelos estocásticos", "simulación", "probabilidad", "telecomunicaciones", "universidad nacional"],
 };
 
 export default function RootLayout({
@@ -23,11 +21,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {children}
+    <html lang="es" suppressHydrationWarning>
+      <body className={`${inter.variable} antialiased`}>
+        <ToastProvider>
+          {children}
+        </ToastProvider>
       </body>
     </html>
   );

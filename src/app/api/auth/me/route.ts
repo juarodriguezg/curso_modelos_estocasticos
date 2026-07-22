@@ -41,6 +41,7 @@ export async function GET(req: NextRequest) {
         email: true,
         name: true,
         role: true,
+        grupo: true,
         createdAt: true
       }
     });

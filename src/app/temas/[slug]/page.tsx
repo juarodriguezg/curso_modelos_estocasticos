@@ -19,68 +19,52 @@ export default async function DynamicTopicPage({ params }: { params: Promise<{ s
   }
 
   return (
-    <div className="flex min-h-screen [background:var(--color-background)]">
+    <div className="flex min-h-screen" style={{ background: 'var(--color-background)' }}>
       <Sidebar />
 
       <div className="flex flex-col flex-grow">
-        <header className="flex justify-between items-center [background:var(--color-header)] px-8 py-4 shadow-md">
+        <header className="flex justify-between items-center px-8 py-4 shadow-sm border-b"
+          style={{ background: 'var(--color-surface)', borderColor: 'var(--color-border)' }}>
           <div className="flex-1"></div>
-          <h1 className="text-3xl font-bold [color:var(--color-text-light)] text-center flex-1">
+          <h1 className="text-2xl font-bold text-center flex-1" style={{ color: 'var(--color-header)' }}>
             {topic.title}
           </h1>
           <div className="flex-1 text-right">
-            <a
-              href="/perfil"
-              className="px-4 py-2 [background:var(--color-button)] [color:var(--color-text-light)] rounded-md hover:[background:var(--color-section)] transition"
-            >
-              Perfil
-            </a>
+            <a href="/perfil" className="btn btn-ghost text-sm">Perfil</a>
           </div>
         </header>
 
-        <main className="flex-grow max-w-4xl mx-auto p-8 space-y-8 w-full">
+        <main className="flex-grow max-w-4xl mx-auto p-8 space-y-8 w-full animate-fadeIn">
           {topic.contents.map((content) => {
             if (content.type === 'TEXT') {
               return (
-                <section key={content.id} className="[background:var(--color-background)] border border-[color:var(--color-section)] p-6 rounded-lg shadow-sm">
-                  <div 
-                    className="[color:var(--color-text-dark)] leading-relaxed space-y-4 whitespace-pre-wrap"
-                    dangerouslySetInnerHTML={{ __html: content.content }} 
-                  />
+                <section key={content.id} className="card p-6">
+                  <div className="leading-relaxed space-y-4 whitespace-pre-wrap"
+                    style={{ color: 'var(--color-text-dark)' }}
+                    dangerouslySetInnerHTML={{ __html: content.content }} />
                 </section>
               );
             }
             if (content.type === 'VIDEO') {
               return (
-                <section key={content.id} className="[background:var(--color-background)] border border-[color:var(--color-section)] p-6 rounded-lg shadow-sm">
-                  <h2 className="text-xl font-semibold [color:var(--color-header)] mb-3">
-                    Video
-                  </h2>
+                <section key={content.id} className="card p-6">
+                  <h2 className="text-xl font-semibold mb-3" style={{ color: 'var(--color-header)' }}>Video</h2>
                   <div className="aspect-video">
-                    <iframe
-                      className="w-full h-full rounded-lg shadow-md"
-                      src={content.content}
-                      title={`Video`}
+                    <iframe className="w-full h-full rounded-lg shadow-md"
+                      src={content.content} title="Video"
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                      loading="lazy"
-                    ></iframe>
+                      allowFullScreen loading="lazy" />
                   </div>
                 </section>
               );
             }
             if (content.type === 'MATERIAL') {
               return (
-                <section key={content.id} className="[background:var(--color-background)] border border-[color:var(--color-section)] p-6 rounded-lg shadow-sm flex items-center justify-between">
-                  <h2 className="text-lg font-semibold [color:var(--color-header)] m-0">
+                <section key={content.id} className="card p-6 flex items-center justify-between">
+                  <h2 className="text-lg font-semibold m-0" style={{ color: 'var(--color-header)' }}>
                     Material de Estudio
                   </h2>
-                  <a
-                    href={content.content}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="px-6 py-2 [background:var(--color-button)] [color:var(--color-text-light)] rounded-lg shadow hover:[background:var(--color-section)] transition"
-                  >
+                  <a href={content.content} target="_blank" rel="noopener noreferrer" className="btn btn-primary">
                     Descargar Material
                   </a>
                 </section>
@@ -90,19 +74,15 @@ export default async function DynamicTopicPage({ params }: { params: Promise<{ s
           })}
 
           {topic.links.length > 0 && (
-            <section className="[background:var(--color-background)] border border-[color:var(--color-section)] p-6 rounded-lg shadow-sm">
-              <h2 className="text-2xl font-semibold [color:var(--color-header)] mb-3">
+            <section className="card p-6">
+              <h2 className="text-2xl font-semibold mb-3" style={{ color: 'var(--color-header)' }}>
                 Tareas y Enlaces
               </h2>
-              <ul className="list-disc list-inside space-y-2 [color:var(--color-text-dark)]">
+              <ul className="list-disc list-inside space-y-2" style={{ color: 'var(--color-text-dark)' }}>
                 {topic.links.map((link) => (
                   <li key={link.id}>
-                    <a
-                      href={link.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-[color:var(--color-button)] hover:text-[color:var(--color-header)] hover:underline"
-                    >
+                    <a href={link.url} target="_blank" rel="noopener noreferrer"
+                      className="hover:underline transition" style={{ color: 'var(--color-accent)' }}>
                       {link.title}
                     </a>
                   </li>
@@ -112,7 +92,8 @@ export default async function DynamicTopicPage({ params }: { params: Promise<{ s
           )}
 
           {topic.contents.length === 0 && topic.links.length === 0 && (
-            <div className="text-center py-12 text-gray-500 bg-gray-50 rounded-lg border border-dashed border-gray-200">
+            <div className="text-center py-12 rounded-lg border-2 border-dashed"
+              style={{ color: 'var(--color-text-muted)', borderColor: 'var(--color-border)' }}>
               Aún no hay contenido publicado para este tema.
             </div>
           )}

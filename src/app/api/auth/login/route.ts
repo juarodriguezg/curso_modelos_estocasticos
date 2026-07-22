@@ -65,7 +65,8 @@ export async function POST(req: NextRequest) {
         id: user.id,
         email: user.email,
         name: user.name,
-        role: user.role
+        role: user.role,
+        grupo: user.grupo
       }
     });
   } catch (error) {

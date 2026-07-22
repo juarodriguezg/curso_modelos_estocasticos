@@ -38,6 +38,8 @@ model Topic {
   slug          String   @unique
   title         String
   order         Int      @default(0)
+  parte         String?  // Agrupación: "Preliminares", "Parte 1: Vectores Aleatorios", etc.
+  parentSlug    String?  // Slug del padre para subtemas
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
   visibleGroup1 Boolean  @default(true)
@@ -47,6 +49,8 @@ model Topic {
   links         Link[]
 
   @@index([slug])
+  @@index([parte])
+  @@index([parentSlug])
   @@index([visibleGroup1])
   @@index([visibleGroup2])
 }

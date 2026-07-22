@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 403 });
     }
 
-    const { title, slug } = await req.json();
+    const { title, slug, parte, parentSlug } = await req.json();
 
     if (!title || !slug) {
       return NextResponse.json({ error: 'Faltan campos requeridos' }, { status: 400 });
@@ -39,6 +39,8 @@ export async function POST(req: NextRequest) {
         title,
         slug,
         order: newOrder,
+        parte: parte || null,
+        parentSlug: parentSlug || null,
         visibleGroup1: true,
         visibleGroup2: true
       }
