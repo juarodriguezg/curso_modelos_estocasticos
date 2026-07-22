@@ -224,7 +224,7 @@ export default function EditTopicPage({ params }: { params: Promise<{ id: string
                       <textarea
                         value={item.content}
                         onChange={(e) => updateContent(index, e.target.value)}
-                        placeholder="Escribe el resumen o texto explicativo (soporta HTML básico/JSX o texto plano)..."
+                        placeholder="Escribe el resumen o texto explicativo. Soporta HTML básico y LaTeX: usa $formula$ en línea o $$formula$$ para bloque (ej. $$E[X] = \sum x_i p_i$$)..."
                         className="w-full p-3 border border-gray-300 rounded-md h-32 focus:ring-2 focus:ring-blue-500 outline-none"
                       />
                     ) : item.type === 'VIDEO' ? (

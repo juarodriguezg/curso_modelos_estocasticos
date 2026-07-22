@@ -2,6 +2,7 @@ import { prisma } from '@/lib/prisma';
 import { notFound } from 'next/navigation';
 import Footer from "@/components/Footer";
 import Sidebar from "@/components/Sidebar";
+import LatexContent from "@/components/LatexContent";
 
 export default async function DynamicTopicPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -39,9 +40,11 @@ export default async function DynamicTopicPage({ params }: { params: Promise<{ s
             if (content.type === 'TEXT') {
               return (
                 <section key={content.id} className="card p-6">
-                  <div className="leading-relaxed space-y-4 whitespace-pre-wrap"
+                  <LatexContent
+                    content={content.content}
+                    className="leading-relaxed space-y-4 whitespace-pre-wrap"
                     style={{ color: 'var(--color-text-dark)' }}
-                    dangerouslySetInnerHTML={{ __html: content.content }} />
+                  />
                 </section>
               );
             }
