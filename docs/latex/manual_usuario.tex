@@ -1,0 +1,211 @@
+\documentclass[11pt,a4paper]{article}
+
+% ---------- Idioma y codificación ----------
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish,es-noindentfirst]{babel}
+
+% ---------- Página ----------
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{parskip}
+\setlength{\parskip}{0.5\baselineskip}
+
+% ---------- Tipografía y color ----------
+\usepackage{xcolor}
+\definecolor{codebg}{HTML}{F5F5F5}
+\definecolor{notebg}{HTML}{FFF6DC}
+\definecolor{noteborder}{HTML}{E0B33C}
+\definecolor{linkblue}{HTML}{1A5FB4}
+
+% ---------- Tablas ----------
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{booktabs}
+
+% ---------- Listados de código ----------
+\usepackage{listings}
+\lstset{
+  basicstyle=\ttfamily\small,
+  breaklines=true,
+  backgroundcolor=\color{codebg},
+  frame=single,
+  framerule=0pt,
+  columns=fullflexible,
+  showstringspaces=false,
+  xleftmargin=8pt,
+  xrightmargin=8pt,
+  aboveskip=8pt,
+  belowskip=8pt
+}
+
+% ---------- Listas ----------
+\usepackage{enumitem}
+\setlist{itemsep=2pt, topsep=4pt}
+
+% ---------- Encabezados y enlaces ----------
+\usepackage{fancyhdr}
+\usepackage[hidelinks,colorlinks=true,linkcolor=linkblue,urlcolor=linkblue,citecolor=linkblue]{hyperref}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{Manual de usuario --- Curso de Modelos Estocásticos}
+\fancyhead[R]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% ---------- Entorno "nota" ----------
+\usepackage[most]{tcolorbox}
+\newtcolorbox{nota}{
+  colback=notebg,
+  colframe=noteborder,
+  boxrule=1pt,
+  arc=3pt,
+  left=8pt, right=8pt, top=6pt, bottom=6pt,
+  before skip=10pt, after skip=10pt
+}
+
+\newcommand{\code}[1]{\texttt{#1}}
+
+\title{\textbf{Manual de usuario}\\[4pt]\large Curso de Modelos Estocásticos --- Plataforma web}
+\author{Universidad Nacional de Colombia}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{fancy}
+
+\tableofcontents
+\newpage
+
+Esta guía explica cómo usar la plataforma según el tipo de cuenta: \textbf{estudiante}, \textbf{profesor} o \textbf{administrador}.
+
+\section{Acceso a la plataforma}
+
+\begin{enumerate}
+  \item Ingresa a la página principal del curso.
+  \item Si ya tienes cuenta, haz clic en \textbf{``Iniciar sesión''} (esquina superior derecha) e ingresa tu correo y contraseña.
+  \item Si no tienes cuenta, un administrador debe crearla (individualmente o mediante carga masiva por CSV). No hay registro público abierto habilitado en la interfaz actual, aunque existe la ruta de auto-registro a nivel técnico.
+  \item Tras iniciar sesión, serás redirigido a la página principal, donde verás tu nombre y un botón de acceso al \textbf{Perfil}.
+\end{enumerate}
+
+\subsection*{Cerrar sesión}
+
+Desde la página principal o desde tu Perfil, haz clic en el botón de salida (ícono de flecha/``Salir''). Esto cierra tu sesión en todos los dispositivos donde uses ese mismo token.
+
+\section{Navegación por el contenido del curso}
+
+\begin{itemize}
+  \item El \textbf{menú lateral} (ícono $\equiv$) muestra la estructura del curso organizada en \textbf{Partes $\rightarrow$ Secciones $\rightarrow$ Subtemas}.
+  \item Haz clic en una Parte para desplegar sus secciones, y en una sección con subtemas para ver sus subsecciones.
+  \item Solo verás los temas que el administrador haya marcado como visibles para tu grupo (Grupo 1 o Grupo 2). Si un tema no aparece, puede que aún no esté habilitado para tu grupo.
+  \item Dentro de cada tema encontrarás, según lo que el administrador haya publicado:
+  \begin{itemize}
+    \item \textbf{Texto explicativo.}
+    \item \textbf{Video incrustado.}
+    \item \textbf{Material descargable} (botón ``Descargar Material'').
+    \item \textbf{Tareas y enlaces relacionados.}
+  \end{itemize}
+  \item El botón de \textbf{modo claro/oscuro} está en la parte superior del menú lateral.
+\end{itemize}
+
+\section{Perfil de usuario}
+
+En \textbf{Perfil} puedes ver tu nombre, correo, rol (Estudiante/Profesor/Administrador) y, si aplica, tu grupo asignado.
+
+Los estudiantes y profesores no tienen opciones adicionales en esta pantalla salvo el cierre de sesión y el cambio de tema claro/oscuro.
+
+\section{Panel de administración (solo administradores)}
+
+Al entrar a \textbf{Perfil} con una cuenta de administrador, aparece la sección \textbf{``Panel de Administración''} con tres pestañas.
+
+\subsection{Pestaña ``Cargar CSV''}
+
+Permite crear estudiantes en bloque a partir de un archivo CSV.
+
+\paragraph{Formato requerido del archivo} (columnas, en este orden de nombres):
+
+\begin{lstlisting}[language=]
+No, Apellidos, Nombre, Documento, Correo, Grupo
+\end{lstlisting}
+
+\begin{itemize}
+  \item \code{Grupo} debe ser \code{1} o \code{2}.
+  \item La \textbf{contraseña inicial} de cada estudiante creado será su número de \textbf{Documento}. Comunícales esto para que puedan iniciar sesión (actualmente la plataforma no ofrece un flujo de ``olvidé mi contraseña'' ni de cambio de contraseña).
+  \item Filas con correo o documento vacío, grupo inválido, o correo ya registrado se omiten; al finalizar la carga se muestra cuántos usuarios se crearon y, si hubo filas omitidas, un aviso con el detalle.
+\end{itemize}
+
+\paragraph{Pasos}
+\begin{enumerate}
+  \item Selecciona el archivo CSV con el botón de carga.
+  \item Haz clic en \textbf{``Procesar CSV''}.
+  \item Revisa el mensaje de resultado (creados / omitidos / errores).
+\end{enumerate}
+
+\subsection{Pestaña ``Usuarios''}
+
+Lista todos los usuarios registrados.
+
+\begin{itemize}
+  \item Haz clic en \textbf{``Actualizar''} para refrescar la lista.
+  \item Para eliminar un usuario, haz clic en \textbf{``Eliminar''} junto a su nombre y confirma. Esta acción es irreversible y borra también sus sesiones activas.
+  \item No es posible eliminar tu propia cuenta desde aquí.
+\end{itemize}
+
+\subsection{Pestaña ``Visibilidad''}
+
+Controla qué temas ve cada grupo de estudiantes y permite crear temas nuevos.
+
+\paragraph{Ver/editar visibilidad}
+\begin{itemize}
+  \item Los temas se agrupan por ``Parte''; haz clic en el nombre de una parte para desplegarla.
+  \item Cada tema (y sus subtemas, indentados) muestra dos botones: \textbf{G1} y \textbf{G2}.
+  \begin{itemize}
+    \item Azul/activo = visible para ese grupo. Gris/inactivo = oculto para ese grupo.
+    \item Haz clic en el botón para alternar la visibilidad del tema para ese grupo específico.
+  \end{itemize}
+\end{itemize}
+
+\paragraph{Sincronizar}
+El botón \textbf{``Sincronizar''} actualiza la lista de temas contra el temario oficial del curso: crea los temas que falten y actualiza el título/orden de los existentes. Útil tras cambios en el temario hechos por el equipo de desarrollo. No borra temas existentes.
+
+\paragraph{Crear un tema nuevo}
+\begin{enumerate}
+  \item Haz clic en \textbf{``+ Crear Tema''}.
+  \item Escribe el \textbf{título}; el campo de \textbf{slug} (identificador para la URL) se genera automáticamente, pero puedes editarlo.
+  \item Opcionalmente, selecciona una \textbf{Parte} existente o escribe el nombre de una nueva.
+  \item Opcionalmente, selecciona un \textbf{tema padre} si este nuevo tema debe aparecer como subtema de otro.
+  \item Haz clic en \textbf{``Guardar Tema''}.
+\end{enumerate}
+
+\paragraph{Editar el contenido de un tema}
+\begin{itemize}
+  \item Junto a cada tema en la lista hay un botón \textbf{``Contenido''} que abre el editor de ese tema (\code{/perfil/tema/[id]}).
+  \item Desde ahí puedes:
+  \begin{itemize}
+    \item Cambiar el \textbf{título} del tema (el slug/URL no es editable desde la interfaz, para no romper enlaces existentes).
+    \item Añadir bloques de contenido con los botones \textbf{``+ Texto''}, \textbf{``+ Video''}, \textbf{``+ PDF/Material''}:
+    \begin{itemize}
+      \item \emph{Texto}: cuadro de texto libre. Admite HTML básico y \textbf{fórmulas LaTeX}: \code{\$formula\$} para una fórmula en línea (ej. \code{\$x^2\$}) o \code{\$\$formula\$\$} para una fórmula en bloque, centrada (ej. \code{\$\$E[X] = \textbackslash sum x\_i p\_i\$\$}).
+      \item \emph{Video}: URL de \textbf{embed} reproducible en un iframe. Funciona con YouTube (formato \code{https://www.youtube.com/embed/...}) o con Google Drive (formato \code{https://drive.google.com/file/d/ID\_DEL\_ARCHIVO/preview}, no el enlace normal ``Ver''/\code{view}). Si usas Drive, el archivo debe compartirse como ``Cualquier persona con el enlace'' --- si requiere iniciar sesión con una cuenta específica, el video no se reproducirá dentro de la página.
+      \item \emph{Material}: URL del archivo PDF u otro material (por ejemplo, \code{/documents/archivo.pdf}).
+    \end{itemize}
+    \item Eliminar un bloque de contenido con el ícono de papelera.
+    \item Añadir/eliminar \textbf{enlaces y tareas} (título + URL) en la sección correspondiente.
+    \item Al terminar, haz clic en \textbf{``Guardar Cambios''}.
+  \end{itemize}
+\end{itemize}
+
+\begin{nota}
+Al guardar, la plataforma \textbf{reemplaza por completo} los bloques de contenido y enlaces existentes del tema por los que aparecen en pantalla en ese momento --- revisa que todos los bloques que quieras conservar sigan visibles antes de guardar.
+\end{nota}
+
+\section{Preguntas frecuentes}
+
+\begin{description}
+  \item[¿Por qué no veo un tema que un compañero de otro grupo sí ve?] Los temas pueden habilitarse de forma independiente para Grupo 1 y Grupo 2. Consulta con el administrador si crees que debería estar visible para tu grupo.
+  \item[Olvidé mi contraseña, ¿cómo la recupero?] Actualmente no existe un flujo de autoservicio para restablecer contraseña. Contacta al administrador del curso para que la restablezca manualmente (creando de nuevo el usuario o mediante acceso directo a la base de datos).
+  \item[Subí el CSV y algunos estudiantes no se crearon, ¿por qué?] Revisa el mensaje de errores que se muestra tras la carga: las causas más comunes son correo o documento vacíos, un valor de grupo distinto de 1 o 2, o un correo que ya existe en el sistema.
+  \item[¿Puedo deshacer la eliminación de un usuario o de contenido de un tema?] No. Tanto la eliminación de usuarios como el guardado de cambios en el editor de temas son operaciones definitivas; no hay papelera ni historial de versiones.
+\end{description}
+
+\end{document}

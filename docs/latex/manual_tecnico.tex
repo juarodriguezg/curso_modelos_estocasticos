@@ -1,0 +1,438 @@
+\documentclass[11pt,a4paper]{article}
+
+% ---------- Idioma y codificación ----------
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish,es-noindentfirst]{babel}
+
+% ---------- Página ----------
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{parskip}
+\setlength{\parskip}{0.5\baselineskip}
+
+% ---------- Tipografía y color ----------
+\usepackage{xcolor}
+\definecolor{codebg}{HTML}{F5F5F5}
+\definecolor{notebg}{HTML}{FFF6DC}
+\definecolor{noteborder}{HTML}{E0B33C}
+\definecolor{linkblue}{HTML}{1A5FB4}
+
+% ---------- Tablas ----------
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{booktabs}
+
+% ---------- Listados de código ----------
+\usepackage{listings}
+\lstset{
+  basicstyle=\ttfamily\small,
+  breaklines=true,
+  backgroundcolor=\color{codebg},
+  frame=single,
+  framerule=0pt,
+  columns=fullflexible,
+  showstringspaces=false,
+  xleftmargin=8pt,
+  xrightmargin=8pt,
+  aboveskip=8pt,
+  belowskip=8pt
+}
+
+% ---------- Listas ----------
+\usepackage{enumitem}
+\setlist{itemsep=2pt, topsep=4pt}
+
+% ---------- Encabezados y enlaces ----------
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage[hidelinks,colorlinks=true,linkcolor=linkblue,urlcolor=linkblue,citecolor=linkblue]{hyperref}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{Manual técnico --- Curso de Modelos Estocásticos}
+\fancyhead[R]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% ---------- Entorno "nota" ----------
+\usepackage[most]{tcolorbox}
+\newtcolorbox{nota}{
+  colback=notebg,
+  colframe=noteborder,
+  boxrule=1pt,
+  arc=3pt,
+  left=8pt, right=8pt, top=6pt, bottom=6pt,
+  before skip=10pt, after skip=10pt
+}
+
+\newcommand{\code}[1]{\texttt{#1}}
+
+\title{\textbf{Manual técnico}\\[4pt]\large Curso de Modelos Estocásticos --- Plataforma web}
+\author{Universidad Nacional de Colombia}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{fancy}
+
+\tableofcontents
+\newpage
+
+Este documento describe la arquitectura, el modelo de datos, las rutas de API y las convenciones del proyecto, para que otra persona pueda darle mantenimiento sin haber participado en su desarrollo original.
+
+\section{Visión general}
+
+Aplicación web construida con \textbf{Next.js 16 (App Router)} y \textbf{TypeScript}, que sirve como plataforma del curso ``Modelos Estocásticos y Simulación en Computación y Comunicaciones'' (Universidad Nacional de Colombia). Permite:
+
+\begin{itemize}
+  \item Autenticación de usuarios (estudiantes, profesores, administradores).
+  \item Publicación de contenido del curso organizado en temas (texto, video, material descargable, enlaces/tareas).
+  \item Visibilidad de temas diferenciada por grupo de estudiantes (Grupo 1 / Grupo 2).
+  \item Panel de administración para gestionar usuarios y contenido, incluida carga masiva de estudiantes vía CSV.
+\end{itemize}
+
+\subsection*{Stack tecnológico}
+
+\begin{longtable}{@{}p{4cm}p{10cm}@{}}
+\toprule
+\textbf{Capa} & \textbf{Tecnología} \\
+\midrule
+\endhead
+Framework & Next.js 16 (App Router, Turbopack) \\
+Lenguaje & TypeScript \\
+Estilos & Tailwind CSS 4 + variables CSS propias (tema claro/oscuro) \\
+ORM / BD & Prisma ORM sobre PostgreSQL \\
+Autenticación & Tokens de sesión propios (no JWT firmado pese al nombre \code{JWT\_SECRET}) + cookie \code{httpOnly} \\
+Íconos & lucide-react \\
+Fórmulas matemáticas & react-katex / KaTeX \\
+CSV & csv-parse \\
+Lint/format & Biome \\
+\bottomrule
+\end{longtable}
+
+\begin{nota}
+\textbf{Nota:} el \code{README} describe el mecanismo de sesión como ``JWT + Cookies'', pero la implementación real (\code{src/app/api/auth/login/route.ts}) genera un token aleatorio opaco (\code{crypto.randomBytes}) y lo persiste en la tabla \code{Session}, no un JWT firmado. \code{jsonwebtoken} está en las dependencias pero no se usa actualmente en el código de autenticación.
+\end{nota}
+
+\section{Estructura de carpetas}
+
+\begin{lstlisting}[language=]
+curso_modelos_estocasticos/
+├── prisma/
+│   ├── schema.prisma            # Esquema de la base de datos
+│   ├── migrations/               # Migraciones versionadas
+│   └── seed.js                   # Crea un usuario admin de prueba
+├── src/
+│   ├── app/
+│   │   ├── page.tsx               # Landing pública
+│   │   ├── layout.tsx             # Layout raíz (fuente, ToastProvider)
+│   │   ├── not-found.tsx          # Página 404
+│   │   ├── globals.css            # Variables de tema (claro/oscuro) y estilos base
+│   │   ├── login/page.tsx         # Formulario de inicio de sesión
+│   │   ├── perfil/
+│   │   │   ├── page.tsx           # Perfil del usuario + panel admin
+│   │   │   └── tema/[id]/page.tsx # Editor de contenido de un tema (solo admin)
+│   │   ├── temas/[slug]/page.tsx  # Página pública de un tema del curso
+│   │   └── api/
+│   │       ├── auth/              # login, logout, me (register deshabilitado)
+│   │       ├── admin/             # create-user, delete-user, list-users, upload-csv,
+│   │       │                      # topics (list/visibility), topics/create, topics/[id], topics/sync
+│   │       └── topics/            # structure (árbol para el sidebar), visible (filtrado por grupo)
+│   ├── components/
+│   │   ├── Sidebar.tsx            # Navegación jerárquica (Partes → Secciones → Subtemas)
+│   │   ├── ClassLayout.tsx        # Layout reutilizable para vistas de clase (sin uso actualmente; ver riesgo 6)
+│   │   ├── LatexContent.tsx       # Renderiza bloques TEXT: detecta $formula$/$$formula$$ y usa react-katex, resto como HTML
+│   │   ├── Footer.tsx
+│   │   └── Toast.tsx              # Sistema de notificaciones (contexto React)
+│   ├── lib/
+│   │   ├── prisma.ts              # Cliente Prisma singleton
+│   │   ├── auth.ts                # Hash/verificación de contraseña, generación de token, validaciones
+│   │   ├── session.ts             # Helper de autenticación para API/servidor: getUserFromToken, requireAdmin
+│   │   ├── url.ts                 # Validación de URLs de video, material y enlaces
+│   │   └── authUtils.ts           # Utilidades de cliente: limpiar sesión, verificar sesión
+│   └── middleware.ts              # Protección de rutas por cookie de sesión
+└── public/
+    └── documents/                 # Materiales PDF servidos estáticamente
+\end{lstlisting}
+
+\section{Modelo de datos (Prisma / PostgreSQL)}
+
+Archivo fuente: \code{prisma/schema.prisma}.
+
+\subsection{\code{User}}
+
+\begin{longtable}{@{}p{3cm}p{2.5cm}p{9cm}@{}}
+\toprule
+\textbf{Campo} & \textbf{Tipo} & \textbf{Notas} \\
+\midrule
+\endhead
+id & String (cuid) & PK \\
+email & String & único, se guarda en minúsculas \\
+name & String? & \\
+password & String & hash bcrypt \\
+role & String & \code{"student"} \textbar\ \code{"teacher"} \textbar\ \code{"admin"} (sin enum, valor libre) \\
+grupo & Int & \code{0} para no-estudiantes; \code{1} o \code{2} para estudiantes \\
+sessions & Session[] & relación 1---N \\
+\bottomrule
+\end{longtable}
+
+\subsection{\code{Session}}
+
+\begin{longtable}{@{}p{3cm}p{11.5cm}@{}}
+\toprule
+\textbf{Campo} & \textbf{Notas} \\
+\midrule
+\endhead
+token & único, string aleatorio de 32 bytes en hex \\
+expiresAt & 7 días desde la creación \\
+userId & FK a \code{User}, \code{onDelete: Cascade} \\
+\bottomrule
+\end{longtable}
+
+\subsection{\code{Topic} (tema del curso)}
+
+\begin{longtable}{@{}p{3.3cm}p{11.2cm}@{}}
+\toprule
+\textbf{Campo} & \textbf{Notas} \\
+\midrule
+\endhead
+slug & único, usado en la URL \code{/temas/[slug]} \\
+title & título mostrado \\
+order & orden de aparición en el sidebar \\
+parte & agrupación de alto nivel (p.\,ej. ``Parte 1: Vectores Aleatorios''); \code{null} $\rightarrow$ se agrupa como ``Otros'' \\
+parentSlug & slug del tema padre, para representar subtemas (jerarquía de 2 niveles: Parte $\rightarrow$ Sección $\rightarrow$ Subtema) \\
+visibleGroup1 / visibleGroup2 & booleanos independientes; controlan si el tema aparece para cada grupo de estudiantes \\
+contents & Content[] \\
+links & Link[] \\
+\bottomrule
+\end{longtable}
+
+\subsection{\code{Content} (bloque de contenido de un tema)}
+
+\begin{longtable}{@{}p{3cm}p{11.5cm}@{}}
+\toprule
+\textbf{Campo} & \textbf{Notas} \\
+\midrule
+\endhead
+type & \code{"TEXT"} \textbar\ \code{"VIDEO"} \textbar\ \code{"MATERIAL"} (string libre, sin enum) \\
+content & texto HTML/plano con posibles delimitadores LaTeX \code{\$...\$}/\code{\$\$...\$\$} (TEXT, renderizado por \code{LatexContent.tsx} vía react-katex), URL de embed de YouTube o Google Drive \code{/preview} (VIDEO), o URL de archivo (MATERIAL) \\
+order & orden dentro del tema \\
+\bottomrule
+\end{longtable}
+
+\subsection{\code{Link} (enlace/tarea asociado a un tema)}
+
+\code{title}, \code{url}, \code{order}.
+
+\subsection{Notas de diseño relevantes}
+
+\begin{itemize}
+  \item La jerarquía de temas es de \textbf{dos niveles} (\code{parentSlug} apunta siempre a un tema raíz, no hay anidamiento arbitrario).
+  \item La visibilidad por grupo es un mecanismo simple de \emph{feature flag} por fila, no un sistema de permisos genérico.
+  \item No hay borrado lógico: \code{DELETE} en usuarios y recreación de \code{Content}/\code{Link} en cada \code{PUT} de tema son operaciones destructivas reales (ver Sección~\ref{sec:riesgos}).
+\end{itemize}
+
+\section{Autenticación y autorización}
+
+\subsection{Flujo de login (\code{POST /api/auth/login})}
+
+\begin{enumerate}
+  \item Busca el usuario por email (case-insensitive vía \code{.toLowerCase()}).
+  \item Verifica la contraseña con bcrypt (\code{src/lib/auth.ts}).
+  \item Genera un token aleatorio (\code{crypto.randomBytes(32).toString('hex')}) y crea una fila en \code{Session} con expiración a 7 días.
+  \item Devuelve el token en el body \textbf{y} lo fija como cookie \code{httpOnly} (\code{token}), \code{sameSite=lax}, \code{secure} solo en producción.
+\end{enumerate}
+
+\subsection{Doble mecanismo cliente}
+
+El frontend usa \textbf{dos formas de portar la sesión simultáneamente}:
+
+\begin{itemize}
+  \item \textbf{Cookie \code{httpOnly}} --- la usa \code{middleware.ts} para proteger rutas de página (\code{/temas/*}, \code{/perfil/*}) a nivel de servidor, redirigiendo a \code{/login} si falta.
+  \item \textbf{\code{localStorage} (\code{token}, \code{user})} --- lo usan los componentes cliente para llamar a las rutas de API, enviando \code{Authorization: Bearer <token>}.
+\end{itemize}
+
+Esto implica que \textbf{ambos deben mantenerse sincronizados} al hacer login/logout. El logout (\code{handleLogout} en \code{page.tsx} y \code{perfil/page.tsx}) limpia \code{localStorage}, borra cookies manualmente en JS y llama a \code{POST /api/auth/logout} (que también borra la cookie y la sesión en BD). Si se modifica este flujo, hay que actualizar los tres lugares a la vez.
+
+\subsection{Verificación de sesión en rutas de API}
+
+\code{src/lib/session.ts} centraliza la validación de sesión:
+
+\begin{itemize}
+  \item \code{getUserFromToken(token)} --- devuelve el usuario dueño de la sesión o \code{null}; si la sesión expiró, la elimina de la BD.
+  \item \code{requireAdmin(req)} --- lee el Bearer token y exige rol \code{admin}. Se usa en todas las rutas \code{/api/admin/*}.
+  \item \code{getBearerToken(req)} --- extrae el token del header \code{Authorization}.
+\end{itemize}
+
+\begin{lstlisting}[language=]
+const auth = await requireAdmin(req);
+if ('error' in auth) return auth.error;
+// auth.user es el administrador autenticado
+\end{lstlisting}
+
+Las rutas \code{topics/structure} y \code{topics/visible} usan \code{getUserFromToken} (por lo que ahora también invalidan sesiones expiradas). \code{auth/me} y \code{auth/logout} conservan su propia lógica. Las páginas de servidor (\code{temas/[slug]}) leen la cookie \code{token} y llaman a \code{getUserFromToken}.
+
+\subsection{Roles}
+
+\code{student}, \code{teacher}, \code{admin} como strings libres (no hay \code{enum} de Prisma). Las rutas \code{/api/admin/*} exigen \code{role === 'admin'}. \code{teacher} solo se usa para ver todos los temas (tratado igual que admin) en \code{topics/structure} y \code{topics/visible}, \textbf{no} tiene acceso a las rutas \code{/api/admin/*}.
+
+\subsection{Middleware (\code{src/middleware.ts})}
+
+Protege por \textbf{presencia de cookie}, no valida el token contra la base de datos (eso ocurre después, en cada API o página server component). Rutas:
+
+\begin{itemize}
+  \item Protegidas (requieren cookie): \code{/temas/:path*}, \code{/perfil/:path*}.
+  \item Solo para no-autenticados: \code{/login} (si hay cookie, redirige a \code{/}).
+\end{itemize}
+
+\section{API --- referencia de endpoints}
+
+Todas las rutas devuelven JSON. Salvo indicación, requieren header \code{Authorization: Bearer <token>}.
+
+\subsection{Auth (\code{/api/auth})}
+
+\begin{longtable}{@{}p{1.4cm}p{4.3cm}p{2.2cm}p{6.5cm}@{}}
+\toprule
+\textbf{Método} & \textbf{Ruta} & \textbf{Auth} & \textbf{Descripción} \\
+\midrule
+\endhead
+POST & \code{/api/auth/login} & No & Login, crea sesión, fija cookie \\
+POST & \code{/api/auth/register} & --- & \textbf{Deshabilitado}: responde 403. Las cuentas las crea un administrador (\code{/api/admin/create-user} o carga CSV) \\
+POST & \code{/api/auth/logout} & Cookie o Bearer & Elimina sesión(es) con ese token y borra cookie \\
+GET & \code{/api/auth/me} & Bearer & Devuelve datos del usuario autenticado \\
+\bottomrule
+\end{longtable}
+
+\subsection{Administración de usuarios (\code{/api/admin})}
+
+\begin{longtable}{@{}p{1.4cm}p{4.6cm}p{1.6cm}p{6.8cm}@{}}
+\toprule
+\textbf{Método} & \textbf{Ruta} & \textbf{Rol} & \textbf{Descripción} \\
+\midrule
+\endhead
+POST & \code{/api/admin/create-user} & admin & Crea usuario con rol y grupo arbitrarios \\
+DELETE & \code{/api/admin/delete-user?id=} & admin & Elimina usuario (no permite auto-eliminación) \\
+GET & \code{/api/admin/list-users} & admin & Lista todos los usuarios \\
+POST & \code{/api/admin/upload-csv} & admin & Carga masiva de estudiantes desde CSV (\code{multipart/form-data}, campo \code{file}) \\
+\bottomrule
+\end{longtable}
+
+\paragraph{Formato esperado del CSV} (columnas por nombre, ver \code{src/app/api/admin/upload-csv/route.ts}):
+\code{No, Apellidos, Nombre, Documento, Correo, Grupo}. La contraseña inicial de cada estudiante creado es su \textbf{número de documento} (hasheado con bcrypt). Filas con email/documento faltante, grupo inválido, o email ya existente se omiten y se reportan en \code{errors}.
+
+\subsection{Temas --- administración (\code{/api/admin/topics})}
+
+\begin{longtable}{@{}p{1.4cm}p{4.6cm}p{1.6cm}p{6.8cm}@{}}
+\toprule
+\textbf{Método} & \textbf{Ruta} & \textbf{Rol} & \textbf{Descripción} \\
+\midrule
+\endhead
+GET & \code{/api/admin/topics} & admin & Lista todos los temas (sin filtrar por visibilidad) \\
+POST & \code{/api/admin/topics} & admin & Actualiza \code{visibleGroup1} o \code{visibleGroup2} de un tema (\code{\{ topicId, group, visible \}}) \\
+POST & \code{/api/admin/topics/create} & admin & Crea un tema nuevo (\code{\{ title, slug, parte?, parentSlug? \}}); \code{order} se autoasigna como \code{max(order) + 1} \\
+GET & \code{/api/admin/topics/[id]} & admin & Detalle de un tema con sus \code{contents} y \code{links} \\
+PUT & \code{/api/admin/topics/[id]} & admin & Actualiza título y \textbf{reemplaza completamente} \code{contents} y \code{links} (borra todos los existentes y los vuelve a crear con el orden del array recibido) \\
+POST & \code{/api/admin/topics/sync} & admin & Sincroniza contra una lista fija de 121 temas hardcodeada en el propio archivo de ruta (crea los que faltan, actualiza título/orden de los existentes) \\
+\bottomrule
+\end{longtable}
+
+\begin{nota}
+\textbf{Importante para mantenimiento:} la lista de temas ``canónica'' del curso vive como un array TypeScript dentro de \code{src/app/api/admin/topics/sync/route.ts} (\code{allTopics}). Si se reestructura el temario, ese array es la fuente de verdad para el botón ``Sincronizar'' del panel de administración. No crea ni actualiza \code{parte}/\code{parentSlug} --- eso se hizo una única vez con un script de backfill ya eliminado (\code{prisma/migrate-hierarchy.js}, ejecutado y borrado tras confirmar que todos los temas quedaron con \code{parte}/\code{parentSlug} asignados; ver Sección~\ref{sec:comandos} si hace falta reconstruirlo).
+\end{nota}
+
+\subsection{Temas --- consulta pública/autenticada (\code{/api/topics})}
+
+\begin{longtable}{@{}p{1.4cm}p{4.6cm}p{1.6cm}p{6.8cm}@{}}
+\toprule
+\textbf{Método} & \textbf{Ruta} & \textbf{Auth} & \textbf{Descripción} \\
+\midrule
+\endhead
+GET & \code{/api/topics/structure} & Opcional & Árbol jerárquico (Parte $\rightarrow$ Sección $\rightarrow$ Subtemas) usado por \code{Sidebar.tsx}. Sin token o con rol no-admin/teacher, filtra por \code{grupo} del usuario; sin usuario reconocible, muestra todo (fallback permisivo) \\
+GET & \code{/api/topics/visible} & Bearer & Lista plana de slugs visibles según el grupo del usuario; sin token devuelve \code{\{ topics: [] \}} \\
+\bottomrule
+\end{longtable}
+
+\subsection{Páginas relevantes (no API)}
+
+\begin{itemize}
+  \item \code{GET /temas/[slug]} (\code{src/app/temas/[slug]/page.tsx}): server component que trae el \code{Topic} por slug directo de Prisma (sin pasar por la API \code{/api/topics/*}) y renderiza sus \code{contents}/\code{links}. \textbf{No filtra por visibilidad de grupo} --- cualquier usuario autenticado (protegido solo por el middleware) que conozca la URL puede ver el contenido aunque el sidebar no se lo muestre. Si se requiere ocultamiento estricto, hay que añadir esa verificación aquí.
+  \item \code{GET /perfil/tema/[id]}: editor de contenido de un tema. Es una página cliente sin protección de rol en el propio componente --- confía en que la API (\code{/api/admin/topics/[id]}) rechace a no-admins; no hay una comprobación visual que oculte el enlace a no-administradores más allá de que solo se muestra el botón ``Contenido'' dentro del panel admin de \code{/perfil}.
+\end{itemize}
+
+\section{Puntos de fragilidad / riesgos conocidos}
+\label{sec:riesgos}
+
+\begin{enumerate}
+  \item \textbf{\code{PUT /api/admin/topics/[id]} borra y recrea \code{contents} y \code{links}} en cada guardado, pero lo hace dentro de una única \code{prisma.\$transaction} (con \code{createMany}): si algo falla, el tema conserva su contenido anterior. Antes de guardar se valida el tipo de bloque y las URLs.
+  \item \textbf{Autenticación centralizada} en \code{src/lib/session.ts} (ver sección de autenticación). \code{auth/me} y \code{auth/logout} aún tienen lógica propia; si se modifica el manejo de sesiones, revisar ambas.
+  \item \textbf{\code{JWT\_SECRET} no se usa} --- es una variable de entorno heredada del nombre (ya se eliminó la constante con valor por defecto de \code{lib/auth.ts}) pero el mecanismo de sesión no la consume. No confundir con un sistema JWT real al depurar.
+  \item \textbf{Visibilidad por grupo aplicada también en \code{/temas/[slug]}}: la página valida la sesión contra la BD y responde 404 si el tema está oculto para el grupo del estudiante (admin/teacher ven todo). Criterio idéntico al de \code{topics/structure}: un usuario no admin con \code{grupo} distinto de 1 o 2 no se filtra.
+  \item \textbf{La lista de temas en \code{topics/sync/route.ts} está duplicada} respecto a la base de datos real; mantenerla sincronizada manualmente si cambia el temario.
+  \item \textbf{\code{ClassLayout.tsx}} existe pero no está siendo usado por \code{temas/[slug]/page.tsx} (que reimplementa un layout similar inline). Verificar si sigue en uso antes de modificarlo o eliminarlo.
+  \item Contraseñas de estudiantes cargados vía CSV son su número de documento en texto --- comunicar esto a los estudiantes para que las cambien (no hay flujo de cambio de contraseña implementado actualmente).
+  \item Enlace roto a \code{/calendario}: eliminado del sidebar.
+  \item \textbf{Validación básica de URLs}: los videos deben ser \code{https://} y los materiales/enlaces \code{http(s)://} o rutas relativas del sitio (\code{src/lib/url.ts}), tanto al guardar (\code{PUT}, error 400) como al renderizar (los bloques inválidos preexistentes no se muestran). No hay whitelist de dominios: cualquier URL \code{https} embebible funciona (YouTube, Google Drive \code{/preview}, etc.). Los permisos de acceso (p.\,ej. un archivo de Drive privado) los maneja Google del lado del iframe.
+\end{enumerate}
+
+\section{Variables de entorno}
+
+Definidas en \code{.env} (no versionado). Claves usadas:
+
+\begin{longtable}{@{}p{3.2cm}p{11.3cm}@{}}
+\toprule
+\textbf{Variable} & \textbf{Uso} \\
+\midrule
+\endhead
+\code{DATABASE\_URL} & Cadena de conexión PostgreSQL para Prisma \\
+\code{JWT\_SECRET} & Definida pero no utilizada por el código de autenticación actual (ver Sección~\ref{sec:riesgos}) \\
+\code{NODE\_ENV} & Controla \code{secure} de la cookie y nivel de logging de Prisma \\
+\bottomrule
+\end{longtable}
+
+\section{Comandos y flujo de trabajo}
+\label{sec:comandos}
+
+\begin{lstlisting}[language=bash]
+cd "CursoModelosEstocasticos/curso_modelos_estocasticos"
+npm install
+npm run dev          # servidor de desarrollo con Turbopack
+npm run build         # build de produccion
+npm start              # servir build de produccion
+npm run lint            # Biome check
+npm run format           # Biome format --write
+npm run seed              # crea usuario admin (admin1@example.com / clave123) via prisma/seed.js
+\end{lstlisting}
+
+\subsection{Migraciones de base de datos}
+
+\begin{lstlisting}[language=bash]
+npx prisma migrate dev --name <nombre>   # crear y aplicar una migracion en desarrollo
+npx prisma migrate deploy                 # aplicar migraciones pendientes en produccion
+npx prisma studio                          # explorador visual de datos
+\end{lstlisting}
+
+Migraciones existentes (\code{prisma/migrations/}): esquema inicial, relación sesión-usuario, campo \code{grupo}, modelo \code{Topic}, visibilidad por grupo, \code{parentSlug}/\code{parte}/editor de temas (\code{add\_topic\_editor}).
+
+\subsection{Backfill de jerarquía (histórico, ya no está en el repo)}
+
+La asignación de \code{parte} y \code{parentSlug} a los temas ya existentes se hizo con un script puntual (\code{prisma/migrate-hierarchy.js}), ejecutado una sola vez (\code{node prisma/migrate-hierarchy.js}) y borrado del repositorio tras confirmar que los 122 temas quedaron correctamente etiquetados (121 con \code{parte}, 84 con \code{parentSlug} --- los que no tienen \code{parentSlug} son los temas raíz). El script asignaba \code{parte} según rangos de \code{order} y \code{parentSlug} según un mapa fijo \code{childSlug} $\rightarrow$ \code{parentSlug} codificado en el propio archivo. Si se necesita reconstruir la jerarquía desde cero (p.\,ej. tras un reseed completo), habría que recrear un script equivalente basándose en este historial.
+
+\section{Convenciones de estilo}
+
+\begin{itemize}
+  \item Formateo/lint gestionado por \textbf{Biome} (\code{biome.json}), no ESLint/Prettier.
+  \item Estilos con Tailwind CSS 4 + variables CSS personalizadas definidas en \code{globals.css} (\code{--color-background}, \code{--color-header}, \code{--color-accent}, etc.), con soporte de tema oscuro vía atributo \code{data-theme} en \code{<html>} y persistencia en \code{localStorage('theme')}.
+  \item Componentes de página bajo \code{src/app/**/page.tsx} siguen la convención de App Router de Next.js; los que usan hooks de React llevan la directiva \code{"use client"} al inicio del archivo.
+\end{itemize}
+
+\section{Cómo extender el proyecto (guía rápida)}
+
+\begin{itemize}
+  \item \textbf{Añadir un nuevo tipo de contenido} (además de TEXT/VIDEO/MATERIAL): actualizar el \emph{union type} en \code{perfil/tema/[id]/page.tsx}, el \emph{switch}/if-chain de renderizado en \code{temas/[slug]/page.tsx}, y considerar si \code{Content.type} debería pasar a ser un \code{enum} en \code{schema.prisma} (actualmente es \code{String} libre).
+  \item \textbf{Añadir un nuevo rol}: no hay enum que actualizar en Prisma (es \code{String}), pero sí revisar todas las comprobaciones \code{role === 'admin'} / \code{role === 'teacher'} dispersas en las rutas API y en \code{Sidebar.tsx}/\code{perfil/page.tsx}.
+  \item \textbf{Cambiar la duración de la sesión}: \code{getTokenExpiration()} en \code{src/lib/auth.ts} (actualmente 7 días) y el \code{maxAge} de la cookie en \code{login} deben modificarse juntos.
+  \item \textbf{Reestructurar el temario}: actualizar el array \code{allTopics} en \code{src/app/api/admin/topics/sync/route.ts} y volver a ejecutar ``Sincronizar'' desde el panel de administración; si cambian relaciones padre-hijo a gran escala, considerar un script de backfill puntual (ver Sección~\ref{sec:comandos}) en vez de editarlas una por una desde la pestaña ``Visibilidad''.
+  \item \textbf{Agregar soporte para otro formato de fórmulas o de video}: la lógica de parseo LaTeX vive en \code{src/components/LatexContent.tsx} (regex para \code{\$\$...\$\$} y \code{\$...\$}); la lógica de reproducción de video vive directo en el \code{<iframe>} de \code{temas/[slug]/page.tsx}, sin capa de validación intermedia.
+\end{itemize}
+
+\end{document}
