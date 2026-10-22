@@ -1,8 +1,11 @@
 import { prisma } from '@/lib/prisma';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
+import { cookies } from 'next/headers';
 import Footer from "@/components/Footer";
 import Sidebar from "@/components/Sidebar";
 import LatexContent from "@/components/LatexContent";
+import { getUserFromToken } from '@/lib/session';
+import { isSafeLinkUrl, isSafeVideoUrl } from '@/lib/url';
 
 export default async function DynamicTopicPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -17,6 +20,22 @@ export default async function DynamicTopicPage({ params }: { params: Promise<{ s
 
   if (!topic) {
     notFound();
+  }
+
+  // El middleware solo comprueba que exista la cookie; aquí se valida la sesión
+  // y se aplica la visibilidad por grupo (mismo criterio que topics/structure).
+  const cookieStore = await cookies();
+  const user = await getUserFromToken(cookieStore.get('token')?.value);
+  if (!user) {
+    redirect(`/login?redirect=${encodeURIComponent(`/temas/${slug}`)}`);
+  }
+
+  const canSeeAll = user.role === 'admin' || user.role === 'teacher';
+  if (!canSeeAll && (user.grupo === 1 || user.grupo === 2)) {
+    const visible = user.grupo === 1 ? topic.visibleGroup1 : topic.visibleGroup2;
+    if (!visible) {
+      notFound();
+    }
   }
 
   return (
@@ -49,6 +68,7 @@ export default async function DynamicTopicPage({ params }: { params: Promise<{ s
               );
             }
             if (content.type === 'VIDEO') {
+              if (!isSafeVideoUrl(content.content)) return null;
               return (
                 <section key={content.id} className="card p-6">
                   <h2 className="text-xl font-semibold mb-3" style={{ color: 'var(--color-header)' }}>Video</h2>
@@ -62,6 +82,7 @@ export default async function DynamicTopicPage({ params }: { params: Promise<{ s
               );
             }
             if (content.type === 'MATERIAL') {
+              if (!isSafeLinkUrl(content.content)) return null;
               return (
                 <section key={content.id} className="card p-6 flex items-center justify-between">
                   <h2 className="text-lg font-semibold m-0" style={{ color: 'var(--color-header)' }}>
@@ -82,7 +103,7 @@ export default async function DynamicTopicPage({ params }: { params: Promise<{ s
                 Tareas y Enlaces
               </h2>
               <ul className="list-disc list-inside space-y-2" style={{ color: 'var(--color-text-dark)' }}>
-                {topic.links.map((link) => (
+                {topic.links.filter((link) => isSafeLinkUrl(link.url)).map((link) => (
                   <li key={link.id}>
                     <a href={link.url} target="_blank" rel="noopener noreferrer"
                       className="hover:underline transition" style={{ color: 'var(--color-accent)' }}>
