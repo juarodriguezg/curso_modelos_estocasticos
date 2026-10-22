@@ -5,7 +5,6 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import {
   Home,
-  Calendar,
   ChevronDown,
   ChevronRight,
   BookOpen,
@@ -156,15 +155,6 @@ export default function Sidebar() {
           >
             <Home size={20} />
             {!isCollapsed && <span>Inicio</span>}
-          </Link>
-          <Link
-            href="/calendario"
-            className={`sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg transition ${
-              isActive('/calendario') ? 'sidebar-link-active' : ''
-            }`}
-          >
-            <Calendar size={20} />
-            {!isCollapsed && <span>Calendario</span>}
           </Link>
         </div>
 
