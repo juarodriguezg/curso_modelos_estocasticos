@@ -1,27 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { getBearerToken, getUserFromToken } from '@/lib/session';
 
 // GET - Obtener temas visibles según el grupo del usuario
 export async function GET(req: NextRequest) {
   try {
-    const token = req.headers.get('authorization')?.replace('Bearer ', '');
-    
-    // Si no hay token, devolver array vacío (no autenticado)
-    if (!token) {
+    // Sin sesión válida, devolver array vacío (no autenticado)
+    const user = await getUserFromToken(getBearerToken(req));
+    if (!user) {
       return NextResponse.json({ topics: [] });
     }
-
-    // Buscar sesión y usuario
-    const session = await prisma.session.findUnique({
-      where: { token },
-      include: { user: true }
-    });
-
-    if (!session || !session.user) {
-      return NextResponse.json({ topics: [] });
-    }
-
-    const user = session.user;
 
     // Si es admin o teacher, devolver todos los temas
     if (user.role === 'admin' || user.role === 'teacher') {

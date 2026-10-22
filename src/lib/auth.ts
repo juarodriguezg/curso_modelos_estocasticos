@@ -1,8 +1,6 @@
 import bcrypt from 'bcryptjs';
 import { randomBytes } from 'crypto';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret-change-in-production';
-
 export async function hashPassword(password: string): Promise<string> {
   return bcrypt.hash(password, 12);
 }

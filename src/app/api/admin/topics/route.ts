@@ -1,30 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { requireAdmin } from '@/lib/session';
 
 // GET - Listar todos los temas con visibilidad por grupo
 export async function GET(req: NextRequest) {
   try {
-    const token = req.headers.get('authorization')?.replace('Bearer ', '');
-    if (!token) return NextResponse.json({ error: 'Token faltante' }, { status: 401 });
-
-    // Buscar sesión válida
-    const session = await prisma.session.findUnique({
-      where: { token },
-      include: { user: true }
-    });
-
-    if (!session) {
-      return NextResponse.json({ error: 'Sesión inválida' }, { status: 401 });
-    }
-
-    if (new Date() > session.expiresAt) {
-      await prisma.session.delete({ where: { id: session.id } });
-      return NextResponse.json({ error: 'Sesión expirada' }, { status: 401 });
-    }
-
-    if (session.user.role !== 'admin') {
-      return NextResponse.json({ error: 'No autorizado' }, { status: 403 });
-    }
+    const auth = await requireAdmin(req);
+    if ('error' in auth) return auth.error;
 
     // Obtener todos los temas ordenados con visibilidad por grupo
     const topics = await prisma.topic.findMany({
@@ -41,26 +23,8 @@ export async function GET(req: NextRequest) {
 // POST - Actualizar visibilidad de un tema por grupo
 export async function POST(req: NextRequest) {
   try {
-    const token = req.headers.get('authorization')?.replace('Bearer ', '');
-    if (!token) return NextResponse.json({ error: 'Token faltante' }, { status: 401 });
-
-    const session = await prisma.session.findUnique({
-      where: { token },
-      include: { user: true }
-    });
-
-    if (!session) {
-      return NextResponse.json({ error: 'Sesión inválida' }, { status: 401 });
-    }
-
-    if (new Date() > session.expiresAt) {
-      await prisma.session.delete({ where: { id: session.id } });
-      return NextResponse.json({ error: 'Sesión expirada' }, { status: 401 });
-    }
-
-    if (session.user.role !== 'admin') {
-      return NextResponse.json({ error: 'No autorizado' }, { status: 403 });
-    }
+    const auth = await requireAdmin(req);
+    if ('error' in auth) return auth.error;
 
     const { topicId, group, visible } = await req.json();
 

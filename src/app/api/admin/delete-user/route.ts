@@ -1,31 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { requireAdmin } from '@/lib/session';
 
 export async function DELETE(req: NextRequest) {
   try {
-    const token = req.headers.get('authorization')?.replace('Bearer ', '');
-    if (!token) return NextResponse.json({ error: 'Token faltante' }, { status: 401 });
-
-    // Buscar sesión válida usando el token
-    const session = await prisma.session.findUnique({
-      where: { token },
-      include: { user: true }
-    });
-
-    if (!session) {
-      return NextResponse.json({ error: 'Sesión inválida' }, { status: 401 });
-    }
-
-    // Verificar expiración
-    if (new Date() > session.expiresAt) {
-      await prisma.session.delete({ where: { id: session.id } });
-      return NextResponse.json({ error: 'Sesión expirada' }, { status: 401 });
-    }
-
-    // Verificar que sea admin
-    if (session.user.role !== 'admin') {
-      return NextResponse.json({ error: 'No autorizado - Se requiere rol de administrador' }, { status: 403 });
-    }
+    const auth = await requireAdmin(req);
+    if ('error' in auth) return auth.error;
 
     // Obtener ID del usuario a eliminar
     const { searchParams } = new URL(req.url);
@@ -45,7 +25,7 @@ export async function DELETE(req: NextRequest) {
     }
 
     // Prevenir que el admin se elimine a sí mismo
-    if (session.user.id === userId) {
+    if (auth.user.id === userId) {
       return NextResponse.json({ error: 'No puedes eliminar tu propia cuenta' }, { status: 400 });
     }
 

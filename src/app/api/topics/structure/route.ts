@@ -1,24 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { getBearerToken, getUserFromToken } from '@/lib/session';
 
 // GET - Obtener estructura jerárquica del curso para el sidebar
 export async function GET(req: NextRequest) {
   try {
-    const token = req.headers.get('authorization')?.replace('Bearer ', '');
-
-    let userRole: string | null = null;
-    let userGroup: number | null = null;
-
-    if (token) {
-      const session = await prisma.session.findUnique({
-        where: { token },
-        include: { user: true }
-      });
-      if (session && session.user) {
-        userRole = session.user.role;
-        userGroup = session.user.grupo;
-      }
-    }
+    const user = await getUserFromToken(getBearerToken(req));
+    const userRole = user?.role ?? null;
+    const userGroup = user?.grupo ?? null;
 
     const isAdmin = userRole === 'admin' || userRole === 'teacher';
 
