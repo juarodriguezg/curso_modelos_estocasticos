@@ -94,12 +94,13 @@ enum NotificationType {
 
 | Modelo actual | Destino |
 |---|---|
-| `User` | Se modifica: sin `password`, con `firstName`, `lastName`, `documentId` y `role` como enum. |
-| `Session` | Se conserva para la sesión de aplicación después del SSO. |
-| `Topic` | Se modifica: ahora pertenece a `Subject` y puede tener subtemas. |
-| `Content` | Se modifica: pasa a tener `name`, `body` y recursos asociados. |
-| `Link` | Se reemplaza por `ContentResource` o por `Material` + `MaterialTopic`. |
-| — | Se agregan las entidades académicas, de biblioteca, lecturas, tareas, evaluación, bonos, asistencia, notificaciones y auditoría. |
+| `User` | **Fase actual: sin cambios.** Objetivo futuro: sin `password`, con `firstName`, `lastName`, `documentId` y `role` como enum. |
+| `Session` | Se conserva. |
+| `Topic` | **Fase actual: aditiva** — se añade `subjectId` opcional; conserva `title`, `slug`, `parte`, `parentSlug`, `visibleGroup1/2`. Objetivo futuro: pertenecer a `Subject` de forma obligatoria y subtemas por FK. |
+| `Content` | **Fase actual: sin cambios** (`type`/`content`). Objetivo futuro: `name`, `body` y recursos asociados. |
+| `Link` | **Fase actual: sin cambios.** Objetivo futuro: reemplazar por `ContentResource` o `Material` + `MaterialTopic`. |
+| `Subject` | **Nueva, implementada (fase 4.1).** |
+| — | Las demás entidades (académicas, biblioteca, lecturas, tareas, evaluación, bonos, asistencia, notificaciones, auditoría) siguen siendo propuesta futura. |
 
 ### 3.1 Entidades existentes y nuevas
 
@@ -107,9 +108,9 @@ enum NotificationType {
 |---|---|
 | `User` | Existente, modificada |
 | `Session` | Existente |
-| `Topic` | Existente, modificada |
-| `Content` | Existente, modificada |
-| `Subject` | Nueva |
+| `Topic` | Existente, modificada (aditivo: `subjectId`) en fase 4.1 |
+| `Content` | Existente (sin cambios en fase 4.1) |
+| `Subject` | Nueva, **implementada (fase 4.1)** |
 | `AcademicPeriod` | Nueva |
 | `Course` | Nueva |
 | `CourseEnrollment` | Nueva |
@@ -207,22 +208,27 @@ Se incluye porque Web Push podrá habilitarse como canal adicional.
 
 ### 4.2 Núcleo académico
 
-#### `Subject` — nueva
+#### `Subject` — nueva · **IMPLEMENTADA (fase aditiva 4.1)**
 
 | Campo | Tipo | Descripción |
 |---|---|---|
-| `id` | `String` | Identificador. |
+| `id` | `String @id @default(cuid())` | Identificador. |
 | `code` | `String @unique` | Código único de la asignatura. |
 | `name` | `String` | Nombre. |
-| `credits` | `Int` | Créditos. |
+| `credits` | `Int @default(0)` | Créditos. |
 | `objective` | `String @db.Text` | Objetivo general. |
-| `specificObjectives` | `String[]` | Objetivos específicos. |
-| `createdAt` | `DateTime` | Fecha de creación. |
-| `updatedAt` | `DateTime` | Fecha de actualización. |
+| `specificObjectives` | `String[] @default([])` | Objetivos específicos (arreglo nativo de PostgreSQL). |
+| `createdAt` | `DateTime @default(now())` | Fecha de creación. |
+| `updatedAt` | `DateTime @updatedAt` | Fecha de actualización. |
 
-Relaciones: temas, cursos, tareas e ítems de evaluación.
+Relaciones: `topics Topic[]` (implementada). A futuro: cursos, tareas e ítems de evaluación (aún no implementadas en esta fase).
 
-Regla: se puede eliminar solo si no tiene cursos activos. La eliminación borra en cascada los cursos finalizados.
+Reglas:
+
+- Se puede eliminar solo si no tiene cursos activos. Como el modelo `Course` aún no existe, esta condición se cumple trivialmente; al eliminar una asignatura, sus temas **no se borran**: se desasocian poniendo `Topic.subjectId = null` (gracias al `onDelete: SetNull` de la relación).
+- La eliminación en cascada de cursos finalizados se aplicará cuando exista el módulo de Cursos (4.3).
+
+> **Estado**: este modelo ya está en `prisma/schema.prisma` y aplicado por la migración `add_subject`. Es la única entidad nueva del rediseño implementada hasta ahora; el resto de esta sección 4 (Course, Material, Task, etc.) sigue siendo propuesta futura.
 
 #### `AcademicPeriod` — nueva
 
@@ -288,38 +294,47 @@ Reglas:
 
 ### 4.3 Temario y contenidos
 
-#### `Topic` — existente, modificado
+#### `Topic` — existente, **modificado de forma aditiva**
+
+Estado real del esquema (`prisma/schema.prisma`). En la fase aditiva 4.1 se conservan todos los campos originales del proyecto y solo se añade `subjectId` opcional. No se renombró `title` a `name` ni se eliminó la jerarquía por strings (`parte`/`parentSlug`), para no romper el sidebar, la página de temas, el editor ni el endpoint de sincronización existentes.
 
 | Campo | Tipo | Descripción |
 |---|---|---|
-| `id` | `String` | Identificador. |
-| `subjectId` | `String` | Asignatura a la que pertenece. |
-| `name` | `String` | Nombre del tema. |
-| `slug` | `String` | Identificador legible para URLs. |
-| `order` | `Int` | Orden de presentación. |
-| `parentTopicId` | `String?` | Tema padre, si es un subtema. |
-| `createdAt` | `DateTime` | Fecha de creación. |
-| `updatedAt` | `DateTime` | Fecha de actualización. |
+| `id` | `String @id @default(cuid())` | Identificador. |
+| `slug` | `String @unique` | Identificador legible para URLs. |
+| `title` | `String` | Título del tema (nombre). |
+| `order` | `Int @default(0)` | Orden de presentación. |
+| `parte` | `String?` | Agrupación de alto nivel (p. ej. "Parte 1: Vectores Aleatorios"). |
+| `parentSlug` | `String?` | Slug del tema padre, para subtemas (jerarquía por string). |
+| `subjectId` | `String?` | **Nuevo (aditivo).** Asignatura a la que pertenece. Opcional: los temas pueden existir sin asignatura. |
+| `visibleGroup1` | `Boolean @default(true)` | Visibilidad para el grupo 1. |
+| `visibleGroup2` | `Boolean @default(true)` | Visibilidad para el grupo 2. |
+| `createdAt` | `DateTime @default(now())` | Fecha de creación. |
+| `updatedAt` | `DateTime @updatedAt` | Fecha de actualización. |
 
-Restricción: `@@unique([subjectId, slug])`.
+Relaciones: `contents Content[]`, `links Link[]`, y `subject Subject?` (nueva, `onDelete: SetNull`).
 
-Relaciones: asignatura, tema padre, subtemas, contenidos, materiales, tareas y clases.
+Notas sobre el modelo objetivo (futuro, no implementado en esta fase):
 
-Regla: los temas se heredan automáticamente en todos los cursos de la asignatura. La fecha de publicación se define por curso.
+- El diseño objetivo contemplaba `name` en lugar de `title`, `parentTopicId` (FK) en lugar de `parentSlug` (string), `@@unique([subjectId, slug])` y la eliminación de `visibleGroup1/2`. Esos cambios se difieren para no romper el código actual; migrar a ellos es trabajo de una fase posterior.
 
-#### `Content` — existente, modificado
+#### `Content` — existente, **sin cambios en la fase aditiva 4.1**
+
+Estado real del esquema (`prisma/schema.prisma`). El módulo 4.1 no modifica `Content`; se documenta aquí tal como existe hoy.
 
 | Campo | Tipo | Descripción |
 |---|---|---|
-| `id` | `String` | Identificador. |
+| `id` | `String @id @default(cuid())` | Identificador. |
 | `topicId` | `String` | Tema. |
-| `name` | `String` | Nombre del contenido. |
-| `body` | `String @db.Text` | Texto explicativo. |
-| `order` | `Int` | Orden dentro del tema. |
-| `createdAt` | `DateTime` | Fecha de creación. |
-| `updatedAt` | `DateTime` | Fecha de actualización. |
+| `type` | `String` | Tipo de contenido: `"TEXT"`, `"VIDEO"` o `"MATERIAL"` (string libre, sin enum). |
+| `content` | `String @db.Text` | Texto (con posibles delimitadores LaTeX), URL de video o URL de material según el `type`. |
+| `order` | `Int @default(0)` | Orden dentro del tema. |
 
-Relaciones: tema, recursos y clases que lo referencian.
+Relación: `topic Topic` con `onDelete: Cascade`.
+
+Notas sobre el modelo objetivo (futuro, no implementado en esta fase):
+
+- El diseño objetivo contemplaba renombrar a `name`/`body`, añadir `createdAt`/`updatedAt` y mover los recursos a un modelo `ContentResource` (reemplazando `Link`). Esos cambios se difieren a una fase posterior; hoy los enlaces siguen viviendo en el modelo `Link` y los recursos de contenido en el propio campo `content`.
 
 #### `ContentResource` — nueva
 
@@ -704,11 +719,24 @@ Se usa para calificaciones, bonos y asistencia.
 
 ## 5. Migración desde el esquema actual
 
+### 5.1 Fase actual — migración aditiva 4.1 (implementada)
+
+La implementación del módulo 4.1 se hizo de forma **aditiva y no destructiva**, sin borrar datos ni romper el código existente. Lo aplicado:
+
+1. **Asignaturas:** se añadió la tabla `Subject` y la columna opcional `Topic.subjectId` (nullable, `ON DELETE SET NULL`). Migración `add_subject`. Los temas existentes quedan sin asignatura hasta que un administrador los asocie.
+2. **Autenticación y usuarios:** **sin cambios.** Se conserva el login por contraseña (`User.password`), `role` como `String` (`admin`/`teacher`/`student`) y `User.grupo`. El SSO de Google queda fuera de alcance por ahora.
+3. **Temas y contenidos:** **sin cambios destructivos.** `Topic` conserva `title`, `slug`, `parte`, `parentSlug`, `visibleGroup1/2`; `Content` conserva `type`/`content`; `Link` se mantiene.
+4. **Datos existentes:** preservados. La migración solo agrega estructura; no reescribe ni elimina filas.
+
+### 5.2 Fase futura — migración al modelo objetivo completo (propuesta, no implementada)
+
+Cuando se aborde el rediseño completo (resto de módulos), los pasos serían:
+
 1. **Usuarios:** eliminar `password`; dividir `name` en `firstName` y `lastName`; mapear `role`: `admin` y `teacher` a `ADMIN`, `student` a `STUDENT`.
 2. **Grupos:** reemplazar `User.grupo` por `Course.group` y `CourseEnrollment`. Crear cursos para los grupos 1 y 2 existentes.
-3. **Temas:** crear una `Subject` por defecto y asociar los `Topic` actuales; convertir `parentSlug` en `parentTopicId`.
+3. **Temas:** asociar los `Topic` actuales a sus `Subject`; convertir `parentSlug` en `parentTopicId` y `title` en `name`.
 4. **Contenidos:** mover `Content.content` a `Content.body`; convertir `type` y `Link` en `ContentResource` o `Material`.
 5. **Enlaces:** migrar `Link` a `Material` con categoría «Enlaces» y `MaterialTopic`, o a `ContentResource` si pertenece a un contenido.
 6. **Visibilidad por grupo:** `visibleGroup1` y `visibleGroup2` no forman parte del modelo objetivo; se reemplazan por matrícula en curso y reglas de publicación.
 7. **Sesiones:** conservar `Session`; el token se crea después del inicio de sesión con Google.
-8. **Datos existentes:** si la base actual no tiene información relevante, conviene reescribir el esquema y generar una migración limpia. Si tiene datos, hacer migración incremental con respaldo previo.
+8. **Datos existentes:** si la base no tiene información relevante, reescribir el esquema con una migración limpia; si tiene datos, hacer migración incremental con respaldo previo.

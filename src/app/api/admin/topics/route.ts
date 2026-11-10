@@ -2,14 +2,18 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAdmin } from '@/lib/session';
 
-// GET - Listar todos los temas con visibilidad por grupo
+// GET - Listar todos los temas con visibilidad por grupo.
+// Con ?unassigned=true, devuelve solo los temas sin asignatura (subjectId null),
+// para el selector de "asociar temas existentes" del módulo de asignaturas.
 export async function GET(req: NextRequest) {
   try {
     const auth = await requireAdmin(req);
     if ('error' in auth) return auth.error;
 
-    // Obtener todos los temas ordenados con visibilidad por grupo
+    const unassigned = req.nextUrl.searchParams.get('unassigned') === 'true';
+
     const topics = await prisma.topic.findMany({
+      where: unassigned ? { subjectId: null } : undefined,
       orderBy: { order: 'asc' }
     });
 
