@@ -1,0 +1,21 @@
+services:
+  db:
+    image: postgres:16
+    container_name: curso_modelos_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: curso
+      POSTGRES_PASSWORD: curso123
+      POSTGRES_DB: curso_modelos
+    ports:
+      - "5432:5432"
+    volumes:
+      - curso_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U curso -d curso_modelos"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  curso_pgdata:

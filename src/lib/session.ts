@@ -52,3 +52,31 @@ export async function requireAdmin(req: NextRequest): Promise<AuthResult> {
 
   return { user };
 }
+
+// Portero para Server Components de rutas /admin/*.
+// Lee la cookie de sesión, valida el token contra la base de datos y exige rol
+// admin. Si no hay sesión -> redirige a /login; si no es admin -> redirige a /.
+// La verificación ocurre en el servidor, antes de renderizar HTML. Devuelve el
+// usuario autenticado cuando la verificación pasa.
+export async function requireAdminPage(): Promise<User> {
+  // Imports dinámicos: next/headers y next/navigation solo existen en el
+  // entorno de servidor de componentes, no en el de las rutas de API.
+  const { cookies } = await import('next/headers');
+  const { redirect } = await import('next/navigation');
+
+  const cookieStore = await cookies();
+  const user = await getUserFromToken(cookieStore.get('token')?.value);
+
+  if (!user) {
+    redirect('/login?redirect=/admin/dashboard');
+    // redirect() lanza (tipo never en tiempo de ejecución); este throw ayuda al
+    // control-flow analysis de TypeScript tras el import dinámico.
+    throw new Error('unreachable');
+  }
+  if (user.role !== 'admin') {
+    redirect('/');
+    throw new Error('unreachable');
+  }
+
+  return user;
+}

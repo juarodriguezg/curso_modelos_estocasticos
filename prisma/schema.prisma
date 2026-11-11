@@ -33,6 +33,26 @@ model Session {
   @@index([token])
 }
 
+// Asignatura (Subject): entidad padre del temario. Añadida de forma aditiva
+// para el módulo 4.1 (RF-ASG-*). La relación con Topic es opcional, por lo que
+// los temas existentes siguen funcionando sin asignatura asociada.
+model Subject {
+  id                 String   @id @default(cuid())
+  code               String   @unique
+  slug               String   @unique
+  name               String
+  credits            Int      @default(0)
+  objective          String   @db.Text
+  specificObjectives String[] @default([])
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  topics             Topic[]
+
+  @@index([code])
+  @@index([slug])
+}
+
 model Topic {
   id            String   @id @default(cuid())
   slug          String   @unique
@@ -40,6 +60,7 @@ model Topic {
   order         Int      @default(0)
   parte         String?  // Agrupación: "Preliminares", "Parte 1: Vectores Aleatorios", etc.
   parentSlug    String?  // Slug del padre para subtemas
+  subjectId     String?  // Asignatura a la que pertenece (opcional, fase aditiva 4.1)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
   visibleGroup1 Boolean  @default(true)
@@ -47,10 +68,12 @@ model Topic {
 
   contents      Content[]
   links         Link[]
+  subject       Subject? @relation(fields: [subjectId], references: [id], onDelete: SetNull)
 
   @@index([slug])
   @@index([parte])
   @@index([parentSlug])
+  @@index([subjectId])
   @@index([visibleGroup1])
   @@index([visibleGroup2])
 }
