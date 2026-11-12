@@ -52,7 +52,7 @@ curso_modelos_estocasticos/
 │   │       │                      # topics (list/visibility), topics/create, topics/[id], topics/sync
 │   │       └── topics/            # structure (árbol para el sidebar), visible (filtrado por grupo)
 │   ├── components/
-│   │   ├── Sidebar.tsx            # Navegación jerárquica (Partes → Secciones → Subtemas)
+│   │   ├── Sidebar.tsx            # Navegación jerárquica (Asignaturas → Partes → Secciones → Subtemas)
 │   │   ├── ClassLayout.tsx        # Layout reutilizable (sin uso actualmente; ver sección 6.6)
 │   │   ├── LatexContent.tsx       # Renderiza bloques TEXT: detecta $formula$/$$formula$$ y usa react-katex, resto como HTML
 │   │   ├── Footer.tsx
@@ -214,7 +214,7 @@ Todo endpoint que modifica un curso llama a `assertCourseWritable` (409 si está
 ### Temas — consulta pública/autenticada (`/api/topics`)
 | Método | Ruta | Auth | Descripción |
 |---|---|---|---|
-| GET | `/api/topics/structure` | Opcional | Árbol jerárquico (Parte → Sección → Subtemas) usado por `Sidebar.tsx`. Para estudiantes filtra con `filterVisibleTopics` (visibilidad por curso); sin usuario reconocible, muestra todo (fallback permisivo) |
+| GET | `/api/topics/structure` | Opcional | Árbol jerárquico (Asignatura → Parte → Sección → Subtemas) usado por `Sidebar.tsx`. Las asignaturas van ordenadas por nombre y los temas sin asignatura al final, en el grupo «Otros temas» (`id: null`). El sidebar solo muestra el nivel de asignatura cuando hay más de un grupo. Para estudiantes filtra con `filterVisibleTopics` (visibilidad por curso); sin usuario reconocible, muestra todo (fallback permisivo) |
 | GET | `/api/topics/visible` | Bearer | Lista plana de slugs visibles según los cursos del usuario; sin token devuelve `{ topics: [] }` |
 
 ### Páginas relevantes (no API)

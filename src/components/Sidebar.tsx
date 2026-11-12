@@ -8,6 +8,7 @@ import {
   ChevronDown,
   ChevronRight,
   BookOpen,
+  GraduationCap,
   Menu,
   Moon,
   Sun,
@@ -31,15 +32,34 @@ interface Parte {
   secciones: Seccion[]
 }
 
+// Asignatura (primer nivel del menú). id = null agrupa los temas sin asignatura.
+interface Asignatura {
+  id: string | null
+  code: string | null
+  titulo: string
+  partes: Parte[]
+}
+
+const asignaturaKey = (a: Asignatura) => a.id ?? "otros"
+// Dos asignaturas pueden tener partes con el mismo nombre
+const parteKey = (a: Asignatura, p: Parte) => `${asignaturaKey(a)}/${p.titulo}`
+
 export default function Sidebar() {
   const pathname = usePathname()
   const [isCollapsed, setIsCollapsed] = useState(false)
+  const [closedAsignaturas, setClosedAsignaturas] = useState<string[]>([])
   const [openPartes, setOpenPartes] = useState<string[]>([])
   const [openSecciones, setOpenSecciones] = useState<string[]>([])
-  const [structure, setStructure] = useState<Parte[]>([])
+  const [structure, setStructure] = useState<Asignatura[]>([])
   const [isAdmin, setIsAdmin] = useState(false)
   const [loading, setLoading] = useState(true)
   const [darkMode, setDarkMode] = useState(false)
+
+  const toggleAsignatura = (key: string) => {
+    setClosedAsignaturas((prev) =>
+      prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
+    )
+  }
 
   const toggleParte = (parte: string) => {
     setOpenPartes((prev) =>
@@ -101,25 +121,118 @@ export default function Sidebar() {
     loadStructure()
   }, [])
 
-  // Auto-expand the parte that contains the current page
+  // Auto-expand the asignatura and parte that contain the current page
   useEffect(() => {
     if (!pathname || structure.length === 0) return
-    for (const parte of structure) {
-      for (const sec of parte.secciones) {
-        if (pathname === sec.enlace || sec.subtemas.some(s => pathname === s.enlace)) {
-          if (!openPartes.includes(parte.titulo)) {
-            setOpenPartes(prev => [...prev, parte.titulo])
+    for (const asig of structure) {
+      for (const parte of asig.partes) {
+        for (const sec of parte.secciones) {
+          if (pathname === sec.enlace || sec.subtemas.some(s => pathname === s.enlace)) {
+            const aKey = asignaturaKey(asig)
+            const pKey = parteKey(asig, parte)
+            setClosedAsignaturas(prev => prev.filter(k => k !== aKey))
+            if (!openPartes.includes(pKey)) {
+              setOpenPartes(prev => [...prev, pKey])
+            }
+            if (sec.subtemas.length > 0 && !openSecciones.includes(sec.slug)) {
+              setOpenSecciones(prev => [...prev, sec.slug])
+            }
+            return
           }
-          if (sec.subtemas.length > 0 && !openSecciones.includes(sec.titulo)) {
-            setOpenSecciones(prev => [...prev, sec.titulo])
-          }
-          return
         }
       }
     }
   }, [pathname, structure])
 
   const isActive = (enlace: string) => pathname === enlace
+
+  // Con una sola asignatura el menú se ve como antes, sin el nivel extra
+  const showAsignaturas = structure.length > 1
+
+  const renderParte = (asig: Asignatura, parte: Parte) => {
+    const pKey = parteKey(asig, parte)
+    return (
+      <div key={pKey} className="mb-2 text-left">
+        {/* Parte */}
+        <button
+          onClick={() => toggleParte(pKey)}
+          className="sidebar-link flex w-full items-start justify-between font-semibold py-2.5 px-3 rounded-lg transition text-left"
+        >
+          <span className="text-left leading-snug text-sm">
+            {parte.titulo}
+          </span>
+          {openPartes.includes(pKey) ? (
+            <ChevronDown size={16} className="mt-0.5 flex-shrink-0 opacity-60" />
+          ) : (
+            <ChevronRight size={16} className="mt-0.5 flex-shrink-0 opacity-60" />
+          )}
+        </button>
+
+        {/* Secciones */}
+        {openPartes.includes(pKey) && (
+          <div className="pl-3 space-y-0.5 mt-1 animate-slideDown">
+            {parte.secciones.map((sec) => (
+              <div key={sec.slug}>
+                {sec.subtemas && sec.subtemas.length > 0 ? (
+                  <>
+                    <div className="flex items-center gap-1">
+                      <Link
+                        href={sec.enlace}
+                        className={`sidebar-link flex-1 text-sm py-1.5 px-2.5 rounded-lg transition text-left ${
+                          isActive(sec.enlace) ? 'sidebar-link-active' : ''
+                        }`}
+                      >
+                        {sec.titulo}
+                      </Link>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          toggleSeccion(sec.slug)
+                        }}
+                        className="p-1 rounded-lg hover:bg-white/10 transition"
+                      >
+                        {openSecciones.includes(sec.slug) ? (
+                          <ChevronDown size={14} className="opacity-60" />
+                        ) : (
+                          <ChevronRight size={14} className="opacity-60" />
+                        )}
+                      </button>
+                    </div>
+
+                    {openSecciones.includes(sec.slug) && (
+                      <ul className="pl-3 mt-0.5 text-sm space-y-0.5 animate-slideDown">
+                        {sec.subtemas.map((sub) => (
+                          <li key={sub.slug}>
+                            <Link
+                              href={sub.enlace}
+                              className={`sidebar-link block px-2.5 py-1.5 rounded-lg transition text-left text-[0.82rem] ${
+                                isActive(sub.enlace) ? 'sidebar-link-active' : ''
+                              }`}
+                            >
+                              {sub.titulo}
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </>
+                ) : (
+                  <Link
+                    href={sec.enlace}
+                    className={`sidebar-link block w-full text-sm py-1.5 px-2.5 rounded-lg transition text-left ${
+                      isActive(sec.enlace) ? 'sidebar-link-active' : ''
+                    }`}
+                  >
+                    {sec.titulo}
+                  </Link>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    )
+  }
 
   return (
     <aside
@@ -183,87 +296,44 @@ export default function Sidebar() {
 
         {!isCollapsed &&
           !loading &&
-          structure.map((parte, i) => (
-            <div key={i} className="mb-2 text-left">
-              {/* Parte */}
-              <button
-                onClick={() => toggleParte(parte.titulo)}
-                className="sidebar-link flex w-full items-start justify-between font-semibold py-2.5 px-3 rounded-lg transition text-left"
-              >
-                <span className="text-left leading-snug text-sm">
-                  {parte.titulo}
-                </span>
-                {openPartes.includes(parte.titulo) ? (
-                  <ChevronDown size={16} className="mt-0.5 flex-shrink-0 opacity-60" />
-                ) : (
-                  <ChevronRight size={16} className="mt-0.5 flex-shrink-0 opacity-60" />
+          !showAsignaturas &&
+          structure.flatMap((asig) => asig.partes.map((parte) => renderParte(asig, parte)))}
+
+        {!isCollapsed &&
+          !loading &&
+          showAsignaturas &&
+          structure.map((asig) => {
+            const aKey = asignaturaKey(asig)
+            const open = !closedAsignaturas.includes(aKey)
+            return (
+              <div key={aKey} className="mb-3 text-left">
+                {/* Asignatura */}
+                <button
+                  type="button"
+                  onClick={() => toggleAsignatura(aKey)}
+                  aria-expanded={open}
+                  className="sidebar-link flex w-full items-center justify-between gap-2 py-2 px-3 rounded-lg transition text-left font-bold uppercase tracking-wide text-xs"
+                >
+                  <span className="flex items-center gap-2 leading-snug">
+                    <GraduationCap size={16} className="flex-shrink-0 opacity-80" />
+                    {asig.titulo}
+                  </span>
+                  {open ? (
+                    <ChevronDown size={16} className="flex-shrink-0 opacity-60" />
+                  ) : (
+                    <ChevronRight size={16} className="flex-shrink-0 opacity-60" />
+                  )}
+                </button>
+
+                {/* Partes */}
+                {open && (
+                  <div className="pl-2 mt-1 animate-slideDown">
+                    {asig.partes.map((parte) => renderParte(asig, parte))}
+                  </div>
                 )}
-              </button>
-
-              {/* Secciones */}
-              {openPartes.includes(parte.titulo) && (
-                <div className="pl-3 space-y-0.5 mt-1 animate-slideDown">
-                  {parte.secciones.map((sec, j) => (
-                    <div key={j}>
-                      {sec.subtemas && sec.subtemas.length > 0 ? (
-                        <>
-                          <div className="flex items-center gap-1">
-                            <Link
-                              href={sec.enlace}
-                              className={`sidebar-link flex-1 text-sm py-1.5 px-2.5 rounded-lg transition text-left ${
-                                isActive(sec.enlace) ? 'sidebar-link-active' : ''
-                              }`}
-                            >
-                              {sec.titulo}
-                            </Link>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                toggleSeccion(sec.titulo)
-                              }}
-                              className="p-1 rounded-lg hover:bg-white/10 transition"
-                            >
-                              {openSecciones.includes(sec.titulo) ? (
-                                <ChevronDown size={14} className="opacity-60" />
-                              ) : (
-                                <ChevronRight size={14} className="opacity-60" />
-                              )}
-                            </button>
-                          </div>
-
-                          {openSecciones.includes(sec.titulo) && (
-                            <ul className="pl-3 mt-0.5 text-sm space-y-0.5 animate-slideDown">
-                              {sec.subtemas.map((sub, k) => (
-                                <li key={k}>
-                                  <Link
-                                    href={sub.enlace}
-                                    className={`sidebar-link block px-2.5 py-1.5 rounded-lg transition text-left text-[0.82rem] ${
-                                      isActive(sub.enlace) ? 'sidebar-link-active' : ''
-                                    }`}
-                                  >
-                                    {sub.titulo}
-                                  </Link>
-                                </li>
-                              ))}
-                            </ul>
-                          )}
-                        </>
-                      ) : (
-                        <Link
-                          href={sec.enlace}
-                          className={`sidebar-link block w-full text-sm py-1.5 px-2.5 rounded-lg transition text-left ${
-                            isActive(sec.enlace) ? 'sidebar-link-active' : ''
-                          }`}
-                        >
-                          {sec.titulo}
-                        </Link>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          ))}
+              </div>
+            )
+          })}
       </nav>
     </aside>
   )
