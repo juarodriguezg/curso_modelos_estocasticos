@@ -246,6 +246,8 @@ Definidas en `.env` (no versionado). Claves usadas:
 
 ## 8. Comandos y flujo de trabajo
 
+El despliegue en Vercel, la primera instalación, los respaldos y la solución de problemas están en `docs/GUIA_DESPLIEGUE.md`.
+
 ```bash
 cd "CursoModelosEstocásticos/curso_modelos_estocasticos"
 npm install
