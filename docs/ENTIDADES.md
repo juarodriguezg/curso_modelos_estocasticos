@@ -776,7 +776,7 @@ También aditiva y no destructiva. Migración `add_courses`:
 
 1. **Nuevas tablas:** `AcademicPeriod`, `Course`, `CourseEnrollment` y `CourseTopic`, más el enum `CourseStatus`.
 2. **Usuarios:** columnas opcionales `firstName`, `lastName` y `documentId` (única). No se toca `password`, `role` ni `grupo`.
-3. **Datos existentes:** la migración no los modifica. La conversión de los grupos 1 y 2 en cursos la hace el script `prisma/backfill-courses.js`, que es idempotente y se ejecuta aparte (ver `docs/GUIA_DESPLIEGUE_4_3.md`).
+3. **Datos existentes:** la migración no los modifica. La conversión de los grupos 1 y 2 en cursos la hace el script `prisma/backfill-courses.js`, que es idempotente y se ejecuta aparte (ver `docs/MANUAL_TECNICO.md`, «Backfill de cursos»).
 4. **Compatibilidad:** `User.grupo` y `Topic.visibleGroup1/2` quedan como respaldo. Mientras un estudiante no tenga matrícula, la visibilidad sigue la regla anterior, así que desplegar antes del backfill no cambia lo que ven los estudiantes.
 
 ### 5.3 Fase futura — migración al modelo objetivo completo (propuesta, no implementada)

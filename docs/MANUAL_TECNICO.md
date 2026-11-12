@@ -277,8 +277,6 @@ PERIOD_NAME=<p. ej. 2026-2S> PERIOD_START=AAAA-MM-DD PERIOD_END=AAAA-MM-DD \
 node prisma/backfill-courses.js --dry-run   # luego sin --dry-run
 ```
 
-El procedimiento completo de despliegue (respaldo, `CRON_SECRET`, migración, backfill y verificación) está en `docs/GUIA_DESPLIEGUE_4_3.md`.
-
 ### Backfill de jerarquía (histórico, ya no está en el repo)
 La asignación de `parte` y `parentSlug` a los temas ya existentes se hizo con un script puntual (`prisma/migrate-hierarchy.js`), ejecutado una sola vez (`node prisma/migrate-hierarchy.js`) y borrado del repositorio tras confirmar que los 122 temas quedaron correctamente etiquetados (121 con `parte`, 84 con `parentSlug` — los que no tienen `parentSlug` son los temas raíz). El script asignaba `parte` según rangos de `order` y `parentSlug` según un mapa fijo `childSlug → parentSlug` codificado en el propio archivo. Si se necesita reconstruir la jerarquía desde cero (p. ej. tras un reseed completo), habría que recrear un script equivalente basándose en este historial.
 
