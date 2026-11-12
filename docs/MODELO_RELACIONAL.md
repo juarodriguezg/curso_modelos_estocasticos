@@ -1,5 +1,7 @@
 # Modelo relacional
 
+Modelo objetivo. Ya están implementadas `SUBJECT` (4.1) y `ACADEMIC_PERIOD`, `COURSE`, `COURSE_ENROLLMENT` y `COURSE_TOPIC` (4.3); el estado real de cada una está en `docs/ENTIDADES.md`.
+
 ```mermaid
 erDiagram
     %% PK: clave primaria | FK: clave foránea | UK: valor único
@@ -60,6 +62,17 @@ erDiagram
         string group
         CourseStatus status
         DateTime finalizedAt
+        DateTime reactivatedAt
+        DateTime exportedAt
+        DateTime purgedAt
+    }
+
+    COURSE_TOPIC {
+        string id PK
+        string courseId FK
+        string topicId FK
+        boolean visible
+        DateTime publishDate
     }
 
     COURSE_ENROLLMENT {
@@ -292,6 +305,8 @@ erDiagram
     SUBJECT ||--o{ COURSE : "se ofrece"
     ACADEMIC_PERIOD ||--o{ COURSE : "contiene"
     COURSE ||--o{ COURSE_ENROLLMENT : "tiene"
+    COURSE ||--o{ COURSE_TOPIC : "configura"
+    TOPIC ||--o{ COURSE_TOPIC : "se publica"
     COURSE ||--o{ TASK_OFFERING : "habilita"
     COURSE ||--o{ TASK_RANGE : "agrupa"
     COURSE ||--o| COURSE_READING : "asigna"

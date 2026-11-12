@@ -4,6 +4,7 @@ import { cookies } from 'next/headers';
 import Footer from "@/components/Footer";
 import Sidebar from "@/components/Sidebar";
 import LatexContent from "@/components/LatexContent";
+import { filterVisibleTopics } from '@/lib/courses';
 import { getUserFromToken } from '@/lib/session';
 import { isSafeLinkUrl, isSafeVideoUrl } from '@/lib/url';
 
@@ -23,19 +24,16 @@ export default async function DynamicTopicPage({ params }: { params: Promise<{ s
   }
 
   // El middleware solo comprueba que exista la cookie; aquí se valida la sesión
-  // y se aplica la visibilidad por grupo (mismo criterio que topics/structure).
+  // y se aplica la visibilidad por curso (mismo criterio que topics/structure).
   const cookieStore = await cookies();
   const user = await getUserFromToken(cookieStore.get('token')?.value);
   if (!user) {
     redirect(`/login?redirect=${encodeURIComponent(`/temas/${slug}`)}`);
   }
 
-  const canSeeAll = user.role === 'admin' || user.role === 'teacher';
-  if (!canSeeAll && (user.grupo === 1 || user.grupo === 2)) {
-    const visible = user.grupo === 1 ? topic.visibleGroup1 : topic.visibleGroup2;
-    if (!visible) {
-      notFound();
-    }
+  const [visible] = await filterVisibleTopics(user, [topic]);
+  if (!visible) {
+    notFound();
   }
 
   return (

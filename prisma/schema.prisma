@@ -8,15 +8,21 @@ datasource db {
 }
 
 model User {
-  id        String    @id @default(cuid())
-  email     String    @unique
-  name      String?
-  password  String
-  role      String    @default("student")
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  grupo     Int       @default(0)
-  sessions  Session[]
+  id          String             @id @default(cuid())
+  email       String             @unique
+  name        String?
+  password    String
+  role        String             @default("student")
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  grupo       Int                @default(0) // Obsoleto (4.3): se mantiene sincronizado con la matrícula por compatibilidad
+  // Campos del módulo 4.3 (RF-CUR-02). Opcionales: los usuarios existentes solo tienen `name`,
+  // que se conserva y se sincroniza como "firstName lastName" al usarlos.
+  firstName   String?
+  lastName    String?
+  documentId  String?            @unique
+  sessions    Session[]
+  enrollments CourseEnrollment[]
 
   @@index([email])
 }
@@ -47,7 +53,8 @@ model Subject {
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
 
-  topics             Topic[]
+  topics  Topic[]
+  courses Course[]
 
   @@index([code])
   @@index([slug])
@@ -58,17 +65,18 @@ model Topic {
   slug          String   @unique
   title         String
   order         Int      @default(0)
-  parte         String?  // Agrupación: "Preliminares", "Parte 1: Vectores Aleatorios", etc.
-  parentSlug    String?  // Slug del padre para subtemas
-  subjectId     String?  // Asignatura a la que pertenece (opcional, fase aditiva 4.1)
+  parte         String? // Agrupación: "Preliminares", "Parte 1: Vectores Aleatorios", etc.
+  parentSlug    String? // Slug del padre para subtemas
+  subjectId     String? // Asignatura a la que pertenece (opcional, fase aditiva 4.1)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
   visibleGroup1 Boolean  @default(true)
   visibleGroup2 Boolean  @default(true)
 
-  contents      Content[]
-  links         Link[]
-  subject       Subject? @relation(fields: [subjectId], references: [id], onDelete: SetNull)
+  contents     Content[]
+  links        Link[]
+  subject      Subject?      @relation(fields: [subjectId], references: [id], onDelete: SetNull)
+  courseTopics CourseTopic[]
 
   @@index([slug])
   @@index([parte])
@@ -79,23 +87,101 @@ model Topic {
 }
 
 model Content {
-  id        String   @id @default(cuid())
-  topicId   String
-  type      String   // "TEXT", "VIDEO", "MATERIAL"
-  content   String   @db.Text
-  order     Int      @default(0)
-  topic     Topic    @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  id      String @id @default(cuid())
+  topicId String
+  type    String // "TEXT", "VIDEO", "MATERIAL"
+  content String @db.Text
+  order   Int    @default(0)
+  topic   Topic  @relation(fields: [topicId], references: [id], onDelete: Cascade)
 
   @@index([topicId])
 }
 
 model Link {
-  id        String   @id @default(cuid())
-  topicId   String
-  title     String
-  url       String
-  order     Int      @default(0)
-  topic     Topic    @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  id      String @id @default(cuid())
+  topicId String
+  title   String
+  url     String
+  order   Int    @default(0)
+  topic   Topic  @relation(fields: [topicId], references: [id], onDelete: Cascade)
 
+  @@index([topicId])
+}
+
+// ─── Módulo 4.3: cursos y usuarios ───────────────────────────────────────────
+
+enum CourseStatus {
+  ACTIVE
+  FINALIZED
+}
+
+// Periodo académico (RF-CUR-10). Los cursos heredan sus fechas (RF-CUR-01).
+model AcademicPeriod {
+  id        String   @id @default(cuid())
+  name      String   @unique // p. ej. "2026-1S"
+  startDate DateTime @db.Date
+  endDate   DateTime @db.Date
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  courses Course[]
+}
+
+// Curso: asignatura ofrecida en un periodo y grupo (RF-CUR-01, RF-CUR-06).
+model Course {
+  id            String       @id @default(cuid())
+  subjectId     String
+  periodId      String
+  group         String // "1", "2", "3"... (grupo o sección)
+  status        CourseStatus @default(ACTIVE)
+  finalizedAt   DateTime?
+  reactivatedAt DateTime? // si existe, el cron no vuelve a finalizar el curso
+  exportedAt    DateTime? // última exportación .xlsx (requisito para purgar)
+  purgedAt      DateTime? // datos purgados; el curso queda como registro histórico
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  subject     Subject            @relation(fields: [subjectId], references: [id], onDelete: Restrict)
+  period      AcademicPeriod     @relation(fields: [periodId], references: [id], onDelete: Restrict)
+  enrollments CourseEnrollment[]
+  topics      CourseTopic[]
+
+  @@unique([subjectId, periodId, group])
+  @@index([subjectId])
+  @@index([periodId])
+  @@index([status])
+}
+
+// Matrícula de un estudiante en un curso (RF-CUR-02, RF-CUR-04).
+// User -> CourseEnrollment es Restrict: desactivar conserva el historial.
+model CourseEnrollment {
+  id            String    @id @default(cuid())
+  courseId      String
+  userId        String
+  active        Boolean   @default(true)
+  isMonitor     Boolean   @default(false)
+  enrolledAt    DateTime  @default(now())
+  deactivatedAt DateTime?
+
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@unique([courseId, userId])
+  @@index([userId])
+}
+
+// Estado de un tema dentro de un curso. La ausencia de fila equivale a
+// visible = true y sin fecha: el curso hereda el temario sin duplicarlo (RF-ASG-05).
+model CourseTopic {
+  id          String    @id @default(cuid())
+  courseId    String
+  topicId     String
+  visible     Boolean   @default(true) // reemplaza a Topic.visibleGroup1/2
+  publishDate DateTime? @db.Date // informativa; no restringe el acceso (RF-CUR-03)
+
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  topic  Topic  @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  @@unique([courseId, topicId])
   @@index([topicId])
 }

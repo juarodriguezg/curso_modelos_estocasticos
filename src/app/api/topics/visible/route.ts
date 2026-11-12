@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { filterVisibleTopics, isAdminRole } from '@/lib/courses';
 import { getBearerToken, getUserFromToken } from '@/lib/session';
 
-// GET - Obtener temas visibles según el grupo del usuario
+// GET - Obtener temas visibles según los cursos del usuario
 export async function GET(req: NextRequest) {
   try {
     // Sin sesión válida, devolver array vacío (no autenticado)
@@ -11,35 +12,10 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ topics: [] });
     }
 
-    // Si es admin o teacher, devolver todos los temas
-    if (user.role === 'admin' || user.role === 'teacher') {
-      const topics = await prisma.topic.findMany({
-        select: {
-          slug: true,
-          visibleGroup1: true,
-          visibleGroup2: true
-        },
-        orderBy: { order: 'asc' }
-      });
-
-      return NextResponse.json({ 
-        topics: topics.map(t => ({
-          slug: t.slug,
-          visible: true, // Admins/teachers ven todo
-          visibleGroup1: t.visibleGroup1,
-          visibleGroup2: t.visibleGroup2
-        }))
-      });
-    }
-
-    // Para estudiantes, filtrar según su grupo
-    const grupo = user.grupo;
-    if (grupo !== 1 && grupo !== 2) {
-      return NextResponse.json({ topics: [] });
-    }
-
     const topics = await prisma.topic.findMany({
       select: {
+        id: true,
+        subjectId: true,
         slug: true,
         visibleGroup1: true,
         visibleGroup2: true
@@ -47,11 +23,13 @@ export async function GET(req: NextRequest) {
       orderBy: { order: 'asc' }
     });
 
-    // Filtrar según el grupo del estudiante
-    return NextResponse.json({ 
+    // Admins/teachers ven todo; los estudiantes, lo que permiten sus cursos
+    const visible = new Set((await filterVisibleTopics(user, topics)).map(t => t.id));
+
+    return NextResponse.json({
       topics: topics.map(t => ({
         slug: t.slug,
-        visible: grupo === 1 ? t.visibleGroup1 : t.visibleGroup2,
+        visible: isAdminRole(user.role) || visible.has(t.id),
         visibleGroup1: t.visibleGroup1,
         visibleGroup2: t.visibleGroup2
       }))

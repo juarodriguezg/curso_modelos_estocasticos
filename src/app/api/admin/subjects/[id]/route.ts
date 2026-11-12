@@ -1,4 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
+import { courseLabel } from "@/lib/courses";
+import { formatDateOnly } from "@/lib/dates";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/session";
 import { generarSlug } from "@/lib/slug";
@@ -35,6 +37,14 @@ export async function GET(
             parentSlug: true,
           },
         },
+        courses: {
+          include: {
+            subject: { select: { code: true } },
+            period: true,
+            _count: { select: { enrollments: { where: { active: true } } } },
+          },
+          orderBy: [{ period: { startDate: "desc" } }, { group: "asc" }],
+        },
       },
     });
 
@@ -45,7 +55,22 @@ export async function GET(
       );
     }
 
-    return NextResponse.json({ subject });
+    const { courses, ...rest } = subject;
+    return NextResponse.json({
+      subject: {
+        ...rest,
+        courses: courses.map((c) => ({
+          id: c.id,
+          label: courseLabel(c),
+          group: c.group,
+          status: c.status,
+          periodName: c.period.name,
+          startDate: formatDateOnly(c.period.startDate),
+          endDate: formatDateOnly(c.period.endDate),
+          activeStudents: c._count.enrollments,
+        })),
+      },
+    });
   } catch (error) {
     console.error("Error obteniendo asignatura:", error);
     return NextResponse.json(
@@ -156,15 +181,35 @@ export async function DELETE(
     }
 
     // RF-ASG-04: solo se puede eliminar si no tiene cursos activos.
-    // El modelo Course aún no existe (módulo 4.3 fuera de alcance), por lo que
-    // la condición se cumple trivialmente. Gancho para cuando exista:
-    //   const activeCourses = await prisma.course.count({ where: { subjectId: id, status: 'ACTIVE' } });
-    //   if (activeCourses > 0) return NextResponse.json({ error: 'La asignatura tiene cursos activos' }, { status: 409 });
+    const activeCourses = await prisma.course.count({
+      where: { subjectId: id, status: "ACTIVE" },
+    });
+    if (activeCourses > 0) {
+      return NextResponse.json(
+        { error: "La asignatura tiene cursos activos" },
+        { status: 409 },
+      );
+    }
 
-    // Desasociar los temas (no se borran) y luego eliminar la asignatura.
-    // Nota: la relación ya tiene onDelete: SetNull, pero lo hacemos explícito
-    // dentro de una transacción para dejar claro el comportamiento.
+    // La eliminación borra en cascada los cursos finalizados, así que exige
+    // confirmación explícita.
+    const body = await req.json().catch(() => ({}));
+    if (body.confirm !== true) {
+      return NextResponse.json(
+        { error: "Se requiere confirmación explícita (confirm: true)" },
+        { status: 400 },
+      );
+    }
+
+    // Borrar los cursos finalizados (matrículas y temas por curso caen en
+    // cascada), desasociar los temas (no se borran) y eliminar la asignatura.
+    // Las cuentas de los estudiantes se conservan.
+    const finalized = await prisma.course.findMany({
+      where: { subjectId: id },
+      select: { id: true },
+    });
     await prisma.$transaction([
+      prisma.course.deleteMany({ where: { subjectId: id } }),
       prisma.topic.updateMany({
         where: { subjectId: id },
         data: { subjectId: null },
@@ -173,7 +218,7 @@ export async function DELETE(
     ]);
 
     return NextResponse.json({
-      message: "Asignatura eliminada. Sus temas quedaron sin asignatura.",
+      message: `Asignatura eliminada junto con ${finalized.length} cursos finalizados. Sus temas quedaron sin asignatura.`,
     });
   } catch (error) {
     console.error("Error eliminando asignatura:", error);

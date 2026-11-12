@@ -112,9 +112,16 @@ Archivo fuente: `prisma/schema.prisma`.
 ### `Link` (enlace/tarea asociado a un tema)
 `title`, `url`, `order`.
 
+### Cursos (módulo 4.3)
+- `AcademicPeriod`: `name` único (p. ej. `2026-1S`), `startDate` y `endDate` (`@db.Date`, inicio < final).
+- `Course`: asignatura + periodo + `group` (texto: "1", "2", "3"...), único por `(subjectId, periodId, group)`. `status` `ACTIVE`/`FINALIZED`, más `finalizedAt`, `reactivatedAt`, `exportedAt` y `purgedAt`. No guarda fechas: las hereda del periodo.
+- `CourseEnrollment`: matrícula `(courseId, userId)` única, con `active`, `isMonitor`, `enrolledAt`, `deactivatedAt`. `User → CourseEnrollment` es `Restrict`: un usuario con matrículas no se puede borrar.
+- `CourseTopic`: estado de un tema en un curso (`visible`, `publishDate` informativa). Sin fila, el tema es visible y no tiene fecha.
+- `User` gana `firstName`, `lastName` y `documentId` (opcionales; `name` se conserva y se sincroniza).
+
 ### Notas de diseño relevantes
 - La jerarquía de temas es de **dos niveles** (`parentSlug` apunta siempre a un tema raíz, no hay anidamiento arbitrario).
-- La visibilidad por grupo es un mecanismo simple de *feature flag* por fila, no un sistema de permisos genérico.
+- La visibilidad de temas se decide por curso (`CourseTopic.visible`) en `filterVisibleTopics` (`src/lib/courses.ts`): un estudiante ve un tema si alguno de sus cursos activos de esa asignatura no lo oculta. `User.grupo` y `Topic.visibleGroup1/2` quedan solo como regla transitoria para temas sin asignatura o estudiantes sin matrícula; se retirarán en una fase posterior.
 - No hay borrado lógico: `DELETE` en usuarios y recreación de `Content`/`Link` en cada `PUT` de tema son operaciones destructivas reales (ver sección 6).
 
 ## 4. Autenticación y autorización
@@ -168,19 +175,35 @@ Todas las rutas devuelven JSON. Salvo indicación, requieren header `Authorizati
 ### Administración de usuarios (`/api/admin`)
 | Método | Ruta | Rol | Descripción |
 |---|---|---|---|
-| POST | `/api/admin/create-user` | admin | Crea usuario con rol y grupo arbitrarios |
-| DELETE | `/api/admin/delete-user?id=` | admin | Elimina usuario (no permite auto-eliminación) |
-| GET | `/api/admin/list-users` | admin | Lista todos los usuarios |
-| POST | `/api/admin/upload-csv` | admin | Carga masiva de estudiantes desde CSV (`multipart/form-data`, campo `file`) |
+| POST | `/api/admin/create-user` | admin | Crea usuarios administradores. Los estudiantes se registran desde su curso (400) |
+| DELETE | `/api/admin/delete-user?id=` | admin | Elimina usuario (no permite auto-eliminación). 409 si tiene matrículas |
+| GET | `/api/admin/list-users` | admin | Lista todos los usuarios con sus cursos activos (`courses`) |
+| POST | `/api/admin/upload-csv` | admin | **Obsoleto** (410). La carga CSV se hace por curso |
 
-**Formato esperado del CSV** (columnas por nombre, ver `src/app/api/admin/upload-csv/route.ts`):
-`No, Apellidos, Nombre, Documento, Correo, Grupo`. La contraseña inicial de cada estudiante creado es su **número de documento** (hasheado con bcrypt). Filas con email/documento faltante, grupo inválido, o email ya existente se omiten y se reportan en `errors`.
+### Periodos y cursos (`/api/admin/periods`, `/api/admin/courses`) — módulo 4.3
+| Método | Ruta | Descripción |
+|---|---|---|
+| GET/POST | `/api/admin/periods` | Lista / crea periodos (`{ name, startDate, endDate }` en `AAAA-MM-DD`) |
+| GET/PUT/DELETE | `/api/admin/periods/[id]` | Detalle / edición (devuelve `warnings` si alguna fecha de publicación queda fuera) / borrado solo sin cursos |
+| GET/POST | `/api/admin/courses` | Lista (filtros `subjectId`, `periodId`, `status`) / crea (`{ subjectId, periodId, group }`; 409 si se repite) |
+| GET/PUT/DELETE | `/api/admin/courses/[id]` | Detalle / edita grupo y periodo / borra solo sin matrículas ni registros |
+| GET/POST | `/api/admin/courses/[id]/students` | Lista / matricula (`{ firstName, lastName, email, documentId }`): crea la cuenta o reutiliza la del mismo correo |
+| POST | `/api/admin/courses/[id]/students/import` | CSV con columnas `Correo, Documento, Nombre, Apellidos` |
+| PUT | `/api/admin/courses/[id]/students/[enrollmentId]` | Edita datos, `isMonitor` y `active` (desactivar conserva el historial) |
+| GET/PUT | `/api/admin/courses/[id]/topics` | Temario de la asignatura con su estado en el curso / `{ items: [{ topicId, visible, publishDate }] }` |
+| POST | `/api/admin/courses/[id]/finalize` · `/reactivate` | Finaliza o reactiva el curso |
+| GET | `/api/admin/courses/[id]/export` | Descarga `.xlsx` de un curso finalizado y marca `exportedAt` |
+| POST | `/api/admin/courses/[id]/purge` | `{ confirmation }` = etiqueta del curso. Requiere curso finalizado y exportado; borra matrículas y `CourseTopic` |
+| GET | `/api/cron/finalize-courses` | Vercel Cron diario (`vercel.json`), con `Authorization: Bearer $CRON_SECRET`. Finaliza los cursos cuyo periodo terminó el día anterior o antes (hora de Bogotá), salvo los reactivados a mano después |
+
+Todo endpoint que modifica un curso llama a `assertCourseWritable` (409 si está finalizado). La contraseña inicial de un estudiante nuevo es su **número de documento** (hasheado con bcrypt).
 
 ### Temas — administración (`/api/admin/topics`)
 | Método | Ruta | Rol | Descripción |
 |---|---|---|---|
 | GET | `/api/admin/topics` | admin | Lista todos los temas (sin filtrar por visibilidad) |
-| POST | `/api/admin/topics` | admin | Actualiza `visibleGroup1` o `visibleGroup2` de un tema (`{ topicId, group, visible }`) |
+| GET | `/api/admin/topics` | admin | Además de los temas, devuelve los cursos activos y, por tema, `hiddenInCourses` |
+| POST | `/api/admin/topics` | admin | Visibilidad en un curso (`{ topicId, courseId, visible }`). Con `{ topicId, group, visible }` usa la regla anterior, solo para temas sin asignatura |
 | POST | `/api/admin/topics/create` | admin | Crea un tema nuevo (`{ title, slug, parte?, parentSlug? }`); `order` se autoasigna como `max(order) + 1` |
 | GET | `/api/admin/topics/[id]` | admin | Detalle de un tema con sus `contents` y `links` |
 | PUT | `/api/admin/topics/[id]` | admin | Actualiza título y **reemplaza completamente** `contents` y `links` (borra todos los existentes y los vuelve a crear con el orden del array recibido) |
@@ -191,8 +214,8 @@ Todas las rutas devuelven JSON. Salvo indicación, requieren header `Authorizati
 ### Temas — consulta pública/autenticada (`/api/topics`)
 | Método | Ruta | Auth | Descripción |
 |---|---|---|---|
-| GET | `/api/topics/structure` | Opcional | Árbol jerárquico (Parte → Sección → Subtemas) usado por `Sidebar.tsx`. Sin token o con rol no-admin/teacher, filtra por `grupo` del usuario; sin usuario reconocible, muestra todo (fallback permisivo) |
-| GET | `/api/topics/visible` | Bearer | Lista plana de slugs visibles según el grupo del usuario; sin token devuelve `{ topics: [] }` |
+| GET | `/api/topics/structure` | Opcional | Árbol jerárquico (Parte → Sección → Subtemas) usado por `Sidebar.tsx`. Para estudiantes filtra con `filterVisibleTopics` (visibilidad por curso); sin usuario reconocible, muestra todo (fallback permisivo) |
+| GET | `/api/topics/visible` | Bearer | Lista plana de slugs visibles según los cursos del usuario; sin token devuelve `{ topics: [] }` |
 
 ### Páginas relevantes (no API)
 - `GET /temas/[slug]` (`src/app/temas/[slug]/page.tsx`): server component que trae el `Topic` por slug directo de Prisma (sin pasar por la API `/api/topics/*`) y renderiza sus `contents`/`links`. **No filtra por visibilidad de grupo** — cualquier usuario autenticado (protegido solo por el middleware) que conozca la URL puede ver el contenido aunque el sidebar no se lo muestre. Si se requiere ocultamiento estricto, hay que añadir esa verificación aquí.
@@ -203,7 +226,7 @@ Todas las rutas devuelven JSON. Salvo indicación, requieren header `Authorizati
 1. **`PUT /api/admin/topics/[id]` borra y recrea `contents` y `links`** en cada guardado, pero lo hace dentro de una única `prisma.$transaction` (con `createMany`): si algo falla, el tema conserva su contenido anterior. Antes de guardar se valida el tipo de bloque y las URLs.
 2. **Autenticación centralizada** en `src/lib/session.ts` (ver sección 4). `auth/me` y `auth/logout` aún tienen lógica propia; si se modifica el manejo de sesiones, revisar ambas.
 3. **`JWT_SECRET` no se usa** — es una variable de entorno heredada del nombre (ya se eliminó la constante con valor por defecto de `lib/auth.ts`); el mecanismo de sesión no la consume. No confundir con un sistema JWT real al depurar.
-4. **Visibilidad por grupo aplicada también en `/temas/[slug]`**: la página valida la sesión contra la BD y responde 404 si el tema está oculto para el grupo del estudiante (admin/teacher ven todo). Criterio idéntico al de `topics/structure`: un usuario no admin con `grupo` distinto de 1 o 2 no se filtra.
+4. **Visibilidad por curso aplicada también en `/temas/[slug]`**: la página valida la sesión contra la BD y responde 404 si el tema está oculto en todos los cursos del estudiante (admin/teacher ven todo). Criterio idéntico al de `topics/structure` (`filterVisibleTopics`).
 5. **La lista de temas en `topics/sync/route.ts` está duplicada** respecto a la base de datos real; mantenerla sincronizada manualmente si cambia el temario.
 6. **`ClassLayout.tsx`** existe pero no está siendo usado por `temas/[slug]/page.tsx` (que reimplementa un layout similar inline). Verificar si sigue en uso antes de modificarlo o eliminarlo.
 7. Contraseñas de estudiantes cargados vía CSV son su número de documento en texto — comunicar esto a los estudiantes para que las cambien (no hay flujo de cambio de contraseña implementado actualmente).
@@ -219,6 +242,7 @@ Definidas en `.env` (no versionado). Claves usadas:
 | `DATABASE_URL` | Cadena de conexión PostgreSQL para Prisma |
 | `JWT_SECRET` | Definida pero no utilizada por el código de autenticación actual (ver sección 6.3) |
 | `NODE_ENV` | Controla `secure` de la cookie y nivel de logging de Prisma |
+| `CRON_SECRET` | Secreto que Vercel Cron envía a `/api/cron/finalize-courses`. Hay que crearlo en Vercel; sin él el cron responde 401 |
 
 ## 8. Comandos y flujo de trabajo
 
@@ -241,6 +265,19 @@ npx prisma studio                          # explorador visual de datos
 ```
 
 Migraciones existentes (`prisma/migrations/`): esquema inicial, relación sesión-usuario, campo `grupo`, modelo `Topic`, visibilidad por grupo, `parentSlug`/`parte`/editor de temas (`add_topic_editor`).
+
+Módulos 4.1 y 4.3: `add_subject`, `add_subject_slug` y `add_courses` (todas aditivas).
+
+### Backfill de cursos (módulo 4.3)
+`prisma/backfill-courses.js` convierte los grupos actuales en cursos: asocia los temas sin asignatura a la asignatura indicada, crea el periodo, un curso por cada valor de `User.grupo > 0`, matricula a cada estudiante en el curso de su grupo y copia `visibleGroup1/2 = false` a `CourseTopic`. Es idempotente y tiene `--dry-run`. Haz un respaldo con `pg_dump` antes de ejecutarlo en producción:
+
+```bash
+SUBJECT_CODE=<código> SUBJECT_NAME="Modelos Estocásticos" \
+PERIOD_NAME=<p. ej. 2026-2S> PERIOD_START=AAAA-MM-DD PERIOD_END=AAAA-MM-DD \
+node prisma/backfill-courses.js --dry-run   # luego sin --dry-run
+```
+
+El procedimiento completo de despliegue (respaldo, `CRON_SECRET`, migración, backfill y verificación) está en `docs/GUIA_DESPLIEGUE_4_3.md`.
 
 ### Backfill de jerarquía (histórico, ya no está en el repo)
 La asignación de `parte` y `parentSlug` a los temas ya existentes se hizo con un script puntual (`prisma/migrate-hierarchy.js`), ejecutado una sola vez (`node prisma/migrate-hierarchy.js`) y borrado del repositorio tras confirmar que los 122 temas quedaron correctamente etiquetados (121 con `parte`, 84 con `parentSlug` — los que no tienen `parentSlug` son los temas raíz). El script asignaba `parte` según rangos de `order` y `parentSlug` según un mapa fijo `childSlug → parentSlug` codificado en el propio archivo. Si se necesita reconstruir la jerarquía desde cero (p. ej. tras un reseed completo), habría que recrear un script equivalente basándose en este historial.

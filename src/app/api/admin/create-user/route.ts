@@ -8,23 +8,19 @@ export async function POST(req: NextRequest) {
     const auth = await requireAdmin(req);
     if ('error' in auth) return auth.error;
 
-    const { email, password, name, role, grupo } = await req.json();
+    const { email, password, name, role } = await req.json();
 
     // Validaciones
     if (!email || !password) {
       return NextResponse.json({ error: 'Email y contraseña son requeridos' }, { status: 400 });
     }
 
-    // Validar grupo para estudiantes
-    if (role === 'student') {
-      if (grupo === undefined || grupo === null) {
-        return NextResponse.json({ error: 'El grupo es obligatorio para estudiantes' }, { status: 400 });
-      }
-
-      const grupoNum = parseInt(grupo, 10);
-      if (isNaN(grupoNum) || ![1, 2].includes(grupoNum)) {
-        return NextResponse.json({ error: 'El grupo debe ser 1 o 2' }, { status: 400 });
-      }
+    // Los estudiantes se registran matriculándolos en un curso (RF-CUR-02)
+    if (!role || role === 'student') {
+      return NextResponse.json(
+        { error: 'Los estudiantes se registran desde su curso: POST /api/admin/courses/{id}/students' },
+        { status: 400 }
+      );
     }
 
     // Verificar si el usuario ya existe
@@ -42,8 +38,8 @@ export async function POST(req: NextRequest) {
         email: email.toLowerCase(),
         name: name || email.split('@')[0],
         password: hashedPassword,
-        role: role || 'student',
-        grupo: role === 'student' ? parseInt(grupo, 10) : 0
+        role,
+        grupo: 0
       }
     });
 

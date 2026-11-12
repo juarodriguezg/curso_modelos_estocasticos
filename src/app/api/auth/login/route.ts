@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { prisma } from '@/lib/prisma';
+import { getUserEnrollments } from '@/lib/courses';
 import { verifyPassword, generateToken, getTokenExpiration } from '@/lib/auth';
 
 export async function POST(req: NextRequest) {
@@ -66,7 +67,8 @@ export async function POST(req: NextRequest) {
         email: user.email,
         name: user.name,
         role: user.role,
-        grupo: user.grupo
+        grupo: user.grupo,
+        enrollments: await getUserEnrollments(user.id)
       }
     });
   } catch (error) {
