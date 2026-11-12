@@ -26,6 +26,11 @@ export async function POST(req: NextRequest) {
 
     const newOrder = maxTopic ? maxTopic.order + 1 : 1;
 
+    // Una sección queda en la misma asignatura que su capítulo
+    const parent = parentSlug
+      ? await prisma.topic.findUnique({ where: { slug: parentSlug }, select: { subjectId: true } })
+      : null;
+
     const newTopic = await prisma.topic.create({
       data: {
         title,
@@ -33,6 +38,7 @@ export async function POST(req: NextRequest) {
         order: newOrder,
         parte: parte || null,
         parentSlug: parentSlug || null,
+        subjectId: parent?.subjectId ?? null,
         visibleGroup1: true,
         visibleGroup2: true
       }

@@ -24,6 +24,21 @@ interface Topic {
   parentSlug: string | null;
 }
 
+// Agrupa los temas en capítulos con sus secciones (Parte → Capítulo → Sección,
+// como en el menú lateral). Una sección cuyo capítulo no está en la lista
+// queda como capítulo suelto.
+function agruparPorCapitulo<
+  T extends { slug: string; parentSlug: string | null },
+>(topics: T[]) {
+  const slugs = new Set(topics.map((t) => t.slug));
+  return topics
+    .filter((t) => !t.parentSlug || !slugs.has(t.parentSlug))
+    .map((capitulo) => ({
+      capitulo,
+      secciones: topics.filter((t) => t.parentSlug === capitulo.slug),
+    }));
+}
+
 interface Subject {
   id: string;
   code: string;
@@ -178,7 +193,7 @@ export default function SubjectDetailClient({
       );
       const data = await res.json();
       if (res.ok) {
-        toast("Tema desasociado", "success");
+        toast(data.message || "Tema desasociado", "success");
         loadSubject();
       } else {
         toast(data.error || "Error al desasociar", "error");
@@ -539,27 +554,46 @@ export default function SubjectDetailClient({
               className="divide-y"
               style={{ borderColor: "var(--color-border)" }}
             >
-              {subject.topics.map((t) => (
-                <li
-                  key={t.id}
-                  className="flex items-center justify-between py-2 gap-3"
-                >
-                  <span
-                    className="text-sm"
-                    style={{ color: "var(--color-text-dark)" }}
-                  >
-                    {t.title}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => handleDissociate(t.id)}
-                    className="btn btn-ghost text-xs shrink-0"
-                    aria-label={`Desasociar el tema ${t.title}`}
-                  >
-                    <Unlink className="w-3.5 h-3.5" /> Desasociar
-                  </button>
-                </li>
-              ))}
+              {agruparPorCapitulo(subject.topics).map(
+                ({ capitulo, secciones }) => (
+                  <li key={capitulo.id} className="py-2">
+                    <div className="flex items-center justify-between gap-3">
+                      <span
+                        className="text-sm"
+                        style={{ color: "var(--color-text-dark)" }}
+                      >
+                        {capitulo.title}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => handleDissociate(capitulo.id)}
+                        className="btn btn-ghost text-xs shrink-0"
+                        aria-label={
+                          secciones.length > 0
+                            ? `Desasociar el tema ${capitulo.title} y sus ${secciones.length} secciones`
+                            : `Desasociar el tema ${capitulo.title}`
+                        }
+                      >
+                        <Unlink className="w-3.5 h-3.5" /> Desasociar
+                        {secciones.length > 0 && ` (+${secciones.length})`}
+                      </button>
+                    </div>
+                    {secciones.length > 0 && (
+                      <ul className="mt-1 pl-4 space-y-1">
+                        {secciones.map((s) => (
+                          <li
+                            key={s.id}
+                            className="text-xs"
+                            style={{ color: "var(--color-text-medium)" }}
+                          >
+                            {s.title}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </li>
+                ),
+              )}
             </ul>
           )}
         </section>
@@ -845,6 +879,7 @@ interface UnassignedTopic {
   id: string;
   title: string;
   slug: string;
+  parentSlug: string | null;
 }
 
 function AssignTopicsModal({
@@ -894,8 +929,9 @@ function AssignTopicsModal({
       );
       const data = await res.json();
       if (res.ok) {
-        toast("Tema asociado", "success");
-        setTopics((prev) => prev.filter((t) => t.id !== topicId));
+        toast(data.message || "Tema asociado", "success");
+        // El servidor asocia el capítulo con sus secciones: recargar la lista
+        loadUnassigned();
         onChanged();
       } else {
         toast(data.error || "Error al asociar", "error");
@@ -905,8 +941,11 @@ function AssignTopicsModal({
     }
   };
 
-  const filtered = topics.filter((t) =>
-    t.title.toLowerCase().includes(query.toLowerCase()),
+  const q = query.toLowerCase();
+  const filtered = agruparPorCapitulo(topics).filter(
+    ({ capitulo, secciones }) =>
+      capitulo.title.toLowerCase().includes(q) ||
+      secciones.some((s) => s.title.toLowerCase().includes(q)),
   );
 
   return (
@@ -962,25 +1001,42 @@ function AssignTopicsModal({
             className="divide-y"
             style={{ borderColor: "var(--color-border)" }}
           >
-            {filtered.map((t) => (
-              <li
-                key={t.id}
-                className="flex items-center justify-between py-2 gap-3"
-              >
-                <span
-                  className="text-sm"
-                  style={{ color: "var(--color-text-dark)" }}
-                >
-                  {t.title}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => handleAssign(t.id)}
-                  className="btn btn-ghost text-xs shrink-0"
-                  aria-label={`Asociar el tema ${t.title}`}
-                >
-                  <Link2 className="w-3.5 h-3.5" /> Asociar
-                </button>
+            {filtered.map(({ capitulo, secciones }) => (
+              <li key={capitulo.id} className="py-2">
+                <div className="flex items-center justify-between gap-3">
+                  <span
+                    className="text-sm"
+                    style={{ color: "var(--color-text-dark)" }}
+                  >
+                    {capitulo.title}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => handleAssign(capitulo.id)}
+                    className="btn btn-ghost text-xs shrink-0"
+                    aria-label={
+                      secciones.length > 0
+                        ? `Asociar el tema ${capitulo.title} y sus ${secciones.length} secciones`
+                        : `Asociar el tema ${capitulo.title}`
+                    }
+                  >
+                    <Link2 className="w-3.5 h-3.5" /> Asociar
+                    {secciones.length > 0 && ` (+${secciones.length})`}
+                  </button>
+                </div>
+                {secciones.length > 0 && (
+                  <ul className="mt-1 pl-4 space-y-1">
+                    {secciones.map((s) => (
+                      <li
+                        key={s.id}
+                        className="text-xs"
+                        style={{ color: "var(--color-text-medium)" }}
+                      >
+                        {s.title}
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </li>
             ))}
           </ul>

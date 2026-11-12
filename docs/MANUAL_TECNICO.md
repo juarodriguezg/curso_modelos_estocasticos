@@ -97,7 +97,8 @@ Archivo fuente: `prisma/schema.prisma`.
 | title | título mostrado |
 | order | orden de aparición en el sidebar |
 | parte | agrupación de alto nivel (p. ej. "Parte 1: Vectores Aleatorios"); `null` → se agrupa como "Otros" |
-| parentSlug | slug del tema padre, para representar subtemas (jerarquía de 2 niveles: Parte → Sección → Subtema) |
+| parentSlug | slug del tema padre, para representar subtemas (jerarquía de 2 niveles: Parte → Capítulo → Sección). Un capítulo y sus secciones siempre están en la misma asignatura: asociar o desasociar un capítulo (`PATCH`/`DELETE /api/admin/subjects/[id]/topics/[topicId]`) mueve también sus secciones, asociar una sección trae a su capítulo, y una sección no se desasocia sola mientras su capítulo siga en la asignatura (409) |
+| subjectId | asignatura (opcional). En el sidebar es el primer nivel: Asignatura → Parte → Capítulo → Sección |
 | visibleGroup1 / visibleGroup2 | booleanos independientes; controlan si el tema aparece para cada grupo de estudiantes |
 | contents | Content[] |
 | links | Link[] |
@@ -204,7 +205,7 @@ Todo endpoint que modifica un curso llama a `assertCourseWritable` (409 si está
 | GET | `/api/admin/topics` | admin | Lista todos los temas (sin filtrar por visibilidad) |
 | GET | `/api/admin/topics` | admin | Además de los temas, devuelve los cursos activos y, por tema, `hiddenInCourses` |
 | POST | `/api/admin/topics` | admin | Visibilidad en un curso (`{ topicId, courseId, visible }`). Con `{ topicId, group, visible }` usa la regla anterior, solo para temas sin asignatura |
-| POST | `/api/admin/topics/create` | admin | Crea un tema nuevo (`{ title, slug, parte?, parentSlug? }`); `order` se autoasigna como `max(order) + 1` |
+| POST | `/api/admin/topics/create` | admin | Crea un tema nuevo (`{ title, slug, parte?, parentSlug? }`); `order` se autoasigna como `max(order) + 1`. Si tiene `parentSlug`, hereda la asignatura del tema padre |
 | GET | `/api/admin/topics/[id]` | admin | Detalle de un tema con sus `contents` y `links` |
 | PUT | `/api/admin/topics/[id]` | admin | Actualiza título y **reemplaza completamente** `contents` y `links` (borra todos los existentes y los vuelve a crear con el orden del array recibido) |
 | POST | `/api/admin/topics/sync` | admin | Sincroniza contra una lista fija de 121 temas hardcodeada en el propio archivo de ruta (crea los que faltan, actualiza título/orden de los existentes) |
