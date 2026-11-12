@@ -230,7 +230,7 @@ Reglas:
 
 > **Estado**: este modelo ya está en `prisma/schema.prisma` y aplicado por la migración `add_subject`. Es la única entidad nueva del rediseño implementada hasta ahora; el resto de esta sección 4 (Course, Material, Task, etc.) sigue siendo propuesta futura.
 
-#### `AcademicPeriod` — nueva
+#### `AcademicPeriod` — nueva · **IMPLEMENTADA (módulo 4.3)**
 
 | Campo | Tipo | Descripción |
 |---|---|---|
@@ -245,7 +245,9 @@ Relación: cursos.
 
 Regla: `startDate` debe ser anterior a `endDate`.
 
-#### `Course` — nueva
+#### `Course` — nueva · **IMPLEMENTADA (módulo 4.3)**
+
+Implementada con los campos de esta tabla más `reactivatedAt`, `exportedAt` y `purgedAt` (ver `docs/PLAN_MODULO_4_3.md`). El estado finalizado se llama `FINALIZED`.
 
 | Campo | Tipo | Descripción |
 |---|---|---|
@@ -269,7 +271,7 @@ Reglas:
 - Un curso finalizado queda en solo lectura.
 - Se puede eliminar solo si no tiene estudiantes ni registros académicos.
 
-#### `CourseEnrollment` — nueva
+#### `CourseEnrollment` — nueva · **IMPLEMENTADA (módulo 4.3)**
 
 | Campo | Tipo | Descripción |
 |---|---|---|
@@ -291,6 +293,18 @@ Reglas:
 - `isMonitor` solo aplica al curso correspondiente.
 
 ---
+
+#### `CourseTopic` — nueva · **IMPLEMENTADA (módulo 4.3)**
+
+| Campo | Tipo | Descripción |
+|---|---|---|
+| `id` | `String` | Identificador. |
+| `courseId` | `String` | Curso. |
+| `topicId` | `String` | Tema de la asignatura del curso. |
+| `visible` | `Boolean @default(true)` | Visibilidad del tema para los estudiantes del curso. Reemplaza a `Topic.visibleGroup1/2`. |
+| `publishDate` | `DateTime? @db.Date` | Fecha de publicación informativa (no restringe el acceso). |
+
+Restricción: `@@unique([courseId, topicId])`. Sin fila, el tema es visible y no tiene fecha: el curso hereda el temario sin duplicarlo (RF-ASG-05).
 
 ### 4.3 Temario y contenidos
 

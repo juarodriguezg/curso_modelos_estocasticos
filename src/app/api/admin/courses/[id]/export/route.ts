@@ -27,9 +27,6 @@ export async function GET(
           include: { user: true },
           orderBy: { user: { name: "asc" } },
         },
-        topics: {
-          include: { topic: { select: { title: true, order: true } } },
-        },
       },
     });
     if (!course) {
@@ -96,14 +93,19 @@ export async function GET(
       { header: "Visible", key: "visible", width: 10 },
       { header: "Fecha de publicación", key: "publishDate", width: 20 },
     ];
+    // Temario heredado de la asignatura con su estado efectivo en el curso
+    // (sin fila en CourseTopic = visible y sin fecha).
+    const subjectTopics = await prisma.topic.findMany({
+      where: { subjectId: course.subjectId },
+      orderBy: { order: "asc" },
+      select: { title: true, courseTopics: { where: { courseId: id } } },
+    });
     topics.addRows(
-      [...course.topics]
-        .sort((a, b) => a.topic.order - b.topic.order)
-        .map((ct) => ({
-          title: ct.topic.title,
-          visible: ct.visible ? "Sí" : "No",
-          publishDate: ct.publishDate ? formatDateOnly(ct.publishDate) : "",
-        })),
+      subjectTopics.map(({ title, courseTopics: [ct] }) => ({
+        title,
+        visible: (ct?.visible ?? true) ? "Sí" : "No",
+        publishDate: ct?.publishDate ? formatDateOnly(ct.publishDate) : "",
+      })),
     );
 
     for (const sheet of workbook.worksheets)

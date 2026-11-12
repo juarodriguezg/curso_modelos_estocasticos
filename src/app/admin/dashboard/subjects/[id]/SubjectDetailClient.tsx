@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { useToast } from "@/components/Toast";
 import { generarSlug } from "@/lib/slug";
+import SubjectCoursesPanel, { type SubjectCourse } from "./SubjectCoursesPanel";
 
 interface Topic {
   id: string;
@@ -32,6 +33,7 @@ interface Subject {
   objective: string;
   specificObjectives: string[];
   topics: Topic[];
+  courses: SubjectCourse[];
 }
 
 export default function SubjectDetailClient({
@@ -89,14 +91,27 @@ export default function SubjectDetailClient({
 
   const handleDelete = async () => {
     if (!subject) return;
+    if (subject.courses.some((c) => c.status === "ACTIVE")) {
+      toast(
+        "No se puede eliminar: la asignatura tiene cursos activos",
+        "warning",
+      );
+      return;
+    }
+    const finalized = subject.courses.length;
     const ok = window.confirm(
-      `¿Eliminar la asignatura "${subject.name}"? Sus temas no se borrarán, solo quedarán sin asignatura. Esta acción no se puede deshacer.`,
+      `¿Eliminar la asignatura "${subject.name}"?${
+        finalized > 0
+          ? ` También se eliminarán sus ${finalized} cursos finalizados con sus matrículas.`
+          : ""
+      } Sus temas no se borrarán, solo quedarán sin asignatura. Esta acción no se puede deshacer.`,
     );
     if (!ok) return;
     try {
       const res = await fetch(`/api/admin/subjects/${subjectId}`, {
         method: "DELETE",
         headers: authHeaders(),
+        body: JSON.stringify({ confirm: true }),
       });
       const data = await res.json();
       if (res.ok) {
@@ -549,22 +564,7 @@ export default function SubjectDetailClient({
           )}
         </section>
 
-        {/* Placeholder cursos a futuro */}
-        <section aria-label="Cursos próximamente">
-          <div
-            className="rounded-lg border border-dashed p-6 text-sm"
-            style={{
-              borderColor: "var(--color-border)",
-              color: "var(--color-text-muted)",
-            }}
-          >
-            <strong style={{ color: "var(--color-text-medium)" }}>
-              Cursos
-            </strong>{" "}
-            — próximamente podrás crear cursos de esta asignatura por periodo
-            académico.
-          </div>
-        </section>
+        <SubjectCoursesPanel courses={subject.courses} />
       </main>
 
       {editing && (

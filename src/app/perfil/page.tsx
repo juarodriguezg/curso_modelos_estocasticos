@@ -6,14 +6,25 @@ import { LogOut, User, Mail, Shield, Upload, Trash2, Eye, Settings, ChevronDown,
 import Footer from '@/components/Footer';
 import { useToast } from '@/components/Toast';
 
+interface Enrollment {
+  courseId: string; group: string; status: string; isMonitor: boolean;
+  subject: { code: string; name: string }; period: { name: string };
+}
+
 interface UserData {
   id: string; email: string; name: string; role: string; grupo: number;
+  enrollments?: Enrollment[]; courses?: string[];
 }
 
 interface Topic {
   id: string; slug: string; title: string; parte: string | null; parentSlug: string | null;
+  subjectId: string | null; hiddenInCourses: string[];
   visibleGroup1: boolean; visibleGroup2: boolean; order: number;
 }
+
+interface CourseOption { id: string; subjectId: string; group: string; label: string }
+
+const GROUP_COLORS = ['#3b82f6', '#22c55e', '#a855f7', '#f97316', '#14b8a6'];
 
 type AdminTab = 'upload' | 'users' | 'topics';
 
@@ -24,6 +35,7 @@ export default function PerfilPage() {
   const [loading, setLoading] = useState(true);
   const [users, setUsers] = useState<UserData[]>([]);
   const [topics, setTopics] = useState<Topic[]>([]);
+  const [courses, setCourses] = useState<CourseOption[]>([]);
   const [activeTab, setActiveTab] = useState<AdminTab>('topics');
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [loadingTopics, setLoadingTopics] = useState(false);
@@ -95,7 +107,7 @@ export default function PerfilPage() {
       const token = localStorage.getItem('token');
       const res = await fetch('/api/admin/topics', { headers: { Authorization: `Bearer ${token}` } });
       const data = await res.json();
-      if (res.ok) setTopics(data.topics);
+      if (res.ok) { setTopics(data.topics); setCourses(data.courses); }
       else toast('Error al cargar temas', 'error');
     } catch { toast('Error al cargar temas', 'error'); }
     finally { setLoadingTopics(false); }
@@ -109,6 +121,29 @@ export default function PerfilPage() {
       if (res.ok) { toast(data.message, 'success'); loadTopics(); }
       else toast('Error sincronizando', 'error');
     } catch { toast('Error sincronizando', 'error'); }
+  };
+
+  // Visibilidad por curso (módulo 4.3). Los temas sin asignatura usan la regla anterior por grupo.
+  const toggleCourseVisibility = async (topicId: string, courseId: string, currentVisible: boolean) => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch('/api/admin/topics', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ topicId, courseId, visible: !currentVisible })
+      });
+      if (res.ok) {
+        setTopics(prev => prev.map(t => t.id !== topicId ? t : {
+          ...t,
+          hiddenInCourses: currentVisible
+            ? [...t.hiddenInCourses, courseId]
+            : t.hiddenInCourses.filter(id => id !== courseId)
+        }));
+      } else {
+        const data = await res.json().catch(() => ({}));
+        toast(data.error || 'Error actualizando visibilidad', 'error');
+      }
+    } catch { toast('Error actualizando visibilidad', 'error'); }
   };
 
   const toggleTopicVisibility = async (topicId: string, group: number, currentVisible: boolean) => {
@@ -214,7 +249,13 @@ export default function PerfilPage() {
               <h2 className="text-xl font-semibold" style={{ color: 'var(--color-text-dark)' }}>{user?.name}</h2>
               <div className="flex gap-2 mt-1">
                 <span className="inline-block px-2 py-0.5 rounded text-xs font-medium text-white" style={{ background: roleBadge.bg }}>{roleBadge.text}</span>
-                {user?.grupo ? <span className="inline-block px-2 py-0.5 rounded text-xs font-medium text-white" style={{ background: user.grupo === 1 ? '#3b82f6' : '#22c55e' }}>Grupo {user.grupo}</span> : null}
+                {user?.enrollments?.length
+                  ? user.enrollments.map((e, i) => (
+                      <span key={e.courseId} className="inline-block px-2 py-0.5 rounded text-xs font-medium text-white" style={{ background: GROUP_COLORS[i % GROUP_COLORS.length] }}>
+                        {e.subject.code} · Grupo {e.group}{e.isMonitor ? ' · Monitor' : ''}
+                      </span>
+                    ))
+                  : user?.grupo ? <span className="inline-block px-2 py-0.5 rounded text-xs font-medium text-white" style={{ background: user.grupo === 1 ? '#3b82f6' : '#22c55e' }}>Grupo {user.grupo}</span> : null}
               </div>
             </div>
           </div>
@@ -241,33 +282,15 @@ export default function PerfilPage() {
               ))}
             </div>
 
-            {/* Upload CSV */}
+            {/* Upload CSV: ahora se hace por curso (módulo 4.3) */}
             {activeTab === 'upload' && (
               <div>
                 <h3 className="text-base font-semibold mb-3" style={{ color: 'var(--color-text-dark)' }}>Subir lista de estudiantes (CSV)</h3>
-                <div className="p-3 rounded text-xs font-mono mb-4 border" style={{ background: 'var(--color-accent-soft)', borderColor: 'var(--color-border)' }}>
-                  No, Apellidos, Nombre, Documento, Correo, Grupo
-                </div>
-                <form onSubmit={async (e) => {
-                  e.preventDefault();
-                  const fileInput = (e.target as HTMLFormElement).elements.namedItem('csv') as HTMLInputElement;
-                  const file = fileInput.files?.[0];
-                  if (!file) return toast('Selecciona un archivo CSV', 'warning');
-                  const formData = new FormData();
-                  formData.append('file', file);
-                  try {
-                    const token = localStorage.getItem('token');
-                    const res = await fetch('/api/admin/upload-csv', { method: 'POST', body: formData, headers: { Authorization: `Bearer ${token}` } });
-                    const data = await res.json();
-                    if (!res.ok) throw new Error(data.error);
-                    toast(data.message, 'success');
-                    if (data.errors?.length > 0) toast(`${data.errors.length} errores encontrados`, 'warning');
-                    fileInput.value = '';
-                  } catch (err: any) { toast(err.message, 'error'); }
-                }}>
-                  <input type="file" name="csv" accept=".csv" className="block w-full text-sm mb-4 border rounded-lg p-2" style={{ borderColor: 'var(--color-border)' }} />
-                  <button type="submit" className="btn btn-primary">Procesar CSV</button>
-                </form>
+                <p className="text-sm mb-4" style={{ color: 'var(--color-text-medium)' }}>
+                  Los estudiantes ahora se matriculan en un curso (asignatura, periodo y grupo). Abre el curso y usa
+                  «Importar CSV» con las columnas Correo, Documento, Nombre, Apellidos.
+                </p>
+                <a href="/admin/dashboard/cursos" className="btn btn-primary">Ir a cursos</a>
               </div>
             )}
 
@@ -288,13 +311,16 @@ export default function PerfilPage() {
                         <div>
                           <p className="font-medium text-sm">{u.name || '(Sin nombre)'}</p>
                           <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>{u.email}</p>
+                          {u.courses && u.courses.length > 0 && (
+                            <p className="text-xs" style={{ color: 'var(--color-text-medium)' }}>{u.courses.join(' | ')}</p>
+                          )}
                         </div>
                         <button onClick={async () => {
                           if (!confirm(`¿Eliminar usuario ${u.email}?`)) return;
                           const token = localStorage.getItem('token');
                           const res = await fetch(`/api/admin/delete-user?id=${u.id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
                           if (res.ok) { toast('Usuario eliminado', 'success'); setUsers(prev => prev.filter(x => x.id !== u.id)); }
-                          else toast('Error al eliminar', 'error');
+                          else { const data = await res.json().catch(() => ({})); toast(data.error || 'Error al eliminar', 'error'); }
                         }} className="btn text-sm" style={{ background: 'var(--color-error)', color: 'white' }}>
                           <Trash2 className="w-3 h-3" /> Eliminar
                         </button>
@@ -309,7 +335,7 @@ export default function PerfilPage() {
             {activeTab === 'topics' && (
               <div>
                 <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-base font-semibold" style={{ color: 'var(--color-text-dark)' }}>Visibilidad por Grupos</h3>
+                  <h3 className="text-base font-semibold" style={{ color: 'var(--color-text-dark)' }}>Visibilidad por Curso</h3>
                   <div className="flex gap-2">
                     <button onClick={syncTopics} className="btn text-sm" style={{ background: 'var(--color-success)', color: 'white' }}>
                       <Settings className="w-3 h-3" /> Sincronizar
@@ -323,8 +349,16 @@ export default function PerfilPage() {
                 {/* Legend + Create button */}
                 <div className="mb-4 flex justify-between items-center">
                   <div className="flex gap-4 p-2 rounded-lg text-xs border" style={{ background: 'var(--color-background)', borderColor: 'var(--color-border)' }}>
-                    <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-blue-500" /> Grupo 1</div>
-                    <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-green-500" /> Grupo 2</div>
+                    {courses.length > 0
+                      ? courses.map((c, i) => (
+                          <div key={c.id} className="flex items-center gap-1">
+                            <div className="w-2 h-2 rounded-full" style={{ background: GROUP_COLORS[i % GROUP_COLORS.length] }} /> {c.label}
+                          </div>
+                        ))
+                      : <>
+                          <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-blue-500" /> Grupo 1</div>
+                          <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-green-500" /> Grupo 2</div>
+                        </>}
                   </div>
                   <button onClick={() => setShowCreateTopic(!showCreateTopic)} className="btn text-sm" style={{ background: 'var(--color-accent)', color: 'white' }}>
                     {showCreateTopic ? 'Cancelar' : '+ Crear Tema'}
@@ -380,10 +414,10 @@ export default function PerfilPage() {
                               const children = getChildren(topic.slug);
                               return (
                                 <div key={topic.id} className="border-t" style={{ borderColor: 'var(--color-border-soft)' }}>
-                                  <TopicRow topic={topic} onToggle={toggleTopicVisibility} />
+                                  <TopicRow topic={topic} courses={courses} onToggle={toggleTopicVisibility} onToggleCourse={toggleCourseVisibility} />
                                   {children.map(child => (
                                     <div key={child.id} className="pl-6 border-t" style={{ borderColor: 'var(--color-border-soft)' }}>
-                                      <TopicRow topic={child} onToggle={toggleTopicVisibility} small />
+                                      <TopicRow topic={child} courses={courses} onToggle={toggleTopicVisibility} onToggleCourse={toggleCourseVisibility} small />
                                     </div>
                                   ))}
                                 </div>
@@ -405,7 +439,15 @@ export default function PerfilPage() {
   );
 }
 
-function TopicRow({ topic, onToggle, small }: { topic: Topic; onToggle: (id: string, g: number, v: boolean) => void; small?: boolean }) {
+function TopicRow({ topic, courses, onToggle, onToggleCourse, small }: {
+  topic: Topic; courses: CourseOption[];
+  onToggle: (id: string, g: number, v: boolean) => void;
+  onToggleCourse: (id: string, courseId: string, v: boolean) => void;
+  small?: boolean;
+}) {
+  const topicCourses = courses
+    .map((c, i) => ({ ...c, color: GROUP_COLORS[i % GROUP_COLORS.length] }))
+    .filter(c => c.subjectId === topic.subjectId);
   return (
     <div className="flex items-center justify-between p-3 hover:opacity-90 transition">
       <span className={`flex-1 ${small ? 'text-xs' : 'text-sm'}`} style={{ color: 'var(--color-text-dark)' }}>{topic.title}</span>
@@ -414,10 +456,24 @@ function TopicRow({ topic, onToggle, small }: { topic: Topic; onToggle: (id: str
           className="px-2 py-1 rounded text-xs transition" style={{ background: 'var(--color-accent-soft)', color: 'var(--color-accent)' }}>
           Contenido
         </a>
-        <button onClick={() => onToggle(topic.id, 1, topic.visibleGroup1)}
-          className={`px-3 py-1 rounded text-xs font-medium transition ${topic.visibleGroup1 ? 'bg-blue-500 text-white' : 'bg-gray-300 text-gray-600'}`}>G1</button>
-        <button onClick={() => onToggle(topic.id, 2, topic.visibleGroup2)}
-          className={`px-3 py-1 rounded text-xs font-medium transition ${topic.visibleGroup2 ? 'bg-green-500 text-white' : 'bg-gray-300 text-gray-600'}`}>G2</button>
+        {topic.subjectId ? (
+          topicCourses.length > 0 ? topicCourses.map(c => {
+            const visible = !topic.hiddenInCourses.includes(c.id);
+            return (
+              <button key={c.id} onClick={() => onToggleCourse(topic.id, c.id, visible)}
+                aria-pressed={visible} aria-label={`Visible en ${c.label}`} title={c.label}
+                className={`px-3 py-1 rounded text-xs font-medium transition ${visible ? 'text-white' : 'bg-gray-300 text-gray-600'}`}
+                style={visible ? { background: c.color } : undefined}>G{c.group}</button>
+            );
+          }) : <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>Sin cursos activos</span>
+        ) : (
+          <>
+            <button onClick={() => onToggle(topic.id, 1, topic.visibleGroup1)}
+              className={`px-3 py-1 rounded text-xs font-medium transition ${topic.visibleGroup1 ? 'bg-blue-500 text-white' : 'bg-gray-300 text-gray-600'}`}>G1</button>
+            <button onClick={() => onToggle(topic.id, 2, topic.visibleGroup2)}
+              className={`px-3 py-1 rounded text-xs font-medium transition ${topic.visibleGroup2 ? 'bg-green-500 text-white' : 'bg-gray-300 text-gray-600'}`}>G2</button>
+          </>
+        )}
       </div>
     </div>
   );

@@ -15,6 +15,7 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { useToast } from "@/components/Toast";
 import { generarSlug } from "@/lib/slug";
+import { AdminNav } from "./AdminShell";
 
 interface Subject {
   id: string;
@@ -219,6 +220,7 @@ export default function DashboardClient({ userName }: { userName: string }) {
       </header>
 
       <main className="flex-grow max-w-6xl mx-auto px-6 py-8 w-full">
+        <AdminNav />
         <section aria-labelledby="subjects-heading">
           <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
             <div className="flex items-center gap-2">
@@ -305,19 +307,6 @@ export default function DashboardClient({ userName }: { userName: string }) {
               ))}
             </ul>
           )}
-        </section>
-
-        {/* Hueco para secciones futuras */}
-        <section className="mt-12" aria-label="Secciones próximamente">
-          <div
-            className="rounded-lg border border-dashed p-6 text-sm"
-            style={{
-              borderColor: "var(--color-border)",
-              color: "var(--color-text-muted)",
-            }}
-          >
-            Próximamente: gestión de cursos, periodos académicos y usuarios.
-          </div>
         </section>
       </main>
 
