@@ -1,19 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { filterVisibleTopics, isAdminRole } from '@/lib/courses';
 import { getBearerToken, getUserFromToken } from '@/lib/session';
 
 // GET - Obtener estructura jerárquica del curso para el sidebar
 export async function GET(req: NextRequest) {
   try {
     const user = await getUserFromToken(getBearerToken(req));
-    const userRole = user?.role ?? null;
-    const userGroup = user?.grupo ?? null;
-
-    const isAdmin = userRole === 'admin' || userRole === 'teacher';
+    const isAdmin = user ? isAdminRole(user.role) : false;
 
     const topics = await prisma.topic.findMany({
       orderBy: { order: 'asc' },
       select: {
+        id: true,
+        subjectId: true,
         slug: true,
         title: true,
         order: true,
@@ -24,12 +24,9 @@ export async function GET(req: NextRequest) {
       }
     });
 
-    // Filtrar por visibilidad según grupo
-    const filtered = topics.filter(t => {
-      if (isAdmin) return true;
-      if (!userGroup || (userGroup !== 1 && userGroup !== 2)) return true;
-      return userGroup === 1 ? t.visibleGroup1 : t.visibleGroup2;
-    });
+    // Filtrar por visibilidad según los cursos del usuario. Sin sesión se
+    // muestra la estructura completa (solo títulos), como antes.
+    const filtered = user ? await filterVisibleTopics(user, topics) : topics;
 
     // Construir estructura jerárquica: partes -> secciones -> subtemas
     const partesMap = new Map<string, {

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { getUserEnrollments } from '@/lib/courses';
 
 export async function GET(req: NextRequest) {
   try {
@@ -40,6 +41,8 @@ export async function GET(req: NextRequest) {
         id: true,
         email: true,
         name: true,
+        firstName: true,
+        lastName: true,
         role: true,
         grupo: true,
         createdAt: true
@@ -54,7 +57,7 @@ export async function GET(req: NextRequest) {
     }
 
     return NextResponse.json({
-      user
+      user: { ...user, enrollments: await getUserEnrollments(user.id) }
     });
   } catch (error) {
     console.error('Error al verificar sesión:', error);

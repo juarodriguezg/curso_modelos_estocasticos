@@ -29,6 +29,16 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ error: 'No puedes eliminar tu propia cuenta' }, { status: 400 });
     }
 
+    // RF-CUR-04: no se borra el historial académico. Un estudiante con
+    // matrículas se desactiva en el curso en lugar de eliminarse.
+    const enrollments = await prisma.courseEnrollment.count({ where: { userId } });
+    if (enrollments > 0) {
+      return NextResponse.json(
+        { error: 'El usuario tiene matrículas en cursos; desactívalo desde el curso en lugar de eliminarlo' },
+        { status: 409 }
+      );
+    }
+
     // Eliminar usuario (las sesiones se eliminan automáticamente por CASCADE)
     await prisma.user.delete({ where: { id: userId } });
 
